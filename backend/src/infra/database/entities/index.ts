@@ -44,6 +44,9 @@ import { Review } from './review.entity.js';
 import { Favorite } from './favorite.entity.js';
 import { Report } from './report.entity.js';
 import { UserBlock } from './user-block.entity.js';
+import { ChatRoom } from './chat-room.entity.js';
+import { Message } from './message.entity.js';
+import { Notification } from './notification.entity.js';
 
 export {
   User,
@@ -92,6 +95,9 @@ export {
   Favorite,
   Report,
   UserBlock,
+  ChatRoom,
+  Message,
+  Notification,
 };
 
 export const entities = [
@@ -141,4 +147,7 @@ export const entities = [
   Favorite,
   Report,
   UserBlock,
+  ChatRoom,
+  Message,
+  Notification,
 ];

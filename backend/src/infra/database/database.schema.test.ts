@@ -116,3 +116,9 @@ describe('social schema', () => {
     await expectTables(['reviews', 'favorites', 'reports', 'user_blocks']);
   });
 });
+
+describe('communication schema', () => {
+  it('creates communication tables', async () => {
+    await expectTables(['chat_rooms', 'messages', 'notifications']);
+  });
+});
