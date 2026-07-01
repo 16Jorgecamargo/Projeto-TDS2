@@ -34,6 +34,12 @@ import { Schedule } from './schedule.entity.js';
 import { ContractProgressUpdate } from './contract-progress-update.entity.js';
 import { ContractProgressImage } from './contract-progress-image.entity.js';
 import { ContractDispute } from './contract-dispute.entity.js';
+import { Wallet } from './wallet.entity.js';
+import { WalletTransaction } from './wallet-transaction.entity.js';
+import { Payment } from './payment.entity.js';
+import { PlatformFee } from './platform-fee.entity.js';
+import { Refund } from './refund.entity.js';
+import { Withdrawal } from './withdrawal.entity.js';
 
 export {
   User,
@@ -72,6 +78,12 @@ export {
   ContractProgressUpdate,
   ContractProgressImage,
   ContractDispute,
+  Wallet,
+  WalletTransaction,
+  Payment,
+  PlatformFee,
+  Refund,
+  Withdrawal,
 };
 
 export const entities = [
@@ -111,4 +123,10 @@ export const entities = [
   ContractProgressUpdate,
   ContractProgressImage,
   ContractDispute,
+  Wallet,
+  WalletTransaction,
+  Payment,
+  PlatformFee,
+  Refund,
+  Withdrawal,
 ];

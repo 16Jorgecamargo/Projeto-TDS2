@@ -98,3 +98,15 @@ describe('contract schema', () => {
     ]);
   });
 });
+describe('wallet schema', () => {
+  it('creates wallet and payment tables', async () => {
+    await expectTables([
+      'wallets',
+      'wallet_transactions',
+      'payments',
+      'platform_fees',
+      'refunds',
+      'withdrawals',
+    ]);
+  });
+});
