@@ -6,7 +6,7 @@ export default defineConfig({
     env: {
       NODE_ENV: 'test',
       HOST: '127.0.0.1',
-      PORT: '0',
+      PORT: '3010',
       CORS_ORIGIN: '*',
       DATABASE_HOST: 'localhost',
       DATABASE_USER: 'app',

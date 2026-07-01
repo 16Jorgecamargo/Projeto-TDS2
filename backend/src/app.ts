@@ -1,0 +1,49 @@
+import 'zod-openapi/extend';
+import Fastify, { type FastifyInstance } from 'fastify';
+import compress from '@fastify/compress';
+import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
+import {
+  jsonSchemaTransform,
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod';
+import { env } from './config/env.js';
+import { errorHandlerPlugin } from './plugins/error-handler.js';
+import { authPlugin } from './plugins/auth.js';
+import { healthRoutes } from './modules/health/health.routes.js';
+
+export async function buildApp(): Promise<FastifyInstance> {
+  const app = Fastify({ logger: env.NODE_ENV !== 'test' });
+
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
+
+  await app.register(helmet, { contentSecurityPolicy: false });
+  await app.register(cors, { origin: env.CORS_ORIGIN, credentials: true });
+  await app.register(rateLimit, { max: 100, timeWindow: '1 minute' });
+  await app.register(compress, { global: true });
+
+  await app.register(errorHandlerPlugin);
+  await app.register(authPlugin, { accessSecret: env.JWT_ACCESS_SECRET });
+
+  await app.register(swagger, {
+    openapi: {
+      info: { title: 'Services Marketplace API', version: '1.0.0' },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        },
+      },
+    },
+    transform: jsonSchemaTransform,
+  });
+  await app.register(swaggerUi, { routePrefix: '/docs' });
+
+  await app.register(healthRoutes);
+
+  return app;
+}
