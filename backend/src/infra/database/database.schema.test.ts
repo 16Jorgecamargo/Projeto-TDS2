@@ -46,3 +46,20 @@ describe('address schema', () => {
     await expectTables(['addresses']);
   });
 });
+
+describe('professional schema', () => {
+  it('creates professional profile tables', async () => {
+    await expectTables([
+      'professional_profiles',
+      'professional_documents',
+      'professional_experiences',
+      'professional_education',
+      'professional_certifications',
+      'professional_service_areas',
+      'availability_slots',
+      'availability_exceptions',
+      'portfolio_items',
+      'portfolio_images',
+    ]);
+  });
+});
