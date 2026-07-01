@@ -1,5 +1,13 @@
-# Overclock app local state
-.overclock-app/
-
-# macOS
+node_modules
+dist
+coverage
+.env
+.env.local
+*.log
 .DS_Store
+backend/dist
+frontend/dist
+playwright-report
+test-results
+.overclock-app/
+.superpowers/
