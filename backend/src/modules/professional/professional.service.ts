@@ -10,15 +10,21 @@ import { ProfessionalCategory } from '../../infra/database/entities/professional
 import { ProfessionalTag } from '../../infra/database/entities/professional-tag.entity.js';
 import { ServiceCategory } from '../../infra/database/entities/service-category.entity.js';
 import { ServiceTag } from '../../infra/database/entities/service-tag.entity.js';
-import { NotFoundError } from '../../shared/errors.js';
+import { ConflictError, NotFoundError } from '../../shared/errors.js';
 import type {
   UpsertProfileInput,
   ProfileResponse,
   PublicProfileResponse,
+  ExperienceInput,
   ExperienceResponse,
+  EducationInput,
   EducationResponse,
+  CertificationInput,
   CertificationResponse,
+  ServiceAreaInput,
   ServiceAreaResponse,
+  DocumentInput,
+  DocumentResponse,
 } from './professional.schemas.js';
 
 export interface ProfessionalServiceDeps {
@@ -137,6 +143,127 @@ export class ProfessionalService {
     );
   }
 
+  async addExperience(userId: string, input: ExperienceInput): Promise<ExperienceResponse> {
+    const professionalId = await this.resolveProfileId(userId);
+    const saved = await this.deps.experiences.save(
+      this.deps.experiences.create({
+        professional_id: professionalId,
+        title: input.title,
+        company: input.company,
+        description: input.description,
+        start_date: input.startDate,
+        end_date: input.endDate,
+        is_current: input.isCurrent,
+      }),
+    );
+    return this.toExperience(saved);
+  }
+
+  async removeExperience(userId: string, id: string): Promise<void> {
+    const professionalId = await this.resolveProfileId(userId);
+    const experience = await this.deps.experiences.findOne({ where: { id } });
+    if (!experience || experience.professional_id !== professionalId) {
+      throw new NotFoundError('Experiência não encontrada');
+    }
+    await this.deps.experiences.delete({ id });
+  }
+
+  async addEducation(userId: string, input: EducationInput): Promise<EducationResponse> {
+    const professionalId = await this.resolveProfileId(userId);
+    const saved = await this.deps.education.save(
+      this.deps.education.create({
+        professional_id: professionalId,
+        institution: input.institution,
+        degree: input.degree,
+        field_of_study: input.fieldOfStudy,
+        start_date: input.startDate,
+        end_date: input.endDate,
+      }),
+    );
+    return this.toEducation(saved);
+  }
+
+  async removeEducation(userId: string, id: string): Promise<void> {
+    const professionalId = await this.resolveProfileId(userId);
+    const education = await this.deps.education.findOne({ where: { id } });
+    if (!education || education.professional_id !== professionalId) {
+      throw new NotFoundError('Formação não encontrada');
+    }
+    await this.deps.education.delete({ id });
+  }
+
+  async addCertification(userId: string, input: CertificationInput): Promise<CertificationResponse> {
+    const professionalId = await this.resolveProfileId(userId);
+    const saved = await this.deps.certifications.save(
+      this.deps.certifications.create({
+        professional_id: professionalId,
+        name: input.name,
+        issuer: input.issuer,
+        issued_at: input.issuedAt,
+        expires_at: input.expiresAt,
+        credential_url: input.credentialUrl,
+      }),
+    );
+    return this.toCertification(saved);
+  }
+
+  async removeCertification(userId: string, id: string): Promise<void> {
+    const professionalId = await this.resolveProfileId(userId);
+    const certification = await this.deps.certifications.findOne({ where: { id } });
+    if (!certification || certification.professional_id !== professionalId) {
+      throw new NotFoundError('Certificação não encontrada');
+    }
+    await this.deps.certifications.delete({ id });
+  }
+
+  async addServiceArea(userId: string, input: ServiceAreaInput): Promise<ServiceAreaResponse> {
+    const professionalId = await this.resolveProfileId(userId);
+    const existing = await this.deps.serviceAreas.findOne({
+      where: { professional_id: professionalId, city: input.city, state: input.state },
+    });
+    if (existing) {
+      throw new ConflictError('Área de atendimento já cadastrada para esta cidade/UF');
+    }
+    const saved = await this.deps.serviceAreas.save(
+      this.deps.serviceAreas.create({
+        professional_id: professionalId,
+        city: input.city,
+        state: input.state,
+        radius_km: input.radiusKm,
+      }),
+    );
+    return this.toServiceArea(saved);
+  }
+
+  async removeServiceArea(userId: string, id: string): Promise<void> {
+    const professionalId = await this.resolveProfileId(userId);
+    const area = await this.deps.serviceAreas.findOne({ where: { id } });
+    if (!area || area.professional_id !== professionalId) {
+      throw new NotFoundError('Área de atendimento não encontrada');
+    }
+    await this.deps.serviceAreas.delete({ id });
+  }
+
+  async addDocument(userId: string, input: DocumentInput): Promise<DocumentResponse> {
+    const professionalId = await this.resolveProfileId(userId);
+    const saved = await this.deps.documents.save(
+      this.deps.documents.create({
+        professional_id: professionalId,
+        type: input.type,
+        file_url: input.fileUrl,
+        status: 'pending',
+        reviewed_at: null,
+      }),
+    );
+    return this.toDocument(saved);
+  }
+
+  async listDocuments(userId: string): Promise<DocumentResponse[]> {
+    const professionalId = await this.resolveProfileId(userId);
+    const rows = await this.deps.documents.find({ where: { professional_id: professionalId } });
+    return rows.map((row) => this.toDocument(row));
+  }
+
   private toProfile(profile: ProfessionalProfile): ProfileResponse {
     return {
       id: profile.id,
@@ -190,5 +317,15 @@ export class ProfessionalService {
 
   private toServiceArea(area: ProfessionalServiceArea): ServiceAreaResponse {
     return { id: area.id, city: area.city, state: area.state, radiusKm: area.radius_km };
+  }
+
+  private toDocument(document: ProfessionalDocument): DocumentResponse {
+    return {
+      id: document.id,
+      type: document.type,
+      fileUrl: document.file_url,
+      status: document.status,
+      reviewedAt: document.reviewed_at ? document.reviewed_at.toISOString() : null,
+    };
   }
 }

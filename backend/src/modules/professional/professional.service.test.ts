@@ -322,4 +322,157 @@ describe('ProfessionalService', () => {
       await expect(service.setTags('user-1', ['tag-1'])).rejects.toBeInstanceOf(NotFoundError);
     });
   });
+
+  describe('addExperience / removeExperience', () => {
+    it('adiciona e remove experiencia do proprio profissional', async () => {
+      profiles.findOne.mockResolvedValue({ id: 'pro-1', user_id: 'user-1' } as ProfessionalProfile);
+      experiences.save.mockResolvedValueOnce({
+        id: 'exp-1',
+        professional_id: 'pro-1',
+        title: 'Eletricista',
+        company: 'Eletrica ABC',
+        description: null,
+        start_date: '2020-01-01',
+        end_date: null,
+        is_current: true,
+      } as ProfessionalExperience);
+
+      const created = await service.addExperience('user-1', {
+        title: 'Eletricista',
+        company: 'Eletrica ABC',
+        description: null,
+        startDate: '2020-01-01',
+        endDate: null,
+        isCurrent: true,
+      });
+
+      expect(created.id).toBe('exp-1');
+      expect(experiences.create).toHaveBeenCalledWith(
+        expect.objectContaining({ professional_id: 'pro-1', title: 'Eletricista' }),
+      );
+
+      experiences.findOne.mockResolvedValueOnce({
+        id: 'exp-1',
+        professional_id: 'pro-1',
+      } as ProfessionalExperience);
+      await service.removeExperience('user-1', 'exp-1');
+      expect(experiences.delete).toHaveBeenCalledWith({ id: 'exp-1' });
+    });
+
+    it('rejeita remover experiencia de outro profissional', async () => {
+      profiles.findOne.mockResolvedValue({ id: 'pro-1', user_id: 'user-1' } as ProfessionalProfile);
+      experiences.findOne.mockResolvedValueOnce({
+        id: 'exp-9',
+        professional_id: 'pro-OUTRO',
+      } as ProfessionalExperience);
+
+      await expect(service.removeExperience('user-1', 'exp-9')).rejects.toMatchObject({
+        statusCode: 404,
+      });
+      expect(experiences.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('addEducation / addCertification', () => {
+    it('adiciona formacao e certificacao', async () => {
+      profiles.findOne.mockResolvedValue({ id: 'pro-1', user_id: 'user-1' } as ProfessionalProfile);
+      education.save.mockResolvedValueOnce({
+        id: 'edu-1',
+        professional_id: 'pro-1',
+        institution: 'SENAI',
+        degree: 'Tecnico',
+        field_of_study: null,
+        start_date: null,
+        end_date: null,
+      } as ProfessionalEducation);
+
+      const edu = await service.addEducation('user-1', {
+        institution: 'SENAI',
+        degree: 'Tecnico',
+        fieldOfStudy: null,
+        startDate: null,
+        endDate: null,
+      });
+      expect(edu.id).toBe('edu-1');
+
+      certifications.save.mockResolvedValueOnce({
+        id: 'cert-1',
+        professional_id: 'pro-1',
+        name: 'NR-10',
+        issuer: 'SENAI',
+        issued_at: null,
+        expires_at: null,
+        credential_url: null,
+      } as ProfessionalCertification);
+
+      const cert = await service.addCertification('user-1', {
+        name: 'NR-10',
+        issuer: 'SENAI',
+        issuedAt: null,
+        expiresAt: null,
+        credentialUrl: null,
+      });
+      expect(cert.id).toBe('cert-1');
+    });
+  });
+
+  describe('addServiceArea', () => {
+    it('adiciona area de atendimento e rejeita duplicata de cidade/UF', async () => {
+      profiles.findOne.mockResolvedValue({ id: 'pro-1', user_id: 'user-1' } as ProfessionalProfile);
+      serviceAreas.findOne.mockResolvedValueOnce(null);
+      serviceAreas.save.mockResolvedValueOnce({
+        id: 'area-1',
+        professional_id: 'pro-1',
+        city: 'Porto Alegre',
+        state: 'RS',
+        radius_km: 20,
+      } as ProfessionalServiceArea);
+
+      const area = await service.addServiceArea('user-1', {
+        city: 'Porto Alegre',
+        state: 'RS',
+        radiusKm: 20,
+      });
+      expect(area.id).toBe('area-1');
+
+      serviceAreas.findOne.mockResolvedValueOnce({ id: 'area-1' } as ProfessionalServiceArea);
+      await expect(
+        service.addServiceArea('user-1', { city: 'Porto Alegre', state: 'RS', radiusKm: 20 }),
+      ).rejects.toMatchObject({ statusCode: 409 });
+    });
+  });
+
+  describe('addDocument / listDocuments', () => {
+    it('adiciona e lista documentos', async () => {
+      profiles.findOne.mockResolvedValue({ id: 'pro-1', user_id: 'user-1' } as ProfessionalProfile);
+      documents.save.mockResolvedValueOnce({
+        id: 'doc-1',
+        professional_id: 'pro-1',
+        type: 'rg',
+        file_url: 'https://cdn.app/rg.pdf',
+        status: 'pending',
+        reviewed_at: null,
+      } as ProfessionalDocument);
+
+      const created = await service.addDocument('user-1', {
+        type: 'rg',
+        fileUrl: 'https://cdn.app/rg.pdf',
+      });
+      expect(created.status).toBe('pending');
+
+      documents.find.mockResolvedValueOnce([
+        {
+          id: 'doc-1',
+          professional_id: 'pro-1',
+          type: 'rg',
+          file_url: 'https://cdn.app/rg.pdf',
+          status: 'pending',
+          reviewed_at: null,
+        },
+      ] as ProfessionalDocument[]);
+      const list = await service.listDocuments('user-1');
+      expect(list).toHaveLength(1);
+      expect(list[0]?.fileUrl).toBe('https://cdn.app/rg.pdf');
+    });
+  });
 });
