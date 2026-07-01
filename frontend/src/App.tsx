@@ -1,7 +1,11 @@
-export default function App() {
+import type { JSX } from 'react';
+import { Outlet } from 'react-router-dom';
+import { Layout } from './components/Layout';
+
+export function App(): JSX.Element {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50">
-      <h1 className="text-3xl font-bold text-slate-900">Services Marketplace</h1>
-    </main>
+    <Layout>
+      <Outlet />
+    </Layout>
   );
 }
