@@ -68,3 +68,33 @@ curl http://localhost:9090/-/healthy → Prometheus Server is Healthy.
 3. **`promtool` entrypoint:** `prom/prometheus:latest` entrypoint is `prometheus` binary, not `promtool`. Used `--entrypoint promtool` override to validate config. Result: `SUCCESS: /p.yml is valid prometheus config file syntax`.
 
 4. **MySQL healthcheck interpolation:** The healthcheck uses `-p${MYSQL_ROOT_PASSWORD:-root}` inside a YAML list — Docker Compose passes this as a single string argument to mysqladmin and performs shell variable substitution. Standard pattern.
+
+---
+
+## FIX — Post-Review Corrections (2026-07-01)
+
+### FIX 1 — `frontend/nginx.conf`: double-path em proxy_pass
+
+`proxy_pass $backend/api/` + `location /api/` → nginx com variável não faz prefix stripping → URI `/api/foo` virava `/api/api/foo` no upstream.
+
+Correção: `proxy_pass $backend;` em ambas as locations (`/api/` e `/socket.io/`). Nginx repassa URI completo incluindo prefixo. `resolver 127.0.0.11 valid=30s` e `set $backend` mantidos.
+
+### FIX 2 — `docker-compose.yml`: healthcheck mysql CMD sem shell
+
+`['CMD', 'mysqladmin', ..., '-p${MYSQL_ROOT_PASSWORD:-root}']` não expande variável (exec form, sem shell).
+
+Correção:
+```yaml
+test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD"]
+```
+`$$` escapa o `$` no Compose; shell dentro do container expande `$MYSQL_ROOT_PASSWORD`.
+
+### Verificação
+
+```
+docker compose config
+```
+
+Saída confirmou:
+- MySQL healthcheck: `CMD-SHELL` + `mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD` ✓
+- Compose config parseado sem erros ✓
