@@ -22,6 +22,7 @@ import { authRoutes } from './modules/auth/auth.routes.js';
 import { userRoutes } from './modules/user/user.routes.js';
 import { addressRoutes } from './modules/address/address.routes.js';
 import { accountRoutes } from './modules/account/account.routes.js';
+import { catalogRoutes } from './modules/catalog/catalog.routes.js';
 
 interface BuildAppOptions {
   dataSource?: DataSource;
@@ -66,6 +67,7 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
   await app.register(userRoutes, { prefix: '/api' });
   await app.register(addressRoutes, { prefix: '/api' });
   await app.register(accountRoutes, { prefix: '/api' });
+  await app.register(catalogRoutes, { prefix: '/api' });
 
   return app;
 }
