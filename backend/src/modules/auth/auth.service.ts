@@ -190,7 +190,7 @@ export class AuthService {
         this.deps.users.create({
           full_name: input.name,
           email: input.email,
-          phone: '',
+          phone: null,
           password_hash,
           role: 'client',
           email_verified_at: new Date(),
