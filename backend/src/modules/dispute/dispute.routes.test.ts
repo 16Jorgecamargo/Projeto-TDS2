@@ -217,5 +217,12 @@ describe('dispute routes', () => {
     expect(resolve.statusCode).toBe(200);
     expect(resolve.json().status).toBe('resolved');
     expect(resolve.json().resolution).toBe('Reembolso parcial');
+
+    const detail = await app.inject({
+      method: 'GET',
+      url: `/api/contracts/${contractId}`,
+      headers: client.headers,
+    });
+    expect(detail.json().status).toBe('active');
   });
 });

@@ -91,6 +91,14 @@ export class DisputeService {
     dispute.status = status;
     dispute.resolution = resolution;
     dispute.resolved_at = new Date();
-    return this.toResponse(await this.deps.disputes.save(dispute));
+    const saved = await this.deps.disputes.save(dispute);
+
+    const contract = await this.deps.contracts.findOne({ where: { id: dispute.contract_id } });
+    if (contract && contract.status === 'disputed') {
+      contract.status = 'active';
+      await this.deps.contracts.save(contract);
+    }
+
+    return this.toResponse(saved);
   }
 }

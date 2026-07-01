@@ -184,7 +184,7 @@ describe('DisputeService', () => {
       await expect(service.resolve('dispute-x', 'resolved', 'motivo')).rejects.toBeInstanceOf(NotFoundError);
     });
 
-    it('resolve disputa aberta', async () => {
+    it('resolve disputa aberta e reativa o contrato', async () => {
       disputes.findOne.mockResolvedValueOnce({
         id: 'dispute-1',
         contract_id: 'contract-1',
@@ -196,11 +196,45 @@ describe('DisputeService', () => {
         created_at: new Date('2026-07-01T12:00:00Z'),
       } as ContractDispute);
       disputes.save.mockImplementationOnce(async (value: ContractDispute) => value);
+      contracts.findOne.mockResolvedValueOnce({
+        id: 'contract-1',
+        client_id: 'client-1',
+        professional_id: 'pro-1',
+        status: 'disputed',
+      } as Contract);
+      contracts.save.mockImplementationOnce(async (value: Contract) => value);
 
       const result = await service.resolve('dispute-1', 'resolved', 'Reembolso parcial');
 
       expect(result.status).toBe('resolved');
       expect(result.resolution).toBe('Reembolso parcial');
+      expect(contracts.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'active' }));
+    });
+
+    it('rejeita disputa e reativa o contrato', async () => {
+      disputes.findOne.mockResolvedValueOnce({
+        id: 'dispute-1',
+        contract_id: 'contract-1',
+        opened_by: 'client-1',
+        reason: 'x'.repeat(10),
+        status: 'open',
+        resolution: null,
+        resolved_at: null,
+        created_at: new Date('2026-07-01T12:00:00Z'),
+      } as ContractDispute);
+      disputes.save.mockImplementationOnce(async (value: ContractDispute) => value);
+      contracts.findOne.mockResolvedValueOnce({
+        id: 'contract-1',
+        client_id: 'client-1',
+        professional_id: 'pro-1',
+        status: 'disputed',
+      } as Contract);
+      contracts.save.mockImplementationOnce(async (value: Contract) => value);
+
+      const result = await service.resolve('dispute-1', 'rejected', 'Reclamacao improcedente');
+
+      expect(result.status).toBe('rejected');
+      expect(contracts.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'active' }));
     });
 
     it('lanca UnprocessableError quando disputa ja esta encerrada', async () => {
