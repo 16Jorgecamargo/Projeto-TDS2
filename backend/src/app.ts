@@ -11,13 +11,20 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod';
+import type { DataSource } from 'typeorm';
 import { env } from './config/env.js';
+import { AppDataSource } from './infra/database/data-source.js';
 import { errorHandlerPlugin } from './plugins/error-handler.js';
 import { requestIdPlugin } from './shared/middlewares/request-id.js';
 import { authPlugin } from './plugins/auth.js';
 import { healthRoutes } from './modules/health/health.routes.js';
+import { authRoutes } from './modules/auth/auth.routes.js';
 
-export async function buildApp(): Promise<FastifyInstance> {
+interface BuildAppOptions {
+  dataSource?: DataSource;
+}
+
+export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger: env.NODE_ENV !== 'test' });
 
   app.setValidatorCompiler(validatorCompiler);
@@ -45,7 +52,14 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
   await app.register(swaggerUi, { routePrefix: '/docs' });
 
+  const ds = opts?.dataSource ?? AppDataSource;
+  if (!ds.isInitialized) {
+    await ds.initialize();
+  }
+  app.decorate('dataSource', ds);
+
   await app.register(healthRoutes);
+  await app.register(authRoutes, { prefix: '/api' });
 
   return app;
 }
