@@ -27,6 +27,8 @@ import { ServiceDemand } from './service-demand.entity.js';
 import { DemandImage } from './demand-image.entity.js';
 import { DemandTag } from './demand-tag.entity.js';
 import { DemandInvitation } from './demand-invitation.entity.js';
+import { Quote } from './quote.entity.js';
+import { QuoteItem } from './quote-item.entity.js';
 
 export {
   User,
@@ -58,6 +60,8 @@ export {
   DemandImage,
   DemandTag,
   DemandInvitation,
+  Quote,
+  QuoteItem,
 };
 
 export const entities = [
@@ -90,4 +94,6 @@ export const entities = [
   DemandImage,
   DemandTag,
   DemandInvitation,
+  Quote,
+  QuoteItem,
 ];

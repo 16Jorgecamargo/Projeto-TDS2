@@ -80,3 +80,9 @@ describe('demand schema', () => {
     await expectTables(['service_demands', 'demand_images', 'demand_tags', 'demand_invitations']);
   });
 });
+
+describe('quote schema', () => {
+  it('creates quote tables', async () => {
+    await expectTables(['quotes', 'quote_items']);
+  });
+});
