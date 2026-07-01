@@ -74,6 +74,16 @@ export const confirmVerificationSchema = z.object({
   token: z.string().min(1).describe('Token de verificacao').openapi({ example: 'a1b2...' }),
 });
 
+export const oauthSchema = z.object({
+  provider: z
+    .enum(['google', 'facebook', 'apple'])
+    .describe('Provedor OAuth')
+    .openapi({ example: 'google' }),
+  providerUserId: z.string().min(1).describe('ID do usuario no provedor').openapi({ example: '109384...' }),
+  email: z.string().email().describe('E-mail retornado pelo provedor').openapi({ example: 'maria@gmail.com' }),
+  name: z.string().min(1).describe('Nome retornado pelo provedor').openapi({ example: 'Maria Silva' }),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type PublicUser = z.infer<typeof publicUserSchema>;
@@ -82,3 +92,4 @@ export type RefreshInput = z.infer<typeof refreshSchema>;
 export type RequestPasswordResetInput = z.infer<typeof requestPasswordResetSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ConfirmVerificationInput = z.infer<typeof confirmVerificationSchema>;
+export type OauthInput = z.infer<typeof oauthSchema>;

@@ -5,6 +5,7 @@ import { RefreshToken } from '../../infra/database/entities/refresh-token.entity
 import { EmailVerificationToken } from '../../infra/database/entities/email-verification-token.entity.js';
 import { PhoneVerificationToken } from '../../infra/database/entities/phone-verification-token.entity.js';
 import { PasswordResetToken } from '../../infra/database/entities/password-reset-token.entity.js';
+import { UserOauthAccount } from '../../infra/database/entities/user-oauth-account.entity.js';
 import {
   signAccessToken,
   generateOpaqueToken,
@@ -12,7 +13,7 @@ import {
 } from '../../shared/security/token.js';
 import { ConflictError, UnauthorizedError, NotFoundError, BadRequestError } from '../../shared/errors.js';
 import { getConfig } from '../../config/index.js';
-import type { RegisterInput, LoginInput, AuthResult, PublicUser } from './auth.schemas.js';
+import type { RegisterInput, LoginInput, AuthResult, PublicUser, OauthInput } from './auth.schemas.js';
 
 interface MailQueue {
   add(name: string, data: unknown): Promise<unknown>;
@@ -25,6 +26,7 @@ interface AuthDeps {
   phoneTokens: Repository<PhoneVerificationToken>;
   resetTokens: Repository<PasswordResetToken>;
   mailQueue: MailQueue;
+  oauthAccounts: Repository<UserOauthAccount>;
 }
 
 const TOKEN_TTL_MS = 1000 * 60 * 60;
@@ -171,6 +173,38 @@ export class AuthService {
       { user: { id: record.user.id } },
       { revoked_at: new Date() },
     );
+  }
+
+  async linkOrLoginOauth(input: OauthInput): Promise<AuthResult> {
+    const linked = await this.deps.oauthAccounts.findOne({
+      where: { provider: input.provider, provider_account_id: input.providerUserId },
+      relations: { user: true },
+    });
+    if (linked) {
+      return this.issueTokens(linked.user);
+    }
+    let user = await this.deps.users.findOne({ where: { email: input.email } });
+    if (!user) {
+      const password_hash = await bcrypt.hash(generateOpaqueToken().raw, BCRYPT_ROUNDS);
+      user = await this.deps.users.save(
+        this.deps.users.create({
+          full_name: input.name,
+          email: input.email,
+          phone: '',
+          password_hash,
+          role: 'client',
+          email_verified_at: new Date(),
+        }),
+      );
+    }
+    await this.deps.oauthAccounts.save(
+      this.deps.oauthAccounts.create({
+        user: { id: user.id } as User,
+        provider: input.provider,
+        provider_account_id: input.providerUserId,
+      }),
+    );
+    return this.issueTokens(user);
   }
 
   private toPublic(user: User): PublicUser {

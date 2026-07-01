@@ -9,6 +9,7 @@ import type { RefreshToken } from '../../infra/database/entities/refresh-token.e
 import type { EmailVerificationToken } from '../../infra/database/entities/email-verification-token.entity.js';
 import type { PhoneVerificationToken } from '../../infra/database/entities/phone-verification-token.entity.js';
 import type { PasswordResetToken } from '../../infra/database/entities/password-reset-token.entity.js';
+import type { UserOauthAccount } from '../../infra/database/entities/user-oauth-account.entity.js';
 
 describe('AuthService register/login', () => {
   let users: ReturnType<typeof mockRepo<User>>;
@@ -25,6 +26,7 @@ describe('AuthService register/login', () => {
       phoneTokens: mockRepo() as unknown as Repository<PhoneVerificationToken>,
       resetTokens: mockRepo() as unknown as Repository<PasswordResetToken>,
       mailQueue: { add: vi.fn() },
+      oauthAccounts: mockRepo() as unknown as Repository<UserOauthAccount>,
     });
   });
 
@@ -105,6 +107,7 @@ describe('AuthService refresh/logout', () => {
       phoneTokens: mockRepo() as unknown as Repository<PhoneVerificationToken>,
       resetTokens: mockRepo() as unknown as Repository<PasswordResetToken>,
       mailQueue: { add: vi.fn() },
+      oauthAccounts: mockRepo() as unknown as Repository<UserOauthAccount>,
     });
   });
 
@@ -187,6 +190,7 @@ describe('AuthService verificacao e reset', () => {
       phoneTokens: mockRepo() as unknown as Repository<PhoneVerificationToken>,
       resetTokens: resetTokens as unknown as Repository<PasswordResetToken>,
       mailQueue,
+      oauthAccounts: mockRepo() as unknown as Repository<UserOauthAccount>,
     });
   });
 
@@ -252,5 +256,67 @@ describe('AuthService verificacao e reset', () => {
     const updateArg = users.update.mock.calls[0]![1] as { password_hash: string };
     await expect(bcrypt.compare('N0v@Senha', updateArg.password_hash)).resolves.toBe(true);
     expect(refreshTokens.update).toHaveBeenCalled();
+  });
+});
+
+describe('AuthService oauth', () => {
+  let users: ReturnType<typeof mockRepo<User>>;
+  let refreshTokens: ReturnType<typeof mockRepo<RefreshToken>>;
+  let oauthAccounts: ReturnType<typeof mockRepo<UserOauthAccount>>;
+  let service: AuthService;
+
+  beforeEach(() => {
+    users = mockRepo<User>();
+    refreshTokens = mockRepo<RefreshToken>();
+    oauthAccounts = mockRepo<UserOauthAccount>();
+    service = new AuthService({
+      users: users as unknown as Repository<User>,
+      refreshTokens: refreshTokens as unknown as Repository<RefreshToken>,
+      emailTokens: mockRepo() as unknown as Repository<EmailVerificationToken>,
+      phoneTokens: mockRepo() as unknown as Repository<PhoneVerificationToken>,
+      resetTokens: mockRepo() as unknown as Repository<PasswordResetToken>,
+      mailQueue: { add: vi.fn() },
+      oauthAccounts: oauthAccounts as unknown as Repository<UserOauthAccount>,
+    });
+    refreshTokens.create.mockImplementation((v) => v as RefreshToken);
+    refreshTokens.save.mockImplementation(async (v) => v as RefreshToken);
+  });
+
+  it('loga usuario ja vinculado ao provider', async () => {
+    oauthAccounts.findOne.mockResolvedValue({
+      id: 'oa-1',
+      provider: 'google',
+      provider_account_id: '123',
+      user: { id: 'user-1', email: 'm@e.com', full_name: 'M', role: 'client' },
+    } as unknown as UserOauthAccount);
+
+    const result = await service.linkOrLoginOauth({
+      provider: 'google',
+      providerUserId: '123',
+      email: 'm@e.com',
+      name: 'M',
+    });
+
+    expect(result.user.id).toBe('user-1');
+    expect(users.save).not.toHaveBeenCalled();
+  });
+
+  it('cria usuario e vincula quando provider desconhecido', async () => {
+    oauthAccounts.findOne.mockResolvedValue(null);
+    users.findOne.mockResolvedValue(null);
+    users.create.mockImplementation((v) => v as User);
+    users.save.mockImplementation(async (v) => ({ ...v, id: 'user-2' }) as User);
+    oauthAccounts.create.mockImplementation((v) => v as UserOauthAccount);
+    oauthAccounts.save.mockImplementation(async (v) => v as UserOauthAccount);
+
+    const result = await service.linkOrLoginOauth({
+      provider: 'google',
+      providerUserId: '999',
+      email: 'novo@e.com',
+      name: 'Novo',
+    });
+
+    expect(result.user.id).toBe('user-2');
+    expect(oauthAccounts.save).toHaveBeenCalled();
   });
 });
