@@ -7,6 +7,7 @@ import RegisterPage from '../features/auth/pages/RegisterPage';
 import VerifyEmailPage from '../features/auth/pages/VerifyEmailPage';
 import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
+import SettingsPage from '../features/settings/pages/SettingsPage';
 
 export const router = createBrowserRouter([
   {
@@ -20,7 +21,7 @@ export const router = createBrowserRouter([
       { path: '/forbidden', element: <div /> },
       {
         element: <ProtectedRoute />,
-        children: [],
+        children: [{ path: '/settings', element: <SettingsPage /> }],
       },
       { path: '*', element: <NotFound /> },
     ],
