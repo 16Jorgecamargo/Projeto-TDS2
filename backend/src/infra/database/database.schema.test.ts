@@ -110,3 +110,9 @@ describe('wallet schema', () => {
     ]);
   });
 });
+
+describe('social schema', () => {
+  it('creates social tables', async () => {
+    await expectTables(['reviews', 'favorites', 'reports', 'user_blocks']);
+  });
+});

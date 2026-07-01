@@ -40,6 +40,10 @@ import { Payment } from './payment.entity.js';
 import { PlatformFee } from './platform-fee.entity.js';
 import { Refund } from './refund.entity.js';
 import { Withdrawal } from './withdrawal.entity.js';
+import { Review } from './review.entity.js';
+import { Favorite } from './favorite.entity.js';
+import { Report } from './report.entity.js';
+import { UserBlock } from './user-block.entity.js';
 
 export {
   User,
@@ -84,6 +88,10 @@ export {
   PlatformFee,
   Refund,
   Withdrawal,
+  Review,
+  Favorite,
+  Report,
+  UserBlock,
 };
 
 export const entities = [
@@ -129,4 +137,8 @@ export const entities = [
   PlatformFee,
   Refund,
   Withdrawal,
+  Review,
+  Favorite,
+  Report,
+  UserBlock,
 ];
