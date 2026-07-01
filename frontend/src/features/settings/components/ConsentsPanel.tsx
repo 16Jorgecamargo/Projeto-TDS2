@@ -15,7 +15,11 @@ export function ConsentsPanel() {
   const record = useRecordConsent();
 
   const latestByType = new Map<ConsentType, boolean>();
-  data?.forEach((consent) => latestByType.set(consent.type, consent.granted));
+  data?.forEach((consent) => {
+    if (!latestByType.has(consent.type)) {
+      latestByType.set(consent.type, consent.granted);
+    }
+  });
 
   return (
     <section className="flex flex-col gap-3">
