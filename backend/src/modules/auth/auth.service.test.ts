@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import bcrypt from 'bcrypt';
 import type { Repository } from 'typeorm';
 import { AuthService } from './auth.service.js';
@@ -6,6 +6,9 @@ import { mockRepo } from '../../test/mocks/index.js';
 import { hashToken } from '../../shared/security/token.js';
 import type { User } from '../../infra/database/entities/user.entity.js';
 import type { RefreshToken } from '../../infra/database/entities/refresh-token.entity.js';
+import type { EmailVerificationToken } from '../../infra/database/entities/email-verification-token.entity.js';
+import type { PhoneVerificationToken } from '../../infra/database/entities/phone-verification-token.entity.js';
+import type { PasswordResetToken } from '../../infra/database/entities/password-reset-token.entity.js';
 
 describe('AuthService register/login', () => {
   let users: ReturnType<typeof mockRepo<User>>;
@@ -15,7 +18,14 @@ describe('AuthService register/login', () => {
   beforeEach(() => {
     users = mockRepo<User>();
     refreshTokens = mockRepo<RefreshToken>();
-    service = new AuthService({ users: users as unknown as Repository<User>, refreshTokens: refreshTokens as unknown as Repository<RefreshToken> });
+    service = new AuthService({
+      users: users as unknown as Repository<User>,
+      refreshTokens: refreshTokens as unknown as Repository<RefreshToken>,
+      emailTokens: mockRepo() as unknown as Repository<EmailVerificationToken>,
+      phoneTokens: mockRepo() as unknown as Repository<PhoneVerificationToken>,
+      resetTokens: mockRepo() as unknown as Repository<PasswordResetToken>,
+      mailQueue: { add: vi.fn() },
+    });
   });
 
   it('registra usuario com senha hasheada e retorna tokens', async () => {
@@ -88,7 +98,14 @@ describe('AuthService refresh/logout', () => {
   beforeEach(() => {
     users = mockRepo<User>();
     refreshTokens = mockRepo<RefreshToken>();
-    service = new AuthService({ users: users as unknown as Repository<User>, refreshTokens: refreshTokens as unknown as Repository<RefreshToken> });
+    service = new AuthService({
+      users: users as unknown as Repository<User>,
+      refreshTokens: refreshTokens as unknown as Repository<RefreshToken>,
+      emailTokens: mockRepo() as unknown as Repository<EmailVerificationToken>,
+      phoneTokens: mockRepo() as unknown as Repository<PhoneVerificationToken>,
+      resetTokens: mockRepo() as unknown as Repository<PasswordResetToken>,
+      mailQueue: { add: vi.fn() },
+    });
   });
 
   it('rotaciona refresh: revoga antigo e emite novo', async () => {
@@ -146,5 +163,94 @@ describe('AuthService refresh/logout', () => {
     await service.logout('x');
     const saved = refreshTokens.save.mock.calls[0]![0] as RefreshToken;
     expect(saved.revoked_at).toBeInstanceOf(Date);
+  });
+});
+
+describe('AuthService verificacao e reset', () => {
+  let users: ReturnType<typeof mockRepo<User>>;
+  let refreshTokens: ReturnType<typeof mockRepo<RefreshToken>>;
+  let emailTokens: ReturnType<typeof mockRepo<EmailVerificationToken>>;
+  let resetTokens: ReturnType<typeof mockRepo<PasswordResetToken>>;
+  let mailQueue: { add: ReturnType<typeof vi.fn> };
+  let service: AuthService;
+
+  beforeEach(() => {
+    users = mockRepo<User>();
+    refreshTokens = mockRepo<RefreshToken>();
+    emailTokens = mockRepo<EmailVerificationToken>();
+    resetTokens = mockRepo<PasswordResetToken>();
+    mailQueue = { add: vi.fn().mockResolvedValue(undefined) };
+    service = new AuthService({
+      users: users as unknown as Repository<User>,
+      refreshTokens: refreshTokens as unknown as Repository<RefreshToken>,
+      emailTokens: emailTokens as unknown as Repository<EmailVerificationToken>,
+      phoneTokens: mockRepo() as unknown as Repository<PhoneVerificationToken>,
+      resetTokens: resetTokens as unknown as Repository<PasswordResetToken>,
+      mailQueue,
+    });
+  });
+
+  it('cria token de verificacao de e-mail e enfileira envio', async () => {
+    users.findOne.mockResolvedValue({ id: 'user-1', email: 'm@e.com' } as User);
+    emailTokens.create.mockImplementation((v) => v as EmailVerificationToken);
+    emailTokens.save.mockImplementation(async (v) => v as EmailVerificationToken);
+
+    await service.requestEmailVerification('user-1');
+
+    expect(emailTokens.save).toHaveBeenCalled();
+    expect(mailQueue.add).toHaveBeenCalledWith('email-verification', expect.objectContaining({ email: 'm@e.com' }));
+  });
+
+  it('confirma verificacao e marca e-mail como verificado', async () => {
+    const raw = 'verifytoken';
+    emailTokens.findOne.mockResolvedValue({
+      id: 'ev-1',
+      token_hash: hashToken(raw),
+      used_at: null,
+      expires_at: new Date(Date.now() + 100000),
+      user: { id: 'user-1' },
+    } as unknown as EmailVerificationToken);
+    emailTokens.save.mockImplementation(async (v) => v as EmailVerificationToken);
+    users.update.mockResolvedValue({ affected: 1 } as never);
+
+    await service.confirmEmailVerification(raw);
+
+    expect(users.update).toHaveBeenCalledWith('user-1', { email_verified_at: expect.any(Date) });
+  });
+
+  it('rejeita confirmacao com token consumido', async () => {
+    emailTokens.findOne.mockResolvedValue({
+      token_hash: hashToken('x'),
+      used_at: new Date(),
+      expires_at: new Date(Date.now() + 100000),
+    } as unknown as EmailVerificationToken);
+    await expect(service.confirmEmailVerification('x')).rejects.toMatchObject({ statusCode: 400 });
+  });
+
+  it('nao vaza existencia da conta no requestPasswordReset', async () => {
+    users.findOne.mockResolvedValue(null);
+    await expect(service.requestPasswordReset('naoexiste@e.com')).resolves.toBeUndefined();
+    expect(resetTokens.save).not.toHaveBeenCalled();
+    expect(mailQueue.add).not.toHaveBeenCalled();
+  });
+
+  it('reseta senha, revoga token e invalida refresh tokens', async () => {
+    const raw = 'resettoken';
+    resetTokens.findOne.mockResolvedValue({
+      id: 'pr-1',
+      token_hash: hashToken(raw),
+      used_at: null,
+      expires_at: new Date(Date.now() + 100000),
+      user: { id: 'user-1' },
+    } as unknown as PasswordResetToken);
+    resetTokens.save.mockImplementation(async (v) => v as PasswordResetToken);
+    users.update.mockResolvedValue({ affected: 1 } as never);
+    refreshTokens.update.mockResolvedValue({ affected: 2 } as never);
+
+    await service.resetPassword(raw, 'N0v@Senha');
+
+    const updateArg = users.update.mock.calls[0]![1] as { password_hash: string };
+    await expect(bcrypt.compare('N0v@Senha', updateArg.password_hash)).resolves.toBe(true);
+    expect(refreshTokens.update).toHaveBeenCalled();
   });
 });

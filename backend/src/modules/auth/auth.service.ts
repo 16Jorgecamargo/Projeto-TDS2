@@ -2,19 +2,32 @@ import bcrypt from 'bcrypt';
 import type { Repository } from 'typeorm';
 import { User } from '../../infra/database/entities/user.entity.js';
 import { RefreshToken } from '../../infra/database/entities/refresh-token.entity.js';
+import { EmailVerificationToken } from '../../infra/database/entities/email-verification-token.entity.js';
+import { PhoneVerificationToken } from '../../infra/database/entities/phone-verification-token.entity.js';
+import { PasswordResetToken } from '../../infra/database/entities/password-reset-token.entity.js';
 import {
   signAccessToken,
   generateOpaqueToken,
   hashToken,
 } from '../../shared/security/token.js';
-import { ConflictError, UnauthorizedError } from '../../shared/errors.js';
+import { ConflictError, UnauthorizedError, NotFoundError, BadRequestError } from '../../shared/errors.js';
 import { getConfig } from '../../config/index.js';
 import type { RegisterInput, LoginInput, AuthResult, PublicUser } from './auth.schemas.js';
+
+interface MailQueue {
+  add(name: string, data: unknown): Promise<unknown>;
+}
 
 interface AuthDeps {
   users: Repository<User>;
   refreshTokens: Repository<RefreshToken>;
+  emailTokens: Repository<EmailVerificationToken>;
+  phoneTokens: Repository<PhoneVerificationToken>;
+  resetTokens: Repository<PasswordResetToken>;
+  mailQueue: MailQueue;
 }
+
+const TOKEN_TTL_MS = 1000 * 60 * 60;
 
 const BCRYPT_ROUNDS = 12;
 
@@ -97,6 +110,67 @@ export class AuthService {
       throw new UnauthorizedError('Sessao invalida');
     }
     return record;
+  }
+
+  async requestEmailVerification(userId: string): Promise<void> {
+    const user = await this.deps.users.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundError('Usuario nao encontrado');
+    }
+    const { raw, hash } = generateOpaqueToken();
+    const record = this.deps.emailTokens.create({
+      user: { id: userId } as User,
+      token_hash: hash,
+      expires_at: new Date(Date.now() + TOKEN_TTL_MS),
+    });
+    await this.deps.emailTokens.save(record);
+    await this.deps.mailQueue.add('email-verification', { email: user.email, token: raw });
+  }
+
+  async confirmEmailVerification(rawToken: string): Promise<void> {
+    const record = await this.deps.emailTokens.findOne({
+      where: { token_hash: hashToken(rawToken) },
+      relations: { user: true },
+    });
+    if (!record || record.used_at || record.expires_at.getTime() < Date.now()) {
+      throw new BadRequestError('Token invalido ou expirado');
+    }
+    record.used_at = new Date();
+    await this.deps.emailTokens.save(record);
+    await this.deps.users.update(record.user.id, { email_verified_at: new Date() });
+  }
+
+  async requestPasswordReset(email: string): Promise<void> {
+    const user = await this.deps.users.findOne({ where: { email } });
+    if (!user) {
+      return;
+    }
+    const { raw, hash } = generateOpaqueToken();
+    const record = this.deps.resetTokens.create({
+      user: { id: user.id } as User,
+      token_hash: hash,
+      expires_at: new Date(Date.now() + TOKEN_TTL_MS),
+    });
+    await this.deps.resetTokens.save(record);
+    await this.deps.mailQueue.add('password-reset', { email: user.email, token: raw });
+  }
+
+  async resetPassword(rawToken: string, newPassword: string): Promise<void> {
+    const record = await this.deps.resetTokens.findOne({
+      where: { token_hash: hashToken(rawToken) },
+      relations: { user: true },
+    });
+    if (!record || record.used_at || record.expires_at.getTime() < Date.now()) {
+      throw new BadRequestError('Token invalido ou expirado');
+    }
+    const password_hash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+    record.used_at = new Date();
+    await this.deps.resetTokens.save(record);
+    await this.deps.users.update(record.user.id, { password_hash });
+    await this.deps.refreshTokens.update(
+      { user: { id: record.user.id } },
+      { revoked_at: new Date() },
+    );
   }
 
   private toPublic(user: User): PublicUser {
