@@ -18,4 +18,15 @@ export class AccountController {
 
   recordConsent = async (req: FastifyRequest<{ Body: RecordConsentInput }>, reply: FastifyReply) =>
     reply.status(201).send(await this.service.recordConsent(req.user.id, req.body));
+
+  requestDeletion = async (req: FastifyRequest, reply: FastifyReply) =>
+    reply.status(201).send(await this.service.requestDeletion(req.user.id));
+
+  cancelDeletion = async (req: FastifyRequest, reply: FastifyReply) => {
+    await this.service.cancelDeletion(req.user.id);
+    return reply.status(204).send();
+  };
+
+  deletionStatus = async (req: FastifyRequest, reply: FastifyReply) =>
+    reply.send(await this.service.getDeletionStatus(req.user.id));
 }

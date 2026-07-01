@@ -31,7 +31,20 @@ export const consentSchema = z.object({
   createdAt: z.string().datetime().describe('Data do registro').openapi({ example: '2026-07-01T12:00:00.000Z' }),
 });
 
+export const deletionStatusSchema = z
+  .enum(['pending', 'cancelled', 'completed'])
+  .describe('Status da solicitacao de exclusao')
+  .openapi({ example: 'pending' });
+
+export const deletionRequestSchema = z.object({
+  id: z.string().uuid().describe('ID').openapi({ example: '44444444-4444-4444-4444-444444444444' }),
+  status: deletionStatusSchema,
+  requestedAt: z.string().datetime().describe('Data da solicitacao').openapi({ example: '2026-07-01T12:00:00.000Z' }),
+  scheduledFor: z.string().datetime().describe('Data efetiva da exclusao').openapi({ example: '2026-07-31T12:00:00.000Z' }),
+});
+
 export type PreferencesDto = z.infer<typeof preferencesSchema>;
 export type UpdatePreferencesInput = z.infer<typeof updatePreferencesSchema>;
 export type RecordConsentInput = z.infer<typeof recordConsentSchema>;
 export type ConsentDto = z.infer<typeof consentSchema>;
+export type DeletionRequestDto = z.infer<typeof deletionRequestSchema>;

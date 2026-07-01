@@ -4,17 +4,20 @@ import { AccountService } from './account.service.js';
 import { AccountController } from './account.controller.js';
 import { UserPreference } from '../../infra/database/entities/user-preference.entity.js';
 import { UserConsent } from '../../infra/database/entities/user-consent.entity.js';
+import { AccountDeletionRequest } from '../../infra/database/entities/account-deletion-request.entity.js';
 import {
   preferencesSchema,
   updatePreferencesSchema,
   consentSchema,
   recordConsentSchema,
+  deletionRequestSchema,
 } from './account.schemas.js';
 
 export async function accountRoutes(app: FastifyInstance): Promise<void> {
   const service = new AccountService({
     preferences: app.dataSource.getRepository(UserPreference),
     consents: app.dataSource.getRepository(UserConsent),
+    deletionRequests: app.dataSource.getRepository(AccountDeletionRequest),
   });
   const controller = new AccountController(service);
 
@@ -51,5 +54,20 @@ export async function accountRoutes(app: FastifyInstance): Promise<void> {
       response: { 201: consentSchema },
     },
     handler: controller.recordConsent,
+  });
+  app.post('/account/deletion', {
+    onRequest: [app.authenticate],
+    schema: { tags: ['account'], summary: 'Solicita exclusao de conta', response: { 201: deletionRequestSchema } },
+    handler: controller.requestDeletion,
+  });
+  app.delete('/account/deletion', {
+    onRequest: [app.authenticate],
+    schema: { tags: ['account'], summary: 'Cancela exclusao de conta', response: { 204: z.void() } },
+    handler: controller.cancelDeletion,
+  });
+  app.get('/account/deletion', {
+    onRequest: [app.authenticate],
+    schema: { tags: ['account'], summary: 'Status da exclusao', response: { 200: deletionRequestSchema.nullable() } },
+    handler: controller.deletionStatus,
   });
 }

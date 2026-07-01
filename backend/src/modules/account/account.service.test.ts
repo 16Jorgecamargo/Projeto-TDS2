@@ -4,18 +4,22 @@ import { AccountService } from './account.service.js';
 import { mockRepo } from '../../test/mocks/index.js';
 import type { UserPreference } from '../../infra/database/entities/user-preference.entity.js';
 import type { UserConsent } from '../../infra/database/entities/user-consent.entity.js';
+import type { AccountDeletionRequest } from '../../infra/database/entities/account-deletion-request.entity.js';
 
 describe('AccountService', () => {
   let preferences: ReturnType<typeof mockRepo<UserPreference>>;
   let consents: ReturnType<typeof mockRepo<UserConsent>>;
+  let deletionRequests: ReturnType<typeof mockRepo<AccountDeletionRequest>>;
   let service: AccountService;
 
   beforeEach(() => {
     preferences = mockRepo<UserPreference>();
     consents = mockRepo<UserConsent>();
+    deletionRequests = mockRepo<AccountDeletionRequest>();
     service = new AccountService({
       preferences: preferences as unknown as Repository<UserPreference>,
       consents: consents as unknown as Repository<UserConsent>,
+      deletionRequests: deletionRequests as unknown as Repository<AccountDeletionRequest>,
     });
   });
 
@@ -80,5 +84,54 @@ describe('AccountService', () => {
 
     expect(list).toHaveLength(1);
     expect(list[0]!.type).toBe('privacy');
+  });
+});
+
+describe('AccountService exclusao com carencia', () => {
+  let preferences: ReturnType<typeof mockRepo<UserPreference>>;
+  let consents: ReturnType<typeof mockRepo<UserConsent>>;
+  let deletionRequests: ReturnType<typeof mockRepo<AccountDeletionRequest>>;
+  let service: AccountService;
+
+  beforeEach(() => {
+    preferences = mockRepo<UserPreference>();
+    consents = mockRepo<UserConsent>();
+    deletionRequests = mockRepo<AccountDeletionRequest>();
+    service = new AccountService({
+      preferences: preferences as unknown as Repository<UserPreference>,
+      consents: consents as unknown as Repository<UserConsent>,
+      deletionRequests: deletionRequests as unknown as Repository<AccountDeletionRequest>,
+    });
+  });
+
+  it('cria solicitacao com data agendada no futuro (carencia)', async () => {
+    deletionRequests.findOne.mockResolvedValue(null);
+    deletionRequests.create.mockImplementation((v) => v as AccountDeletionRequest);
+    deletionRequests.save.mockImplementation(async (v) => ({ ...v, id: 'd-1' }) as AccountDeletionRequest);
+
+    const req = await service.requestDeletion('user-1');
+    const saved = deletionRequests.save.mock.calls[0]![0] as AccountDeletionRequest;
+    expect(saved.status).toBe('pending');
+    expect(saved.scheduled_purge_at.getTime()).toBeGreaterThan(Date.now());
+    expect(req.status).toBe('pending');
+  });
+
+  it('rejeita segunda solicitacao pendente', async () => {
+    deletionRequests.findOne.mockResolvedValue({ id: 'd-1', status: 'pending' } as AccountDeletionRequest);
+    await expect(service.requestDeletion('user-1')).rejects.toMatchObject({ statusCode: 409 });
+  });
+
+  it('cancela solicitacao pendente', async () => {
+    deletionRequests.findOne.mockResolvedValue({ id: 'd-1', status: 'pending' } as AccountDeletionRequest);
+    deletionRequests.save.mockImplementation(async (v) => v as AccountDeletionRequest);
+
+    await service.cancelDeletion('user-1');
+    const saved = deletionRequests.save.mock.calls[0]![0] as AccountDeletionRequest;
+    expect(saved.status).toBe('cancelled');
+  });
+
+  it('cancel lanca 404 sem solicitacao pendente', async () => {
+    deletionRequests.findOne.mockResolvedValue(null);
+    await expect(service.cancelDeletion('user-1')).rejects.toMatchObject({ statusCode: 404 });
   });
 });

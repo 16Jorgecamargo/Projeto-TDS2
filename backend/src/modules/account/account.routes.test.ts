@@ -57,4 +57,28 @@ describe('account routes', () => {
     const list = await app.inject({ method: 'GET', url: '/api/account/consents', headers });
     expect(list.json()[0].type).toBe('privacy');
   });
+
+  it('solicita, consulta e cancela exclusao de conta', async () => {
+    const headers = await authHeader(app);
+    const created = await app.inject({ method: 'POST', url: '/api/account/deletion', headers });
+    expect(created.statusCode).toBe(201);
+    expect(created.json().status).toBe('pending');
+    expect(new Date(created.json().scheduledFor).getTime()).toBeGreaterThan(Date.now());
+
+    const status = await app.inject({ method: 'GET', url: '/api/account/deletion', headers });
+    expect(status.json().status).toBe('pending');
+
+    const cancelled = await app.inject({ method: 'DELETE', url: '/api/account/deletion', headers });
+    expect(cancelled.statusCode).toBe(204);
+
+    const after = await app.inject({ method: 'GET', url: '/api/account/deletion', headers });
+    expect(after.json()).toBeNull();
+  });
+
+  it('rejeita segunda solicitacao pendente com 409', async () => {
+    const headers = await authHeader(app);
+    await app.inject({ method: 'POST', url: '/api/account/deletion', headers });
+    const second = await app.inject({ method: 'POST', url: '/api/account/deletion', headers });
+    expect(second.statusCode).toBe(409);
+  });
 });

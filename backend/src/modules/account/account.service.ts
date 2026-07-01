@@ -1,17 +1,21 @@
 import type { Repository } from 'typeorm';
 import { UserPreference } from '../../infra/database/entities/user-preference.entity.js';
 import { UserConsent } from '../../infra/database/entities/user-consent.entity.js';
+import { AccountDeletionRequest } from '../../infra/database/entities/account-deletion-request.entity.js';
 import { User } from '../../infra/database/entities/user.entity.js';
+import { ConflictError, NotFoundError } from '../../shared/errors.js';
 import type {
   PreferencesDto,
   UpdatePreferencesInput,
   RecordConsentInput,
   ConsentDto,
+  DeletionRequestDto,
 } from './account.schemas.js';
 
 interface AccountDeps {
   preferences: Repository<UserPreference>;
   consents: Repository<UserConsent>;
+  deletionRequests: Repository<AccountDeletionRequest>;
 }
 
 const DEFAULT_PREFERENCES = {
@@ -23,6 +27,8 @@ const DEFAULT_PREFERENCES = {
 };
 
 export class AccountService {
+  private readonly graceDays = 30;
+
   constructor(private readonly deps: AccountDeps) {}
 
   async getPreferences(userId: string): Promise<PreferencesDto> {
@@ -66,6 +72,52 @@ export class AccountService {
     });
     const saved = await this.deps.consents.save(entity);
     return this.toConsentDto(saved);
+  }
+
+  async requestDeletion(userId: string): Promise<DeletionRequestDto> {
+    const pending = await this.deps.deletionRequests.findOne({
+      where: { user: { id: userId }, status: 'pending' },
+    });
+    if (pending) {
+      throw new ConflictError('Ja existe uma solicitacao de exclusao pendente');
+    }
+    const scheduled_purge_at = new Date(Date.now() + this.graceDays * 24 * 60 * 60 * 1000);
+    const saved = await this.deps.deletionRequests.save(
+      this.deps.deletionRequests.create({
+        user: { id: userId } as User,
+        status: 'pending',
+        scheduled_purge_at,
+        requested_at: new Date(),
+      }),
+    );
+    return this.toDeletionDto(saved);
+  }
+
+  async cancelDeletion(userId: string): Promise<void> {
+    const pending = await this.deps.deletionRequests.findOne({
+      where: { user: { id: userId }, status: 'pending' },
+    });
+    if (!pending) {
+      throw new NotFoundError('Nenhuma solicitacao de exclusao pendente');
+    }
+    pending.status = 'cancelled';
+    await this.deps.deletionRequests.save(pending);
+  }
+
+  async getDeletionStatus(userId: string): Promise<DeletionRequestDto | null> {
+    const pending = await this.deps.deletionRequests.findOne({
+      where: { user: { id: userId }, status: 'pending' },
+    });
+    return pending ? this.toDeletionDto(pending) : null;
+  }
+
+  private toDeletionDto(d: AccountDeletionRequest): DeletionRequestDto {
+    return {
+      id: d.id,
+      status: d.status,
+      requestedAt: d.requested_at.toISOString(),
+      scheduledFor: d.scheduled_purge_at.toISOString(),
+    };
   }
 
   private toPrefsDto(p: UserPreference): PreferencesDto {
