@@ -316,9 +316,9 @@ describe('ContractService', () => {
         professional_id: 'pro-1',
         status: 'completed',
       } as Contract);
-      await expect(service.cancel('contract-1', 'client-1', 'motivo valido')).rejects.toBeInstanceOf(
-        UnprocessableError,
-      );
+      await expect(
+        service.cancel('contract-1', { userId: 'client-1', professionalId: null }, 'motivo valido'),
+      ).rejects.toBeInstanceOf(UnprocessableError);
     });
 
     it('lanca ForbiddenError quando nao e participante', async () => {
@@ -328,12 +328,24 @@ describe('ContractService', () => {
         professional_id: 'pro-1',
         status: 'active',
       } as Contract);
-      await expect(service.cancel('contract-1', 'estranho', 'motivo valido')).rejects.toBeInstanceOf(
-        ForbiddenError,
-      );
+      await expect(
+        service.cancel('contract-1', { userId: 'estranho', professionalId: null }, 'motivo valido'),
+      ).rejects.toBeInstanceOf(ForbiddenError);
     });
 
-    it('cancela o contrato ativo', async () => {
+    it('lanca ForbiddenError quando profissional informado nao e o do contrato', async () => {
+      contracts.findOne.mockResolvedValueOnce({
+        id: 'contract-1',
+        client_id: 'client-1',
+        professional_id: 'pro-1',
+        status: 'active',
+      } as Contract);
+      await expect(
+        service.cancel('contract-1', { userId: 'user-2', professionalId: 'pro-2' }, 'motivo valido'),
+      ).rejects.toBeInstanceOf(ForbiddenError);
+    });
+
+    it('cliente cancela o contrato ativo usando o proprio user id', async () => {
       contracts.findOne.mockResolvedValueOnce({
         id: 'contract-1',
         client_id: 'client-1',
@@ -349,10 +361,41 @@ describe('ContractService', () => {
       } as Contract);
       contracts.save.mockImplementationOnce(async (value: Contract) => value);
       schedules.findOne.mockResolvedValueOnce(null);
-      const result = await service.cancel('contract-1', 'client-1', 'indisponibilidade');
+      const result = await service.cancel(
+        'contract-1',
+        { userId: 'client-1', professionalId: null },
+        'indisponibilidade',
+      );
       expect(result.status).toBe('cancelled');
       expect(result.cancelledBy).toBe('client-1');
       expect(result.cancellationReason).toBe('indisponibilidade');
+      expect(contracts.save).toHaveBeenCalledWith(expect.objectContaining({ cancelled_by: 'client-1' }));
+    });
+
+    it('profissional cancela usando o profile id para autorizacao e o user id no registro', async () => {
+      contracts.findOne.mockResolvedValueOnce({
+        id: 'contract-1',
+        client_id: 'client-1',
+        professional_id: 'pro-1',
+        total_amount: '300.00',
+        status: 'active',
+        started_at: null,
+        completed_at: null,
+        cancelled_at: null,
+        cancelled_by: null,
+        cancellation_reason: null,
+        created_at: new Date('2026-07-01T12:00:00Z'),
+      } as Contract);
+      contracts.save.mockImplementationOnce(async (value: Contract) => value);
+      schedules.findOne.mockResolvedValueOnce(null);
+      const result = await service.cancel(
+        'contract-1',
+        { userId: 'user-pro-1', professionalId: 'pro-1' },
+        'indisponibilidade',
+      );
+      expect(result.status).toBe('cancelled');
+      expect(result.cancelledBy).toBe('user-pro-1');
+      expect(contracts.save).toHaveBeenCalledWith(expect.objectContaining({ cancelled_by: 'user-pro-1' }));
     });
   });
 
@@ -365,7 +408,11 @@ describe('ContractService', () => {
         started_at: new Date('2026-07-01T12:00:00Z'),
       } as Contract);
       await expect(
-        service.addProgress('contract-1', 'pro-2', { description: 'fase 1', percentage: 10, images: [] }),
+        service.addProgress('contract-1', 'pro-2', 'user-pro-2', {
+          description: 'fase 1',
+          percentage: 10,
+          images: [],
+        }),
       ).rejects.toBeInstanceOf(ForbiddenError);
     });
 
@@ -377,11 +424,15 @@ describe('ContractService', () => {
         started_at: null,
       } as Contract);
       await expect(
-        service.addProgress('contract-1', 'pro-1', { description: 'fase 1', percentage: 10, images: [] }),
+        service.addProgress('contract-1', 'pro-1', 'user-pro-1', {
+          description: 'fase 1',
+          percentage: 10,
+          images: [],
+        }),
       ).rejects.toBeInstanceOf(UnprocessableError);
     });
 
-    it('registra progresso com imagens', async () => {
+    it('registra progresso com imagens usando o profile id para autorizacao e o user id como autor', async () => {
       contracts.findOne.mockResolvedValueOnce({
         id: 'contract-1',
         professional_id: 'pro-1',
@@ -399,14 +450,16 @@ describe('ContractService', () => {
         created_at: new Date('2026-07-01T12:00:00Z'),
       }));
 
-      const result = await service.addProgress('contract-1', 'pro-1', {
+      const result = await service.addProgress('contract-1', 'pro-1', 'user-pro-1', {
         description: 'fase 1 concluida',
         percentage: 50,
         images: ['https://example.com/foto.jpg'],
       });
 
       expect(result.percentage).toBe(50);
+      expect(result.authorId).toBe('user-pro-1');
       expect(result.images).toEqual(['https://example.com/foto.jpg']);
+      expect(progress.save).toHaveBeenCalledWith(expect.objectContaining({ author_id: 'user-pro-1' }));
     });
   });
 

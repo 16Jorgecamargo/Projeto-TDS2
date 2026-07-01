@@ -59,6 +59,17 @@ export class ContractService {
     }
   }
 
+  private assertActorIsParticipant(
+    contract: Contract,
+    actor: { userId: string; professionalId: string | null },
+  ): void {
+    const isClient = contract.client_id === actor.userId;
+    const isProfessional = actor.professionalId !== null && contract.professional_id === actor.professionalId;
+    if (!isClient && !isProfessional) {
+      throw new ForbiddenError('Sem acesso ao contrato');
+    }
+  }
+
   async acceptQuote(
     clientId: string,
     quoteId: string,
@@ -146,31 +157,40 @@ export class ContractService {
     return this.toResponse(await this.deps.contracts.save(contract));
   }
 
-  async cancel(id: string, userId: string, reason: string): Promise<ContractResponse> {
+  async cancel(
+    id: string,
+    actor: { userId: string; professionalId: string | null },
+    reason: string,
+  ): Promise<ContractResponse> {
     const contract = await this.deps.contracts.findOne({ where: { id } });
     if (!contract) throw new NotFoundError('Contrato nao encontrado');
-    this.assertParticipant(contract, userId);
+    this.assertActorIsParticipant(contract, actor);
     if (contract.status === 'completed' || contract.status === 'cancelled') {
       throw new UnprocessableError('Contrato nao pode ser cancelado');
     }
     contract.status = 'cancelled';
     contract.cancelled_at = new Date();
-    contract.cancelled_by = userId;
+    contract.cancelled_by = actor.userId;
     contract.cancellation_reason = reason;
     return this.toResponse(await this.deps.contracts.save(contract));
   }
 
-  async addProgress(id: string, authorId: string, input: ProgressUpdateInput): Promise<ProgressUpdateResponse> {
+  async addProgress(
+    id: string,
+    professionalId: string,
+    userId: string,
+    input: ProgressUpdateInput,
+  ): Promise<ProgressUpdateResponse> {
     const contract = await this.deps.contracts.findOne({ where: { id } });
     if (!contract) throw new NotFoundError('Contrato nao encontrado');
-    if (contract.professional_id !== authorId) throw new ForbiddenError('Nao e o profissional do contrato');
+    if (contract.professional_id !== professionalId) throw new ForbiddenError('Nao e o profissional do contrato');
     if (contract.status !== 'active' || contract.started_at === null) {
       throw new UnprocessableError('Contrato nao esta em execucao');
     }
     const update = await this.deps.progress.save(
       this.deps.progress.create({
         contract_id: id,
-        author_id: authorId,
+        author_id: userId,
         description: input.description,
         percentage: input.percentage,
       }),
@@ -185,7 +205,7 @@ export class ContractService {
     return {
       id: update.id,
       contractId: id,
-      authorId,
+      authorId: userId,
       description: update.description,
       percentage: update.percentage,
       images: images.map((i) => i.image_url),
