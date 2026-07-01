@@ -1,24 +1,19 @@
 import { defineConfig } from 'vitest/config';
-
-const testEnv: Record<string, string> = {
-  NODE_ENV: 'test',
-  HOST: '127.0.0.1',
-  PORT: '3010',
-  CORS_ORIGIN: '*',
-  DATABASE_HOST: 'localhost',
-  DATABASE_USER: 'app',
-  DATABASE_PASSWORD: 'secret',
-  DATABASE_NAME: 'marketplace',
-  JWT_ACCESS_SECRET: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-  JWT_REFRESH_SECRET: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-};
-
-for (const [key, value] of Object.entries(testEnv)) {
-  process.env[key] ??= value;
-}
+import swc from 'unplugin-swc';
 
 export default defineConfig({
+  plugins: [swc.vite({ module: { type: 'es6' } })],
   test: {
+    globals: true,
     environment: 'node',
+    setupFiles: ['src/test/setup.ts'],
+    include: ['src/**/*.test.ts'],
+    hookTimeout: 30000,
+    testTimeout: 30000,
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts'],
+      exclude: ['src/test/**', 'src/**/*.test.ts', 'src/infra/database/migrations/**'],
+    },
   },
 });
