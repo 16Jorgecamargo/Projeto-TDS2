@@ -13,6 +13,7 @@ import {
 } from 'fastify-type-provider-zod';
 import { env } from './config/env.js';
 import { errorHandlerPlugin } from './plugins/error-handler.js';
+import { requestIdPlugin } from './shared/middlewares/request-id.js';
 import { authPlugin } from './plugins/auth.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 
@@ -28,6 +29,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(compress, { global: true });
 
   await app.register(errorHandlerPlugin);
+  await app.register(requestIdPlugin);
   await app.register(authPlugin, { accessSecret: env.JWT_ACCESS_SECRET });
 
   await app.register(swagger, {
