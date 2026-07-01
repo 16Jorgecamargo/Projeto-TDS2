@@ -3,12 +3,13 @@ import type { ServiceDemand } from '../../infra/database/entities/service-demand
 import type { DemandImage } from '../../infra/database/entities/demand-image.entity.js';
 import type { DemandTag } from '../../infra/database/entities/demand-tag.entity.js';
 import type { DemandInvitation } from '../../infra/database/entities/demand-invitation.entity.js';
-import { NotFoundError, ForbiddenError } from '../../shared/errors.js';
+import { NotFoundError, ForbiddenError, ConflictError } from '../../shared/errors.js';
 import type {
   CreateDemandInput,
   UpdateDemandInput,
   DemandResponse,
   DemandListQuery,
+  DemandInvitationResponse,
 } from './demand.schemas.js';
 
 interface DemandServiceDeps {
@@ -130,5 +131,58 @@ export class DemandService {
     const saved = await this.deps.demands.save(demand);
     const { images, tagIds } = await this.loadAssociations(id);
     return this.toResponse(saved, images, tagIds);
+  }
+
+  private invitationToResponse(inv: DemandInvitation): DemandInvitationResponse {
+    return {
+      id: inv.id,
+      demandId: inv.demand_id,
+      professionalId: inv.professional_id,
+      status: inv.status,
+    };
+  }
+
+  async invite(
+    demandId: string,
+    clientId: string,
+    professionalId: string,
+  ): Promise<DemandInvitationResponse> {
+    const demand = await this.deps.demands.findOne({ where: { id: demandId } });
+    if (!demand) throw new NotFoundError('Demanda nao encontrada');
+    if (demand.client_id !== clientId) throw new ForbiddenError('Nao e o autor da demanda');
+    if (demand.status !== 'open') throw new ForbiddenError('Demanda nao aceita convites');
+    const existing = await this.deps.invitations.findOne({
+      where: { demand_id: demandId, professional_id: professionalId },
+    });
+    if (existing) throw new ConflictError('Profissional ja convidado');
+    const saved = await this.deps.invitations.save(
+      this.deps.invitations.create({
+        demand_id: demandId,
+        professional_id: professionalId,
+        status: 'pending',
+        invited_at: new Date(),
+      }),
+    );
+    return this.invitationToResponse(saved);
+  }
+
+  async respondInvitation(
+    invitationId: string,
+    professionalId: string,
+    accept: boolean,
+  ): Promise<DemandInvitationResponse> {
+    const invitation = await this.deps.invitations.findOne({ where: { id: invitationId } });
+    if (!invitation) throw new NotFoundError('Convite nao encontrado');
+    if (invitation.professional_id !== professionalId) throw new ForbiddenError('Convite de outro profissional');
+    if (invitation.status !== 'pending') throw new ForbiddenError('Convite ja respondido');
+    invitation.status = accept ? 'accepted' : 'declined';
+    invitation.responded_at = new Date();
+    const saved = await this.deps.invitations.save(invitation);
+    return this.invitationToResponse(saved);
+  }
+
+  async listInvitations(demandId: string): Promise<DemandInvitationResponse[]> {
+    const rows = await this.deps.invitations.find({ where: { demand_id: demandId } });
+    return rows.map((invitation) => this.invitationToResponse(invitation));
   }
 }

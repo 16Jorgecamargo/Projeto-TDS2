@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import type { Repository } from 'typeorm';
 import { DemandService } from './demand.service.js';
 import { mockRepo } from '../../test/mocks/index.js';
-import { NotFoundError, ForbiddenError } from '../../shared/errors.js';
+import { NotFoundError, ForbiddenError, ConflictError } from '../../shared/errors.js';
 import type { ServiceDemand } from '../../infra/database/entities/service-demand.entity.js';
 import type { DemandImage } from '../../infra/database/entities/demand-image.entity.js';
 import type { DemandTag } from '../../infra/database/entities/demand-tag.entity.js';
@@ -218,6 +218,161 @@ describe('DemandService', () => {
       const result = await service.cancel('demand-1', 'client-1');
 
       expect(result.status).toBe('cancelled');
+    });
+  });
+
+  describe('invite', () => {
+    it('lanca NotFoundError quando demanda nao existe', async () => {
+      demands.findOne.mockResolvedValueOnce(null);
+      await expect(service.invite('demand-x', 'client-1', 'pro-1')).rejects.toBeInstanceOf(
+        NotFoundError,
+      );
+    });
+
+    it('lanca ForbiddenError quando nao e o autor da demanda', async () => {
+      demands.findOne.mockResolvedValueOnce({
+        id: 'demand-1',
+        client_id: 'client-1',
+        status: 'open',
+      } as ServiceDemand);
+
+      await expect(service.invite('demand-1', 'client-2', 'pro-1')).rejects.toBeInstanceOf(
+        ForbiddenError,
+      );
+    });
+
+    it('lanca ForbiddenError quando demanda nao esta open', async () => {
+      demands.findOne.mockResolvedValueOnce({
+        id: 'demand-1',
+        client_id: 'client-1',
+        status: 'in_progress',
+      } as ServiceDemand);
+
+      await expect(service.invite('demand-1', 'client-1', 'pro-1')).rejects.toBeInstanceOf(
+        ForbiddenError,
+      );
+    });
+
+    it('rejeita convite duplicado', async () => {
+      demands.findOne.mockResolvedValueOnce({
+        id: 'demand-1',
+        client_id: 'client-1',
+        status: 'open',
+      } as ServiceDemand);
+      invitations.findOne.mockResolvedValueOnce({ id: 'inv-1' } as DemandInvitation);
+
+      await expect(service.invite('demand-1', 'client-1', 'pro-1')).rejects.toBeInstanceOf(
+        ConflictError,
+      );
+    });
+
+    it('cria convite pending', async () => {
+      demands.findOne.mockResolvedValueOnce({
+        id: 'demand-1',
+        client_id: 'client-1',
+        status: 'open',
+      } as ServiceDemand);
+      invitations.findOne.mockResolvedValueOnce(null);
+      invitations.save.mockResolvedValueOnce({
+        id: 'inv-1',
+        demand_id: 'demand-1',
+        professional_id: 'pro-1',
+        status: 'pending',
+      } as DemandInvitation);
+
+      const result = await service.invite('demand-1', 'client-1', 'pro-1');
+
+      expect(result.status).toBe('pending');
+      expect(result.demandId).toBe('demand-1');
+      expect(result.professionalId).toBe('pro-1');
+    });
+  });
+
+  describe('respondInvitation', () => {
+    it('lanca NotFoundError quando convite nao existe', async () => {
+      invitations.findOne.mockResolvedValueOnce(null);
+      await expect(service.respondInvitation('inv-x', 'pro-1', true)).rejects.toBeInstanceOf(
+        NotFoundError,
+      );
+    });
+
+    it('lanca ForbiddenError quando nao e o profissional convidado', async () => {
+      invitations.findOne.mockResolvedValueOnce({
+        id: 'inv-1',
+        demand_id: 'demand-1',
+        professional_id: 'pro-1',
+        status: 'pending',
+      } as DemandInvitation);
+
+      await expect(service.respondInvitation('inv-1', 'pro-2', true)).rejects.toBeInstanceOf(
+        ForbiddenError,
+      );
+    });
+
+    it('lanca ForbiddenError quando convite ja foi respondido', async () => {
+      invitations.findOne.mockResolvedValueOnce({
+        id: 'inv-1',
+        demand_id: 'demand-1',
+        professional_id: 'pro-1',
+        status: 'accepted',
+      } as DemandInvitation);
+
+      await expect(service.respondInvitation('inv-1', 'pro-1', true)).rejects.toBeInstanceOf(
+        ForbiddenError,
+      );
+    });
+
+    it('aceita convite pendente', async () => {
+      invitations.findOne.mockResolvedValueOnce({
+        id: 'inv-1',
+        demand_id: 'demand-1',
+        professional_id: 'pro-1',
+        status: 'pending',
+      } as DemandInvitation);
+      invitations.save.mockImplementationOnce(async (value: DemandInvitation) => value);
+
+      const result = await service.respondInvitation('inv-1', 'pro-1', true);
+
+      expect(result.status).toBe('accepted');
+    });
+
+    it('recusa convite pendente', async () => {
+      invitations.findOne.mockResolvedValueOnce({
+        id: 'inv-1',
+        demand_id: 'demand-1',
+        professional_id: 'pro-1',
+        status: 'pending',
+      } as DemandInvitation);
+      invitations.save.mockImplementationOnce(async (value: DemandInvitation) => value);
+
+      const result = await service.respondInvitation('inv-1', 'pro-1', false);
+
+      expect(result.status).toBe('declined');
+    });
+  });
+
+  describe('listInvitations', () => {
+    it('retorna todos os convites da demanda', async () => {
+      invitations.find.mockResolvedValueOnce([
+        {
+          id: 'inv-1',
+          demand_id: 'demand-1',
+          professional_id: 'pro-1',
+          status: 'pending',
+        } as DemandInvitation,
+        {
+          id: 'inv-2',
+          demand_id: 'demand-1',
+          professional_id: 'pro-2',
+          status: 'accepted',
+        } as DemandInvitation,
+      ]);
+
+      const result = await service.listInvitations('demand-1');
+
+      expect(result).toHaveLength(2);
+      expect(result[0]?.professionalId).toBe('pro-1');
+      expect(result[1]?.status).toBe('accepted');
     });
   });
 });
