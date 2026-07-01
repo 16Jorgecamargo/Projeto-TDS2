@@ -31,6 +31,43 @@ export interface TagOption {
   slug: string;
 }
 
+export interface PortfolioImage {
+  id: string;
+  imageUrl: string;
+  position: number;
+}
+
+export interface PortfolioItem {
+  id: string;
+  categoryId: string | null;
+  title: string;
+  description: string | null;
+  completedAt: string | null;
+  images: PortfolioImage[];
+}
+
+export interface AvailabilitySlot {
+  id: string;
+  weekday: number;
+  startTime: string;
+  endTime: string;
+}
+
+export interface ServiceArea {
+  id: string;
+  city: string;
+  state: string;
+  radiusKm: number | null;
+}
+
+export interface PublicProfile extends ProfessionalProfile {
+  categories: { id: string; name: string; slug: string }[];
+  experiences: unknown[];
+  education: unknown[];
+  certifications: unknown[];
+  serviceAreas: ServiceArea[];
+}
+
 export const professionalApi = {
   async getMyProfile(): Promise<ProfessionalProfile> {
     const { data } = await http.get<ProfessionalProfile>('/professionals/me');
@@ -59,5 +96,50 @@ export const professionalApi = {
   },
   async setTags(ids: string[]): Promise<void> {
     await http.put('/professionals/me/tags', { ids });
+  },
+  async getPublicProfile(id: string): Promise<PublicProfile> {
+    const { data } = await http.get<PublicProfile>(`/professionals/${id}`);
+    return data;
+  },
+  async listPortfolio(professionalId: string): Promise<PortfolioItem[]> {
+    const { data } = await http.get<PortfolioItem[]>(`/portfolio/${professionalId}/items`);
+    return data;
+  },
+  async createPortfolioItem(payload: {
+    categoryId: string | null;
+    title: string;
+    description: string | null;
+    completedAt: string | null;
+  }): Promise<PortfolioItem> {
+    const { data } = await http.post<PortfolioItem>('/portfolio/me/items', payload);
+    return data;
+  },
+  async removePortfolioItem(id: string): Promise<void> {
+    await http.delete(`/portfolio/me/items/${id}`);
+  },
+  async addPortfolioImage(itemId: string, payload: { imageUrl: string; position: number }): Promise<PortfolioImage> {
+    const { data } = await http.post<PortfolioImage>(`/portfolio/me/items/${itemId}/images`, payload);
+    return data;
+  },
+  async removePortfolioImage(id: string): Promise<void> {
+    await http.delete(`/portfolio/me/images/${id}`);
+  },
+  async listSlots(professionalId: string): Promise<AvailabilitySlot[]> {
+    const { data } = await http.get<AvailabilitySlot[]>(`/availability/${professionalId}/slots`);
+    return data;
+  },
+  async addSlot(payload: { weekday: number; startTime: string; endTime: string }): Promise<AvailabilitySlot> {
+    const { data } = await http.post<AvailabilitySlot>('/availability/me/slots', payload);
+    return data;
+  },
+  async removeSlot(id: string): Promise<void> {
+    await http.delete(`/availability/me/slots/${id}`);
+  },
+  async addServiceArea(payload: { city: string; state: string; radiusKm: number | null }): Promise<ServiceArea> {
+    const { data } = await http.post<ServiceArea>('/professionals/me/service-areas', payload);
+    return data;
+  },
+  async removeServiceArea(id: string): Promise<void> {
+    await http.delete(`/professionals/me/service-areas/${id}`);
   },
 };

@@ -8,6 +8,8 @@ import VerifyEmailPage from '../features/auth/pages/VerifyEmailPage';
 import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
 import SettingsPage from '../features/settings/pages/SettingsPage';
+import PublicProfilePage from '../features/professional/pages/PublicProfilePage';
+import ProfessionalDashboardPage from '../features/professional/pages/ProfessionalDashboardPage';
 
 export const router = createBrowserRouter([
   {
@@ -19,9 +21,13 @@ export const router = createBrowserRouter([
       { path: '/forgot-password', element: <ForgotPasswordPage /> },
       { path: '/reset-password', element: <ResetPasswordPage /> },
       { path: '/forbidden', element: <div /> },
+      { path: '/professionals/:id', element: <PublicProfilePage /> },
       {
         element: <ProtectedRoute />,
-        children: [{ path: '/settings', element: <SettingsPage /> }],
+        children: [
+          { path: '/settings', element: <SettingsPage /> },
+          { path: '/professional/dashboard', element: <ProfessionalDashboardPage /> },
+        ],
       },
       { path: '*', element: <NotFound /> },
     ],
