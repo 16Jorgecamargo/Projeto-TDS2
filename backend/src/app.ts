@@ -24,6 +24,7 @@ import { addressRoutes } from './modules/address/address.routes.js';
 import { accountRoutes } from './modules/account/account.routes.js';
 import { catalogRoutes } from './modules/catalog/catalog.routes.js';
 import { professionalRoutes } from './modules/professional/professional.routes.js';
+import { availabilityRoutes } from './modules/availability/availability.routes.js';
 
 interface BuildAppOptions {
   dataSource?: DataSource;
@@ -70,6 +71,7 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
   await app.register(accountRoutes, { prefix: '/api' });
   await app.register(catalogRoutes, { prefix: '/api' });
   await app.register(professionalRoutes, { prefix: '/api' });
+  await app.register(availabilityRoutes, { prefix: '/api' });
 
   return app;
 }
