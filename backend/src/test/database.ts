@@ -1,5 +1,7 @@
 import { DataSource } from 'typeorm';
 import { loadTestEnv } from './env.js';
+import { entities } from '../infra/database/entities/index.js';
+import { migrations } from '../infra/database/migrations/index.js';
 
 loadTestEnv();
 
@@ -13,8 +15,8 @@ export const TestDataSource = new DataSource({
   synchronize: false,
   dropSchema: false,
   logging: false,
-  entities: ['src/infra/database/entities/**/*.{ts,js}'],
-  migrations: ['src/infra/database/migrations/**/*.{ts,js}'],
+  entities,
+  migrations,
 });
 
 export async function setupTestDatabase(): Promise<DataSource> {
