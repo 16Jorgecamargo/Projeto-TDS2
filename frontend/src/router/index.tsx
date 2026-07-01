@@ -12,6 +12,9 @@ import PublicProfilePage from '../features/professional/pages/PublicProfilePage'
 import ProfessionalDashboardPage from '../features/professional/pages/ProfessionalDashboardPage';
 import LandingPage from '../features/landing/pages/LandingPage';
 import SearchPage from '../features/landing/pages/SearchPage';
+import PublishDemandPage from '../features/demands/pages/PublishDemandPage';
+import DemandListPage from '../features/demands/pages/DemandListPage';
+import DemandDetailPage from '../features/demands/pages/DemandDetailPage';
 
 export const router = createBrowserRouter([
   {
@@ -31,7 +34,13 @@ export const router = createBrowserRouter([
         children: [
           { path: '/settings', element: <SettingsPage /> },
           { path: '/professional/dashboard', element: <ProfessionalDashboardPage /> },
+          { path: '/demands', element: <DemandListPage /> },
+          { path: '/demands/:id', element: <DemandDetailPage /> },
         ],
+      },
+      {
+        element: <ProtectedRoute roles={['client']} />,
+        children: [{ path: '/demands/new', element: <PublishDemandPage /> }],
       },
       { path: '*', element: <NotFound /> },
     ],
