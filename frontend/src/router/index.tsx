@@ -10,11 +10,15 @@ import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
 import SettingsPage from '../features/settings/pages/SettingsPage';
 import PublicProfilePage from '../features/professional/pages/PublicProfilePage';
 import ProfessionalDashboardPage from '../features/professional/pages/ProfessionalDashboardPage';
+import LandingPage from '../features/landing/pages/LandingPage';
+import SearchPage from '../features/landing/pages/SearchPage';
 
 export const router = createBrowserRouter([
   {
     element: <App />,
     children: [
+      { path: '/', element: <LandingPage /> },
+      { path: '/search', element: <SearchPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
       { path: '/verify-email', element: <VerifyEmailPage /> },
