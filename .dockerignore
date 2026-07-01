@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/coverage
+.git
+.gitignore
+**/.env
+**/.env.local
+*.log
+playwright-report
+test-results
+docs
+.overclock-app
