@@ -53,12 +53,6 @@ export class ContractService {
     };
   }
 
-  private assertParticipant(contract: Contract, userId: string): void {
-    if (contract.client_id !== userId && contract.professional_id !== userId) {
-      throw new ForbiddenError('Sem acesso ao contrato');
-    }
-  }
-
   private assertActorIsParticipant(
     contract: Contract,
     actor: { userId: string; professionalId: string | null },
@@ -121,15 +115,25 @@ export class ContractService {
     return this.toResponse(contract);
   }
 
-  async getById(id: string, requesterId: string): Promise<ContractResponse> {
+  async getById(
+    id: string,
+    actor: { userId: string; professionalId: string | null },
+  ): Promise<ContractResponse> {
     const contract = await this.deps.contracts.findOne({ where: { id } });
     if (!contract) throw new NotFoundError('Contrato nao encontrado');
-    this.assertParticipant(contract, requesterId);
+    this.assertActorIsParticipant(contract, actor);
     return this.toResponse(contract);
   }
 
-  async listMine(userId: string, role: 'client' | 'professional'): Promise<ContractResponse[]> {
-    const where = role === 'client' ? { client_id: userId } : { professional_id: userId };
+  async listMine(
+    actor: { userId: string; professionalId: string | null },
+    role: 'client' | 'professional',
+  ): Promise<ContractResponse[]> {
+    if (role === 'professional' && actor.professionalId === null) {
+      return [];
+    }
+    const where =
+      role === 'client' ? { client_id: actor.userId } : { professional_id: actor.professionalId as string };
     const rows = await this.deps.contracts.find({ where, order: { created_at: 'DESC' } });
     return Promise.all(rows.map((c) => this.toResponse(c)));
   }

@@ -167,10 +167,12 @@ describe('ContractService', () => {
   describe('getById', () => {
     it('lanca NotFoundError quando contrato nao existe', async () => {
       contracts.findOne.mockResolvedValueOnce(null);
-      await expect(service.getById('contract-x', 'client-1')).rejects.toBeInstanceOf(NotFoundError);
+      await expect(
+        service.getById('contract-x', { userId: 'client-1', professionalId: null }),
+      ).rejects.toBeInstanceOf(NotFoundError);
     });
 
-    it('permite acesso ao cliente participante', async () => {
+    it('permite acesso ao cliente participante usando o proprio user id', async () => {
       contracts.findOne.mockResolvedValueOnce({
         id: 'contract-1',
         client_id: 'client-1',
@@ -185,11 +187,11 @@ describe('ContractService', () => {
         created_at: new Date('2026-07-01T12:00:00Z'),
       } as Contract);
       schedules.findOne.mockResolvedValueOnce(null);
-      const result = await service.getById('contract-1', 'client-1');
+      const result = await service.getById('contract-1', { userId: 'client-1', professionalId: null });
       expect(result.id).toBe('contract-1');
     });
 
-    it('permite acesso ao profissional participante', async () => {
+    it('permite acesso ao profissional participante usando o profile id', async () => {
       contracts.findOne.mockResolvedValueOnce({
         id: 'contract-1',
         client_id: 'client-1',
@@ -204,8 +206,20 @@ describe('ContractService', () => {
         created_at: new Date('2026-07-01T12:00:00Z'),
       } as Contract);
       schedules.findOne.mockResolvedValueOnce(null);
-      const result = await service.getById('contract-1', 'pro-1');
+      const result = await service.getById('contract-1', { userId: 'user-pro-1', professionalId: 'pro-1' });
       expect(result.id).toBe('contract-1');
+    });
+
+    it('lanca ForbiddenError quando profissional informa o proprio user id em vez do profile id', async () => {
+      contracts.findOne.mockResolvedValueOnce({
+        id: 'contract-1',
+        client_id: 'client-1',
+        professional_id: 'pro-1',
+        status: 'active',
+      } as Contract);
+      await expect(
+        service.getById('contract-1', { userId: 'pro-1', professionalId: null }),
+      ).rejects.toBeInstanceOf(ForbiddenError);
     });
 
     it('lanca ForbiddenError quando nao e participante', async () => {
@@ -215,25 +229,33 @@ describe('ContractService', () => {
         professional_id: 'pro-1',
         status: 'active',
       } as Contract);
-      await expect(service.getById('contract-1', 'estranho')).rejects.toBeInstanceOf(ForbiddenError);
+      await expect(
+        service.getById('contract-1', { userId: 'estranho', professionalId: null }),
+      ).rejects.toBeInstanceOf(ForbiddenError);
     });
   });
 
   describe('listMine', () => {
-    it('filtra por cliente', async () => {
+    it('filtra por cliente usando o proprio user id', async () => {
       contracts.find.mockResolvedValueOnce([]);
-      await service.listMine('client-1', 'client');
+      await service.listMine({ userId: 'client-1', professionalId: null }, 'client');
       expect(contracts.find).toHaveBeenCalledWith(
         expect.objectContaining({ where: { client_id: 'client-1' } }),
       );
     });
 
-    it('filtra por profissional', async () => {
+    it('filtra por profissional usando o profile id, nao o user id', async () => {
       contracts.find.mockResolvedValueOnce([]);
-      await service.listMine('pro-1', 'professional');
+      await service.listMine({ userId: 'user-pro-1', professionalId: 'pro-1' }, 'professional');
       expect(contracts.find).toHaveBeenCalledWith(
         expect.objectContaining({ where: { professional_id: 'pro-1' } }),
       );
+    });
+
+    it('retorna lista vazia quando ator sem profile de profissional pede papel professional', async () => {
+      const result = await service.listMine({ userId: 'user-1', professionalId: null }, 'professional');
+      expect(result).toEqual([]);
+      expect(contracts.find).not.toHaveBeenCalled();
     });
   });
 
