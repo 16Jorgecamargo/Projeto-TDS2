@@ -9,19 +9,29 @@ export default function ResetPasswordPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const reset = useResetPassword();
+  const token = params.get('token');
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ResetPasswordForm>({
     resolver: zodResolver(resetPasswordSchema),
-    defaultValues: { token: params.get('token') ?? '' },
+    defaultValues: { token: token ?? '' },
   });
 
   const onSubmit = handleSubmit(async (values) => {
     await reset.mutateAsync({ token: values.token, password: values.password });
     navigate('/login');
   });
+
+  if (!token) {
+    return (
+      <div className="mx-auto max-w-sm p-6 text-center">
+        <h1 className="text-xl font-semibold">Nova senha</h1>
+        <p className="mt-4 text-sm text-red-600">Link de redefinicao invalido ou incompleto.</p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={onSubmit} noValidate className="mx-auto flex max-w-sm flex-col gap-4 p-6">
