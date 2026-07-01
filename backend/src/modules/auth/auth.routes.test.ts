@@ -1,12 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { buildTestApp } from '../../test/buildTestApp.js';
+import { truncateAll } from '../../test/database.js';
 
 describe('auth routes', () => {
   let app: FastifyInstance;
 
   beforeAll(async () => {
     app = await buildTestApp();
+    await truncateAll();
   });
 
   afterAll(async () => {

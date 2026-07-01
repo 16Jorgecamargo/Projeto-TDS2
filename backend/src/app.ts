@@ -19,6 +19,7 @@ import { requestIdPlugin } from './shared/middlewares/request-id.js';
 import { authPlugin } from './plugins/auth.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
+import { userRoutes } from './modules/user/user.routes.js';
 
 interface BuildAppOptions {
   dataSource?: DataSource;
@@ -60,6 +61,7 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
 
   await app.register(healthRoutes);
   await app.register(authRoutes, { prefix: '/api' });
+  await app.register(userRoutes, { prefix: '/api' });
 
   return app;
 }
