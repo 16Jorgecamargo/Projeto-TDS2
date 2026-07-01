@@ -130,7 +130,7 @@ schemas.ts    Zod (react-hook-form resolvers)
 - [x] Fase 4 — shared
 - [x] Fase 5 — test infra
 - [x] Fase 6 — data
-- [ ] Fase 7 — auth/account
+- [x] Fase 7 — auth/account
 - [ ] Fase 8 — professional
 - [ ] Fase 9 — demand/contract
 - [ ] Fase 10 — wallet/payment
