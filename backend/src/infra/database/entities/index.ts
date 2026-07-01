@@ -47,6 +47,7 @@ import { UserBlock } from './user-block.entity.js';
 import { ChatRoom } from './chat-room.entity.js';
 import { Message } from './message.entity.js';
 import { Notification } from './notification.entity.js';
+import { AuditLog } from './audit-log.entity.js';
 
 export {
   User,
@@ -98,6 +99,7 @@ export {
   ChatRoom,
   Message,
   Notification,
+  AuditLog,
 };
 
 export const entities = [
@@ -150,4 +152,5 @@ export const entities = [
   ChatRoom,
   Message,
   Notification,
+  AuditLog,
 ];

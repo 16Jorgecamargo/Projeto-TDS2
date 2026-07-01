@@ -122,3 +122,72 @@ describe('communication schema', () => {
     await expectTables(['chat_rooms', 'messages', 'notifications']);
   });
 });
+
+const ALL_TABLES = [
+  'users',
+  'refresh_tokens',
+  'password_reset_tokens',
+  'email_verification_tokens',
+  'phone_verification_tokens',
+  'user_oauth_accounts',
+  'user_preferences',
+  'account_deletion_requests',
+  'user_consents',
+  'push_device_tokens',
+  'addresses',
+  'professional_profiles',
+  'professional_documents',
+  'professional_experiences',
+  'professional_education',
+  'professional_certifications',
+  'professional_service_areas',
+  'availability_slots',
+  'availability_exceptions',
+  'portfolio_items',
+  'portfolio_images',
+  'service_categories',
+  'service_tags',
+  'professional_categories',
+  'professional_tags',
+  'service_demands',
+  'demand_images',
+  'demand_tags',
+  'demand_invitations',
+  'quotes',
+  'quote_items',
+  'contracts',
+  'schedules',
+  'contract_progress_updates',
+  'contract_progress_images',
+  'contract_disputes',
+  'wallets',
+  'wallet_transactions',
+  'payments',
+  'platform_fees',
+  'refunds',
+  'withdrawals',
+  'reviews',
+  'favorites',
+  'reports',
+  'user_blocks',
+  'chat_rooms',
+  'messages',
+  'notifications',
+  'audit_logs',
+];
+
+describe('audit schema', () => {
+  it('creates audit_logs table', async () => {
+    await expectTables(['audit_logs']);
+  });
+});
+
+describe('full schema', () => {
+  it('has exactly 50 domain tables', () => {
+    expect(ALL_TABLES).toHaveLength(50);
+  });
+
+  it('creates all 50 domain tables', async () => {
+    await expectTables(ALL_TABLES);
+  });
+});
