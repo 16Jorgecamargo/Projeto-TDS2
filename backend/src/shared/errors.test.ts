@@ -7,7 +7,7 @@ import {
   NotFoundError,
   ConflictError,
   UnprocessableError,
-} from './errors';
+} from './errors.js';
 
 describe('AppError hierarchy', () => {
   it('carries status, code, message and details', () => {
@@ -37,7 +37,7 @@ describe('AppError hierarchy', () => {
 });
 
 import Fastify from 'fastify';
-import { errorHandlerPlugin } from '../plugins/error-handler';
+import { errorHandlerPlugin } from '../plugins/error-handler.js';
 
 describe('AppError through the global handler', () => {
   it('serializes a thrown ConflictError to the envelope', async () => {

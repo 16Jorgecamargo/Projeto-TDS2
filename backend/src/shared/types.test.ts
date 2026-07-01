@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toPaginated } from './types';
+import { toPaginated } from './types.js';
 
 describe('shared types', () => {
   it('builds a paginated envelope', () => {

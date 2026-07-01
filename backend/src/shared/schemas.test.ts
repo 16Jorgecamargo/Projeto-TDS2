@@ -5,7 +5,7 @@ import {
   paginationQuerySchema,
   paginatedResponse,
   errorResponseSchema,
-} from './schemas';
+} from './schemas.js';
 
 describe('shared schemas', () => {
   it('validates a uuid id param', () => {

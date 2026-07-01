@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
 import { describe, it, expect } from 'vitest';
-import { requestIdPlugin } from './request-id';
+import { requestIdPlugin } from './request-id.js';
 
 async function buildProbe() {
   const app = Fastify({ genReqId: () => 'ignored' });

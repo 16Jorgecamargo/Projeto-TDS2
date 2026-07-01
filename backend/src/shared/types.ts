@@ -1,4 +1,4 @@
-export type { Role, AuthUser } from '../plugins/auth';
+export type { Role, AuthUser } from '../plugins/auth.js';
 
 export type Paginated<T> = {
   items: T[];
