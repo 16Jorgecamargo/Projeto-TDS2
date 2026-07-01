@@ -1,3 +1,7 @@
-import { getConfig } from './index.js';
+import { getConfig, type Config } from './index.js';
 
-export const env = getConfig();
+export const env = new Proxy({} as Config, {
+  get(_target, property): unknown {
+    return getConfig()[property as keyof Config];
+  },
+});
