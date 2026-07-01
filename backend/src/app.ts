@@ -21,6 +21,7 @@ import { healthRoutes } from './modules/health/health.routes.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { userRoutes } from './modules/user/user.routes.js';
 import { addressRoutes } from './modules/address/address.routes.js';
+import { accountRoutes } from './modules/account/account.routes.js';
 
 interface BuildAppOptions {
   dataSource?: DataSource;
@@ -64,6 +65,7 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
   await app.register(authRoutes, { prefix: '/api' });
   await app.register(userRoutes, { prefix: '/api' });
   await app.register(addressRoutes, { prefix: '/api' });
+  await app.register(accountRoutes, { prefix: '/api' });
 
   return app;
 }
