@@ -30,6 +30,7 @@ import { searchRoutes } from './modules/search/search.routes.js';
 import { demandRoutes } from './modules/demand/demand.routes.js';
 import { quoteRoutes } from './modules/quote/quote.routes.js';
 import { contractRoutes } from './modules/contract/contract.routes.js';
+import { disputeRoutes } from './modules/dispute/dispute.routes.js';
 
 interface BuildAppOptions {
   dataSource?: DataSource;
@@ -82,6 +83,7 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
   await app.register(demandRoutes, { prefix: '/api' });
   await app.register(quoteRoutes, { prefix: '/api' });
   await app.register(contractRoutes, { prefix: '/api' });
+  await app.register(disputeRoutes, { prefix: '/api' });
 
   return app;
 }
