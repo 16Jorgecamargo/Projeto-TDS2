@@ -28,6 +28,7 @@ import { availabilityRoutes } from './modules/availability/availability.routes.j
 import { portfolioRoutes } from './modules/portfolio/portfolio.routes.js';
 import { searchRoutes } from './modules/search/search.routes.js';
 import { demandRoutes } from './modules/demand/demand.routes.js';
+import { quoteRoutes } from './modules/quote/quote.routes.js';
 
 interface BuildAppOptions {
   dataSource?: DataSource;
@@ -78,6 +79,7 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
   await app.register(portfolioRoutes, { prefix: '/api' });
   await app.register(searchRoutes, { prefix: '/api' });
   await app.register(demandRoutes, { prefix: '/api' });
+  await app.register(quoteRoutes, { prefix: '/api' });
 
   return app;
 }
