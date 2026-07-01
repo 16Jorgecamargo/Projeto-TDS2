@@ -12,7 +12,7 @@ export default function SearchPage() {
         params={{
           q: params.get('q') ?? undefined,
           city: params.get('city') ?? undefined,
-          state: params.get('state') ?? undefined,
+          state: params.get('state')?.toUpperCase() ?? undefined,
           categoryId: params.get('categoryId') ?? undefined,
         }}
       />

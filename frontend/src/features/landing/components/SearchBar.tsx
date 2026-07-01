@@ -19,7 +19,12 @@ export function SearchBar() {
     <form onSubmit={onSubmit} noValidate className="flex gap-2">
       <input className="flex-1 rounded border px-3 py-2" placeholder="O que voce precisa?" {...register('q')} />
       <input className="w-40 rounded border px-3 py-2" placeholder="Cidade" {...register('city')} />
-      <input className="w-16 rounded border px-3 py-2" placeholder="UF" maxLength={2} {...register('state')} />
+      <input
+        className="w-16 rounded border px-3 py-2 uppercase"
+        placeholder="UF"
+        maxLength={2}
+        {...register('state', { setValueAs: (value: string) => value.toUpperCase() })}
+      />
       <button type="submit" className="rounded bg-slate-900 px-4 py-2 text-white">
         Buscar
       </button>
