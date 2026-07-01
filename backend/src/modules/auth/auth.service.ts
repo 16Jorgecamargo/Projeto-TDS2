@@ -5,6 +5,7 @@ import { RefreshToken } from '../../infra/database/entities/refresh-token.entity
 import {
   signAccessToken,
   generateOpaqueToken,
+  hashToken,
 } from '../../shared/security/token.js';
 import { ConflictError, UnauthorizedError } from '../../shared/errors.js';
 import { getConfig } from '../../config/index.js';
@@ -68,6 +69,34 @@ export class AuthService {
     });
     await this.deps.refreshTokens.save(record);
     return { accessToken, refreshToken: raw, user: this.toPublic(user) };
+  }
+
+  async refresh(rawToken: string): Promise<AuthResult> {
+    const record = await this.findValidRefresh(rawToken);
+    record.revoked_at = new Date();
+    await this.deps.refreshTokens.save(record);
+    const user = record.user ?? (await this.deps.users.findOne({ where: { id: record.user_id } }));
+    if (!user) {
+      throw new UnauthorizedError('Sessao invalida');
+    }
+    return this.issueTokens(user);
+  }
+
+  async logout(rawToken: string): Promise<void> {
+    const record = await this.findValidRefresh(rawToken);
+    record.revoked_at = new Date();
+    await this.deps.refreshTokens.save(record);
+  }
+
+  private async findValidRefresh(rawToken: string): Promise<RefreshToken> {
+    const record = await this.deps.refreshTokens.findOne({
+      where: { token_hash: hashToken(rawToken) },
+      relations: { user: true },
+    });
+    if (!record || record.revoked_at || record.expires_at.getTime() < Date.now()) {
+      throw new UnauthorizedError('Sessao invalida');
+    }
+    return record;
   }
 
   private toPublic(user: User): PublicUser {

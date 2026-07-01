@@ -53,7 +53,16 @@ export const authResultSchema = z.object({
   user: publicUserSchema,
 });
 
+export const refreshSchema = z.object({
+  refreshToken: z
+    .string()
+    .min(1)
+    .describe('Refresh token opaco emitido no login')
+    .openapi({ example: 'a1b2c3...' }),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type PublicUser = z.infer<typeof publicUserSchema>;
 export type AuthResult = z.infer<typeof authResultSchema>;
+export type RefreshInput = z.infer<typeof refreshSchema>;
