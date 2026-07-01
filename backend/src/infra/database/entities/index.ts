@@ -8,6 +8,7 @@ import { UserPreference } from './user-preference.entity.js';
 import { AccountDeletionRequest } from './account-deletion-request.entity.js';
 import { UserConsent } from './user-consent.entity.js';
 import { PushDeviceToken } from './push-device-token.entity.js';
+import { Address } from './address.entity.js';
 
 export {
   User,
@@ -20,6 +21,7 @@ export {
   AccountDeletionRequest,
   UserConsent,
   PushDeviceToken,
+  Address,
 };
 
 export const entities = [
@@ -33,4 +35,5 @@ export const entities = [
   AccountDeletionRequest,
   UserConsent,
   PushDeviceToken,
+  Address,
 ];

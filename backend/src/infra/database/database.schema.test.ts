@@ -40,3 +40,9 @@ describe('auth schema', () => {
     ]);
   });
 });
+
+describe('address schema', () => {
+  it('creates address table', async () => {
+    await expectTables(['addresses']);
+  });
+});
