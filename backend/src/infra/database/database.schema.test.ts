@@ -63,3 +63,14 @@ describe('professional schema', () => {
     ]);
   });
 });
+
+describe('catalog schema', () => {
+  it('creates catalog tables', async () => {
+    await expectTables([
+      'service_categories',
+      'service_tags',
+      'professional_categories',
+      'professional_tags',
+    ]);
+  });
+});

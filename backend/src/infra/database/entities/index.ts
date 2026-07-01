@@ -19,6 +19,10 @@ import { AvailabilitySlot } from './availability-slot.entity.js';
 import { AvailabilityException } from './availability-exception.entity.js';
 import { PortfolioItem } from './portfolio-item.entity.js';
 import { PortfolioImage } from './portfolio-image.entity.js';
+import { ServiceCategory } from './service-category.entity.js';
+import { ServiceTag } from './service-tag.entity.js';
+import { ProfessionalCategory } from './professional-category.entity.js';
+import { ProfessionalTag } from './professional-tag.entity.js';
 
 export {
   User,
@@ -42,6 +46,10 @@ export {
   AvailabilityException,
   PortfolioItem,
   PortfolioImage,
+  ServiceCategory,
+  ServiceTag,
+  ProfessionalCategory,
+  ProfessionalTag,
 };
 
 export const entities = [
@@ -66,4 +74,8 @@ export const entities = [
   AvailabilityException,
   PortfolioItem,
   PortfolioImage,
+  ServiceCategory,
+  ServiceTag,
+  ProfessionalCategory,
+  ProfessionalTag,
 ];

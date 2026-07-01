@@ -6,13 +6,14 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 import { ProfessionalProfile } from './professional-profile.entity.js';
 import { ServiceCategory } from './service-category.entity.js';
 
-@Entity('portfolio_items')
-export class PortfolioItem {
+@Entity('professional_categories')
+@Unique(['professional_id', 'category_id'])
+export class ProfessionalCategory {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -24,25 +25,14 @@ export class PortfolioItem {
   @JoinColumn({ name: 'professional_id' })
   professional!: ProfessionalProfile;
 
-  @Column('char', { length: 36, nullable: true })
-  category_id!: string | null;
+  @Index()
+  @Column('char', { length: 36 })
+  category_id!: string;
 
-  @ManyToOne(() => ServiceCategory, { nullable: true })
+  @ManyToOne(() => ServiceCategory)
   @JoinColumn({ name: 'category_id' })
-  category!: ServiceCategory | null;
-
-  @Column('varchar', { length: 255 })
-  title!: string;
-
-  @Column('text', { nullable: true })
-  description!: string | null;
-
-  @Column('date', { nullable: true })
-  completed_at!: string | null;
+  category!: ServiceCategory;
 
   @CreateDateColumn()
   created_at!: Date;
-
-  @UpdateDateColumn()
-  updated_at!: Date;
 }
