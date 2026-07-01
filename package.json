@@ -11,5 +11,8 @@
     "lint": "npm run lint --workspaces",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
   }
 }
