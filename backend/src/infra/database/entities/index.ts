@@ -29,6 +29,11 @@ import { DemandTag } from './demand-tag.entity.js';
 import { DemandInvitation } from './demand-invitation.entity.js';
 import { Quote } from './quote.entity.js';
 import { QuoteItem } from './quote-item.entity.js';
+import { Contract } from './contract.entity.js';
+import { Schedule } from './schedule.entity.js';
+import { ContractProgressUpdate } from './contract-progress-update.entity.js';
+import { ContractProgressImage } from './contract-progress-image.entity.js';
+import { ContractDispute } from './contract-dispute.entity.js';
 
 export {
   User,
@@ -62,6 +67,11 @@ export {
   DemandInvitation,
   Quote,
   QuoteItem,
+  Contract,
+  Schedule,
+  ContractProgressUpdate,
+  ContractProgressImage,
+  ContractDispute,
 };
 
 export const entities = [
@@ -96,4 +106,9 @@ export const entities = [
   DemandInvitation,
   Quote,
   QuoteItem,
+  Contract,
+  Schedule,
+  ContractProgressUpdate,
+  ContractProgressImage,
+  ContractDispute,
 ];

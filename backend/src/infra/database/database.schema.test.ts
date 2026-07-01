@@ -86,3 +86,15 @@ describe('quote schema', () => {
     await expectTables(['quotes', 'quote_items']);
   });
 });
+
+describe('contract schema', () => {
+  it('creates contract tables', async () => {
+    await expectTables([
+      'contracts',
+      'schedules',
+      'contract_progress_updates',
+      'contract_progress_images',
+      'contract_disputes',
+    ]);
+  });
+});
