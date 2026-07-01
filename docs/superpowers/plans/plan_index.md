@@ -127,7 +127,7 @@ schemas.ts    Zod (react-hook-form resolvers)
 - [x] Fase 1 — setup
 - [x] Fase 2 — docker/infra
 - [x] Fase 3 — foundation
-- [ ] Fase 4 — shared
+- [x] Fase 4 — shared
 - [ ] Fase 5 — test infra
 - [ ] Fase 6 — data
 - [ ] Fase 7 — auth/account
