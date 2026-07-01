@@ -1,0 +1,5 @@
+# Overclock app local state
+.overclock-app/
+
+# macOS
+.DS_Store
