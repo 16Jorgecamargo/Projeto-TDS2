@@ -56,6 +56,54 @@ Esqueleto executável do backend Fastify (`buildApp()` + plugins de segurança +
 4. **`backend/vitest.config.ts`** injeta env de teste via `process.env` (herdado pelos workers forks) — determinístico.
 5. **Testes de router no frontend** usam `MemoryRouter` + `Routes/Route` em vez de `createMemoryRouter`/`RouterProvider` (data router). Motivo: incompatibilidade de ambiente jsdom + undici — `@remix-run/router` constrói um `Request` com `AbortSignal` do jsdom, rejeitado por brand-check do `Request` nativo (`RequestInit: Expected signal to be an instance of AbortSignal`). O componente `ProtectedRoute` e o `router` de produção (`createBrowserRouter`) permanecem **inalterados**; só o harness de teste foi adaptado. No browser real não há o mismatch.
 
+## FIX — Code Review (2026-07-01)
+
+Dois achados do code review corrigidos após conclusão da fase.
+
+### FIX 1 — `frontend/src/lib/http.ts`: union literal `Role` → importar `AuthUser`
+
+**O que mudou:** `refreshAccessToken` tipava o retorno do POST com `{ id: string; role: 'client' | 'professional' | 'admin' }` inline. Substituído por `AuthUser` importado de `../stores/auth`.
+
+```diff
+-import { useAuthStore } from '../stores/auth';
++import { useAuthStore, type AuthUser } from '../stores/auth';
+
+-  const response = await refreshClient.post<{
+-    accessToken: string;
+-    user: { id: string; role: 'client' | 'professional' | 'admin' };
+-  }>('/auth/refresh');
++  const response = await refreshClient.post<{
++    accessToken: string;
++    user: AuthUser;
++  }>('/auth/refresh');
+```
+
+### FIX 2 — `frontend/src/main.tsx`: `as HTMLElement` → null-check seguro
+
+**O que mudou:** cast inseguro removido; `throw` explícito se `#root` ausente.
+
+```diff
+-createRoot(document.getElementById('root') as HTMLElement).render(
++const root = document.getElementById('root');
++if (!root) throw new Error('Root element not found');
++createRoot(root).render(
+```
+
+### Verificação pós-fix
+
+```
+node node_modules/typescript/bin/tsc --noEmit -p frontend/tsconfig.json
+# sem saída = zero erros
+
+cd frontend && node ../node_modules/.bin/eslint src/lib/http.ts src/main.tsx
+# sem saída = zero warnings/erros
+
+node ../node_modules/.bin/vitest run
+# Test Files  4 passed (4)
+#       Tests 10 passed (10)
+#    Duration 650ms
+```
+
 ## Concerns para próximas fases
 
 - **jsdom + data router**: testes que exercitam navegação via `createMemoryRouter`/`RouterProvider` (ex.: E2E-ish de RTL na fase 5/13) esbarram no bug do `AbortSignal`. A fase 5 (test infra) deve decidir a correção definitiva (polyfill nativo de `AbortController`/`AbortSignal` no setup, ou `happy-dom`). Enquanto isso, usar `MemoryRouter` no RTL.

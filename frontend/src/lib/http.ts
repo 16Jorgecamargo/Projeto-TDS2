@@ -3,7 +3,7 @@ import axios, {
   type AxiosInstance,
   type InternalAxiosRequestConfig,
 } from 'axios';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore, type AuthUser } from '../stores/auth';
 
 export const http: AxiosInstance = axios.create({ baseURL: '/api' });
 
@@ -12,7 +12,7 @@ const refreshClient: AxiosInstance = axios.create({ baseURL: '/api', withCredent
 export async function refreshAccessToken(): Promise<string> {
   const response = await refreshClient.post<{
     accessToken: string;
-    user: { id: string; role: 'client' | 'professional' | 'admin' };
+    user: AuthUser;
   }>('/auth/refresh');
   const { accessToken, user } = response.data;
   useAuthStore.getState().setAuth(user, accessToken);
