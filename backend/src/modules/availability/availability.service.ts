@@ -76,8 +76,19 @@ export class AvailabilityService {
     return rows.map((row) => this.toException(row));
   }
 
+  private toHourMinute(value: string): string;
+  private toHourMinute(value: string | null): string | null;
+  private toHourMinute(value: string | null): string | null {
+    return value === null ? null : value.slice(0, 5);
+  }
+
   private toSlot(slot: AvailabilitySlot): SlotResponse {
-    return { id: slot.id, weekday: slot.weekday, startTime: slot.start_time, endTime: slot.end_time };
+    return {
+      id: slot.id,
+      weekday: slot.weekday,
+      startTime: this.toHourMinute(slot.start_time),
+      endTime: this.toHourMinute(slot.end_time),
+    };
   }
 
   private toException(exception: AvailabilityException): ExceptionResponse {
@@ -85,8 +96,8 @@ export class AvailabilityService {
       id: exception.id,
       date: exception.date,
       isAvailable: exception.is_available,
-      startTime: exception.start_time,
-      endTime: exception.end_time,
+      startTime: this.toHourMinute(exception.start_time),
+      endTime: this.toHourMinute(exception.end_time),
       reason: exception.reason,
     };
   }

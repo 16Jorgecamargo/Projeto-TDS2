@@ -61,6 +61,15 @@ describe('AvailabilityService', () => {
     expect(list[0]?.startTime).toBe('08:00');
   });
 
+  it('normaliza horario com segundos vindo do banco para HH:MM ao listar slots', async () => {
+    slots.find.mockResolvedValue([
+      { id: 'slot-1', professional_id: 'prof-1', weekday: 1, start_time: '08:00:00', end_time: '18:00:00' } as AvailabilitySlot,
+    ]);
+    const list = await service.listSlots('prof-1');
+    expect(list[0]?.startTime).toBe('08:00');
+    expect(list[0]?.endTime).toBe('18:00');
+  });
+
   it('adiciona e remove excecao de disponibilidade', async () => {
     profiles.findOne.mockResolvedValue({ id: 'prof-1', user_id: 'user-1' } as ProfessionalProfile);
     exceptions.create.mockImplementation((v) => v as AvailabilityException);
@@ -95,5 +104,22 @@ describe('AvailabilityService', () => {
     const list = await service.listExceptions('prof-1');
     expect(list).toHaveLength(1);
     expect(list[0]?.reason).toBe('Feriado');
+  });
+
+  it('normaliza horario com segundos vindo do banco para HH:MM ao listar excecoes', async () => {
+    exceptions.find.mockResolvedValue([
+      {
+        id: 'exc-1',
+        professional_id: 'prof-1',
+        date: '2026-12-25',
+        is_available: true,
+        start_time: '08:00:00',
+        end_time: '12:00:00',
+        reason: null,
+      } as AvailabilityException,
+    ]);
+    const list = await service.listExceptions('prof-1');
+    expect(list[0]?.startTime).toBe('08:00');
+    expect(list[0]?.endTime).toBe('12:00');
   });
 });
