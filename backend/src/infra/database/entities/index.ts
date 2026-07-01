@@ -23,6 +23,10 @@ import { ServiceCategory } from './service-category.entity.js';
 import { ServiceTag } from './service-tag.entity.js';
 import { ProfessionalCategory } from './professional-category.entity.js';
 import { ProfessionalTag } from './professional-tag.entity.js';
+import { ServiceDemand } from './service-demand.entity.js';
+import { DemandImage } from './demand-image.entity.js';
+import { DemandTag } from './demand-tag.entity.js';
+import { DemandInvitation } from './demand-invitation.entity.js';
 
 export {
   User,
@@ -50,6 +54,10 @@ export {
   ServiceTag,
   ProfessionalCategory,
   ProfessionalTag,
+  ServiceDemand,
+  DemandImage,
+  DemandTag,
+  DemandInvitation,
 };
 
 export const entities = [
@@ -78,4 +86,8 @@ export const entities = [
   ServiceTag,
   ProfessionalCategory,
   ProfessionalTag,
+  ServiceDemand,
+  DemandImage,
+  DemandTag,
+  DemandInvitation,
 ];

@@ -74,3 +74,9 @@ describe('catalog schema', () => {
     ]);
   });
 });
+
+describe('demand schema', () => {
+  it('creates demand tables', async () => {
+    await expectTables(['service_demands', 'demand_images', 'demand_tags', 'demand_invitations']);
+  });
+});
