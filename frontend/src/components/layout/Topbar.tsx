@@ -28,11 +28,11 @@ export function Topbar({ onOpenMobileNav }: TopbarProps): JSX.Element {
       <button
         type="button"
         onClick={openPalette}
-        className="flex flex-1 items-center gap-2 rounded-sm border border-surface px-3 py-2 text-left text-sm text-muted hover:border-primary"
+        className="flex items-center gap-2 rounded-sm border border-surface px-3 py-2 text-left text-sm text-muted hover:border-primary sm:flex-1"
       >
         <MagnifyingGlassIcon className="h-4 w-4" />
-        <span className="flex-1">Buscar ou navegar...</span>
-        <kbd className="rounded-sm bg-surface px-1.5 py-0.5 text-xs font-semibold text-muted">Ctrl K</kbd>
+        <span className="hidden flex-1 sm:inline">Buscar ou navegar...</span>
+        <kbd className="hidden rounded-sm bg-surface px-1.5 py-0.5 text-xs font-semibold text-muted sm:inline-block">Ctrl K</kbd>
       </button>
       <NotificationBell />
       <ProfileMenu />
