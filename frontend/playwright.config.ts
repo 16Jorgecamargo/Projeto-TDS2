@@ -37,7 +37,7 @@ export default defineConfig({
     },
     {
       name: 'flows',
-      testMatch: ['flows/**/*.spec.ts'],
+      testMatch: ['flows.spec.ts', 'flows/**/*.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },
   ],
