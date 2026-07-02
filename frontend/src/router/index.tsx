@@ -20,6 +20,7 @@ import ContractDetailPage from '../features/contracts/pages/ContractDetailPage';
 import WalletPage from '../features/wallet/pages/WalletPage';
 import { NotificationsPage } from '../features/notifications/pages/NotificationsPage';
 import { ChatPage } from '../features/chat/pages/ChatPage';
+import { AdminDashboardPage } from '../features/admin/pages/AdminDashboardPage';
 
 export const router = createBrowserRouter([
   {
@@ -51,6 +52,10 @@ export const router = createBrowserRouter([
       {
         element: <ProtectedRoute roles={['client']} />,
         children: [{ path: '/demands/new', element: <PublishDemandPage /> }],
+      },
+      {
+        element: <ProtectedRoute roles={['admin']} />,
+        children: [{ path: '/admin', element: <AdminDashboardPage /> }],
       },
       { path: '*', element: <NotFound /> },
     ],
