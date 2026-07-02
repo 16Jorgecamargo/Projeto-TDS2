@@ -32,7 +32,7 @@ export default defineConfig({
     },
     {
       name: 'admins',
-      testMatch: ['admins/**/*.spec.ts'],
+      testMatch: ['admins.spec.ts', 'admins/**/*.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },
     {
