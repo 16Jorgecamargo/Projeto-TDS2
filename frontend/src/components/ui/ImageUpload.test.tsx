@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ImageUpload } from './ImageUpload';
@@ -11,6 +11,17 @@ describe('ImageUpload', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useToastStore.setState({ toasts: [] });
+
+    let counter = 0;
+    vi.stubGlobal('URL', {
+      ...URL,
+      createObjectURL: () => `blob:http://localhost/${++counter}`,
+      revokeObjectURL: () => undefined,
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('renderiza o rotulo', () => {
