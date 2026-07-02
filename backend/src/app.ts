@@ -17,6 +17,7 @@ import { AppDataSource } from './infra/database/data-source.js';
 import { errorHandlerPlugin } from './plugins/error-handler.js';
 import { requestIdPlugin } from './shared/middlewares/request-id.js';
 import { authPlugin } from './plugins/auth.js';
+import { metricsPlugin } from './observability/metrics.plugin.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { userRoutes } from './modules/user/user.routes.js';
@@ -58,6 +59,7 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
 
   await app.register(errorHandlerPlugin);
   await app.register(requestIdPlugin);
+  await app.register(metricsPlugin);
   await app.register(authPlugin, { accessSecret: env.JWT_ACCESS_SECRET });
 
   await app.register(swagger, {
