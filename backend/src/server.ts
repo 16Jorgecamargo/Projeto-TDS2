@@ -7,8 +7,10 @@ import { startNotificationWorker } from './modules/notification/notification.wor
 import { buildChatService } from './modules/chat/chat.routes.js';
 import { registerChatGateway } from './modules/chat/chat.gateway.js';
 import { verifyAccessToken } from './shared/security/token.js';
+import { initSentry } from './observability/sentry.js';
 
 export async function start(): Promise<FastifyInstance> {
+  initSentry();
   const app = await buildApp();
   await app.listen({ port: env.PORT, host: env.HOST });
   startNotificationWorker();

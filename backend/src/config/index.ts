@@ -18,6 +18,7 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRES_IN: z.string().min(1).default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().min(1).default('7d'),
   SENTRY_DSN: z.string().url().optional(),
+  SENTRY_ENVIRONMENT: z.string().default('development'),
 });
 
 export type Config = z.infer<typeof envSchema>;

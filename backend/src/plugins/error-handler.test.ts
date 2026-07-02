@@ -1,7 +1,10 @@
 import Fastify from 'fastify';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { z } from 'zod';
 import { errorHandlerPlugin } from './error-handler.js';
+
+const captureError = vi.fn();
+vi.mock('../observability/sentry.js', () => ({ captureError: (...a: unknown[]) => captureError(...a) }));
 
 async function buildProbe() {
   const app = Fastify();
@@ -49,5 +52,12 @@ describe('errorHandlerPlugin', () => {
     expect(res.json()).toEqual({
       error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
     });
+  });
+
+  it('captura o erro no Sentry ao tratar uma falha inesperada', async () => {
+    captureError.mockClear();
+    const app = await buildProbe();
+    await app.inject({ method: 'GET', url: '/unknown' });
+    expect(captureError).toHaveBeenCalled();
   });
 });

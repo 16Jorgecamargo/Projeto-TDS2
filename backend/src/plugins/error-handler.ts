@@ -1,6 +1,7 @@
 import type { FastifyPluginCallback, FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { ZodError } from 'zod';
+import { captureError } from '../observability/sentry.js';
 
 interface ShapedError {
   statusCode: number;
@@ -20,6 +21,7 @@ function isShapedError(error: unknown): error is ShapedError {
 
 const handler: FastifyPluginCallback = (app, _opts, done) => {
   app.setErrorHandler((error: FastifyError, _request: FastifyRequest, reply: FastifyReply) => {
+    captureError(error);
     if (error instanceof ZodError) {
       reply.status(400).send({
         error: { code: 'BAD_REQUEST', message: 'Validation failed', details: error.issues },
