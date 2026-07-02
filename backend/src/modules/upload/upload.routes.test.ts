@@ -104,6 +104,27 @@ describe('upload routes', () => {
     expect(res.statusCode).toBe(401);
   });
 
+  it('retorna 413 quando o arquivo excede o limite do plugin multipart', async () => {
+    const user = await registerUser(app);
+    const oversizedBytes = Buffer.concat([
+      Buffer.from([0xff, 0xd8, 0xff]),
+      Buffer.alloc((env.UPLOAD_MAX_SIZE_MB + 2) * 1024 * 1024, 0x41),
+    ]);
+    const body = buildMultipartBody('file', 'huge.jpg', 'image/jpeg', oversizedBytes, boundary);
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/uploads/images',
+      headers: {
+        ...user.headers,
+        'content-type': `multipart/form-data; boundary=${boundary}`,
+      },
+      payload: body,
+    });
+
+    expect(res.statusCode).toBe(413);
+  });
+
   it('retorna 400 quando nenhum arquivo e enviado', async () => {
     const user = await registerUser(app);
     const emptyBody = Buffer.from(`--${boundary}--\r\n`);

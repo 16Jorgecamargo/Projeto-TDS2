@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ImageUpload } from './ImageUpload';
 import { uploadImage } from '../../features/uploads/api';
@@ -8,19 +8,23 @@ import { useToastStore } from './Toast';
 vi.mock('../../features/uploads/api', () => ({ uploadImage: vi.fn() }));
 
 describe('ImageUpload', () => {
+  let revokeObjectURL: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
     vi.clearAllMocks();
     useToastStore.setState({ toasts: [] });
 
     let counter = 0;
+    revokeObjectURL = vi.fn();
     vi.stubGlobal('URL', {
       ...URL,
       createObjectURL: () => `blob:http://localhost/${++counter}`,
-      revokeObjectURL: () => undefined,
+      revokeObjectURL,
     });
   });
 
   afterEach(() => {
+    cleanup();
     vi.unstubAllGlobals();
   });
 
@@ -78,5 +82,24 @@ describe('ImageUpload', () => {
 
     await waitFor(() => expect(useToastStore.getState().toasts).toHaveLength(1));
     expect(useToastStore.getState().toasts[0]).toMatchObject({ tone: 'error' });
+  });
+
+  it('revoga a URL do preview anterior ao selecionar um novo arquivo', async () => {
+    vi.mocked(uploadImage).mockResolvedValue({ url: '/uploads/abc.jpg', filename: 'abc.jpg', size: 1024 });
+    const user = userEvent.setup();
+    render(<ImageUpload onUploaded={vi.fn()} />);
+
+    const input = screen.getByLabelText('Enviar imagem');
+    const firstFile = new File(['conteudo-1'], 'foto1.jpg', { type: 'image/jpeg' });
+    await user.upload(input, firstFile);
+    await waitFor(() => expect(uploadImage).toHaveBeenCalledTimes(1));
+
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+
+    const secondFile = new File(['conteudo-2'], 'foto2.jpg', { type: 'image/jpeg' });
+    await user.upload(input, secondFile);
+    await waitFor(() => expect(uploadImage).toHaveBeenCalledTimes(2));
+
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:http://localhost/1');
   });
 });

@@ -17,11 +17,20 @@ export const uploadResponseSchema = z
 
 export const uploadImageBodySchema = z
   .object({
-    file: z.any().describe('Arquivo de imagem enviado no campo "file"'),
+    file: z
+      .any()
+      .describe(
+        'Arquivo de imagem obrigatorio, enviado no campo "file" de um multipart/form-data',
+      ),
   })
   .partial()
   .nullable()
   .optional()
-  .describe('Upload de imagem via multipart/form-data');
+  .describe(
+    'Upload de imagem via multipart/form-data. O campo "file" e obrigatorio na requisicao real: ' +
+      'este schema aparece como opcional apenas porque o validador de body JSON do Fastify nao ' +
+      'consegue inspecionar o conteudo de requisicoes multipart (request.body permanece null), ' +
+      'entao a validacao efetiva do arquivo ocorre no controller/service da rota, nao aqui.',
+  );
 
 export type UploadResponse = z.infer<typeof uploadResponseSchema>;

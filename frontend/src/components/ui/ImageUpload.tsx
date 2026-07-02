@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type JSX } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type JSX } from 'react';
 import { uploadImage, type UploadResult } from '../../features/uploads/api';
 import { useToast } from './Toast';
 import { Skeleton } from './Skeleton';
@@ -17,12 +17,25 @@ export function ImageUpload({ onUploaded, label = 'Enviar imagem', className }: 
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
+  const previewRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (previewRef.current) {
+        URL.revokeObjectURL(previewRef.current);
+      }
+    };
+  }, []);
 
   async function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    if (previewRef.current) {
+      URL.revokeObjectURL(previewRef.current);
+    }
     const localPreview = URL.createObjectURL(file);
+    previewRef.current = localPreview;
     setPreview(localPreview);
     setUploading(true);
 
