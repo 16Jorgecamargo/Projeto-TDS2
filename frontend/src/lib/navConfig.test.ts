@@ -6,8 +6,8 @@ describe('navConfig', () => {
     expect(getNavItems('client')).toHaveLength(4);
   });
 
-  it('retorna 6 itens para o profissional', () => {
-    expect(getNavItems('professional')).toHaveLength(6);
+  it('retorna 5 itens para o profissional', () => {
+    expect(getNavItems('professional')).toHaveLength(5);
   });
 
   it('retorna 5 itens para o admin', () => {
@@ -33,6 +33,12 @@ describe('navConfig', () => {
     expect(getDashboardItem('client').to).toBe('/');
     expect(getDashboardItem('professional').to).toBe('/professional/dashboard');
     expect(getDashboardItem('admin').to).toBe('/admin');
+  });
+
+  it('item de perfil do profissional aponta para /professional/profile', () => {
+    const items = getNavItems('professional');
+    const perfilItem = items.find((item) => item.label === 'Perfil');
+    expect(perfilItem?.to).toBe('/professional/profile');
   });
 
   it('resolve o item de chat quando o papel tem um', () => {

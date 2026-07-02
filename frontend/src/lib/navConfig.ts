@@ -6,7 +6,6 @@ import {
   ChatBubbleLeftRightIcon,
   BanknotesIcon,
   BriefcaseIcon,
-  CalendarDaysIcon,
   UsersIcon,
   ScaleIcon,
   ExclamationTriangleIcon,
@@ -31,8 +30,7 @@ const professionalNav: NavItem[] = [
   { label: 'Demandas disponíveis', to: '/demands', icon: ClipboardDocumentListIcon },
   { label: 'Meus contratos', to: '/contracts', icon: DocumentTextIcon },
   { label: 'Chat', to: '/chat', icon: ChatBubbleLeftRightIcon },
-  { label: 'Portfólio/Perfil', to: '/professional/dashboard', icon: BriefcaseIcon },
-  { label: 'Disponibilidade', to: '/professional/dashboard', icon: CalendarDaysIcon },
+  { label: 'Perfil', to: '/professional/profile', icon: BriefcaseIcon },
   { label: 'Carteira', to: '/wallet', icon: BanknotesIcon },
 ];
 
