@@ -7,7 +7,7 @@ import {
 
 export type Role = 'client' | 'professional' | 'admin';
 
-export type AuthUser = { id: string; role: Role };
+export type AuthUser = { id: string; role: Role; name?: string; email?: string };
 
 interface AuthState {
   user: AuthUser | null;
