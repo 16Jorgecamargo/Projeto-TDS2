@@ -17,7 +17,7 @@ export default defineConfig({
   projects: [
     {
       name: 'auth',
-      testMatch: ['smoke.spec.ts', 'auth/**/*.spec.ts'],
+      testMatch: ['smoke.spec.ts', 'auth.spec.ts', 'auth/**/*.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },
     {
