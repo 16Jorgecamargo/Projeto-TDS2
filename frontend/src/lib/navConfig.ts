@@ -5,7 +5,6 @@ import {
   DocumentTextIcon,
   ChatBubbleLeftRightIcon,
   BanknotesIcon,
-  Cog6ToothIcon,
   BriefcaseIcon,
   CalendarDaysIcon,
   UsersIcon,
@@ -25,7 +24,6 @@ const clientNav: NavItem[] = [
   { label: 'Minhas demandas', to: '/demands', icon: ClipboardDocumentListIcon },
   { label: 'Contratos', to: '/contracts', icon: DocumentTextIcon },
   { label: 'Chat', to: '/chat', icon: ChatBubbleLeftRightIcon },
-  { label: 'Configurações', to: '/settings', icon: Cog6ToothIcon },
   { label: 'Carteira', to: '/wallet', icon: BanknotesIcon },
 ];
 
@@ -33,7 +31,6 @@ const professionalNav: NavItem[] = [
   { label: 'Demandas disponíveis', to: '/demands', icon: ClipboardDocumentListIcon },
   { label: 'Meus contratos', to: '/contracts', icon: DocumentTextIcon },
   { label: 'Chat', to: '/chat', icon: ChatBubbleLeftRightIcon },
-  { label: 'Configurações', to: '/settings', icon: Cog6ToothIcon },
   { label: 'Portfólio/Perfil', to: '/professional/dashboard', icon: BriefcaseIcon },
   { label: 'Disponibilidade', to: '/professional/dashboard', icon: CalendarDaysIcon },
   { label: 'Carteira', to: '/wallet', icon: BanknotesIcon },
@@ -59,18 +56,20 @@ const dashboardRouteByRole: Record<Role, string> = {
   admin: '/admin',
 };
 
-const MOBILE_PRIMARY_COUNT = 4;
+const MOBILE_PRIMARY_ROUTE_COUNT = 2;
 
 export function getNavItems(role: Role): NavItem[] {
   return navByRole[role];
 }
 
 export function getMobilePrimaryItems(role: Role): NavItem[] {
-  return getNavItems(role).slice(0, MOBILE_PRIMARY_COUNT);
+  return getNavItems(role).slice(0, MOBILE_PRIMARY_ROUTE_COUNT);
 }
 
-export function getDashboardRoute(role: Role): string {
-  return dashboardRouteByRole[role];
+export function getDashboardItem(role: Role): NavItem {
+  return { label: 'Dashboard', to: dashboardRouteByRole[role], icon: HomeIcon };
 }
 
-export { HomeIcon as DashboardIcon };
+export function getChatItem(role: Role): NavItem | undefined {
+  return getNavItems(role).find((item) => item.label === 'Chat');
+}
