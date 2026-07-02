@@ -19,7 +19,7 @@ export function ServiceAreaManager() {
       <h2 className="mb-3 text-lg font-semibold text-ink">Áreas de atendimento</h2>
       <div className="mb-3 flex gap-2">
         <input
-          className="flex-1 rounded-sm border border-surface px-3 py-2 text-ink"
+          className="min-w-0 flex-1 rounded-sm border border-surface px-3 py-2 text-ink"
           placeholder="Cidade"
           value={city}
           onChange={(e) => setCity(e.target.value)}

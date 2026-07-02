@@ -68,7 +68,7 @@ export function PortfolioManager({ professionalId }: { professionalId: string | 
       <h2 className="mb-3 text-lg font-semibold text-ink">Portfólio</h2>
       <div className="mb-3 flex gap-2">
         <input
-          className="flex-1 rounded-sm border border-surface px-3 py-2 text-ink"
+          className="min-w-0 flex-1 rounded-sm border border-surface px-3 py-2 text-ink"
           placeholder="Título do trabalho"
           value={title}
           onChange={(e) => setTitle(e.target.value)}

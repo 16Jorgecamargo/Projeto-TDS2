@@ -32,7 +32,7 @@ export function PortfolioGallery({ professionalId }: PortfolioGalleryProps): JSX
                   key={image.id}
                   src={image.imageUrl}
                   alt={item.title}
-                  className="aspect-square w-full rounded-md object-cover"
+                  className="aspect-square w-full min-w-0 rounded-md object-cover"
                 />
               ))}
             </div>
