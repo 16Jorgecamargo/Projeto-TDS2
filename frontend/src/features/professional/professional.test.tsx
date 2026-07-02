@@ -65,7 +65,7 @@ describe('ProfileForm', () => {
     renderForm();
     const headline = await screen.findByDisplayValue('Antigo');
     fireEvent.change(headline, { target: { value: 'Novo titulo' } });
-    fireEvent.change(screen.getByLabelText(/anos de experiencia/i), { target: { value: '' } });
+    fireEvent.change(screen.getByLabelText(/anos de experiência/i), { target: { value: '' } });
     fireEvent.change(screen.getByLabelText(/valor por hora/i), { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: /salvar perfil/i }));
 
@@ -73,6 +73,23 @@ describe('ProfileForm', () => {
     expect(vi.mocked(professionalApi.upsertProfile).mock.calls[0][0]).toEqual(
       expect.objectContaining({ headline: 'Novo titulo', yearsExperience: null, hourlyRate: null }),
     );
+  });
+
+  it('cada campo tem label associado via htmlFor/id', async () => {
+    vi.mocked(professionalApi.getMyProfile).mockResolvedValue({
+      id: 'p1', userId: 'u1', headline: 'Antigo', bio: null, yearsExperience: 5,
+      hourlyRate: 100, serviceRadiusKm: 20, ratingAverage: 0, ratingCount: 0,
+      isAvailable: true, verifiedAt: null, createdAt: '2026-07-01T00:00:00Z',
+    });
+
+    renderForm();
+    await screen.findByDisplayValue('Antigo');
+
+    expect(screen.getByLabelText('Título')).toHaveAttribute('id', 'profile-headline');
+    expect(screen.getByLabelText('Biografia')).toHaveAttribute('id', 'profile-bio');
+    expect(screen.getByLabelText('Anos de experiência')).toHaveAttribute('id', 'profile-years-experience');
+    expect(screen.getByLabelText('Valor por hora (R$)')).toHaveAttribute('id', 'profile-hourly-rate');
+    expect(screen.getByLabelText('Raio de atendimento (km)')).toHaveAttribute('id', 'profile-service-radius');
   });
 });
 
