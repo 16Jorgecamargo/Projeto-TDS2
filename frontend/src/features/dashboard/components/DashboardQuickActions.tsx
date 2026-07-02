@@ -1,0 +1,19 @@
+import type { JSX } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../../../components/ui/Button';
+
+export function DashboardQuickActions(): JSX.Element {
+  const navigate = useNavigate();
+
+  return (
+    <div className="flex flex-wrap gap-3">
+      <Button onClick={() => navigate('/demands/new')}>Publicar demanda</Button>
+      <Button variant="ghost" onClick={() => navigate('/search')}>
+        Buscar profissional
+      </Button>
+      <Button variant="ghost" onClick={() => navigate('/contracts')}>
+        Ver contratos
+      </Button>
+    </div>
+  );
+}
