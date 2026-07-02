@@ -163,7 +163,7 @@ Expected: PASS (5 tests)
 
 ```bash
 git add frontend/src/lib/navConfig.ts frontend/src/lib/navConfig.test.ts
-git commit -m "feat(nav): add role-aware navConfig"
+git commit -m "feat(nav): adiciona navConfig por papel"
 ```
 
 ---
@@ -245,7 +245,7 @@ Expected: PASS (3 tests)
 
 ```bash
 git add frontend/src/stores/sidebar.ts frontend/src/stores/sidebar.test.ts
-git commit -m "feat(nav): add persisted sidebarStore"
+git commit -m "feat(nav): adiciona sidebarStore persistido"
 ```
 
 ---
@@ -328,7 +328,7 @@ Expected: PASS (4 tests)
 
 ```bash
 git add frontend/src/stores/commandPalette.ts frontend/src/stores/commandPalette.test.ts
-git commit -m "feat(nav): add commandPaletteStore"
+git commit -m "feat(nav): adiciona commandPaletteStore"
 ```
 
 ---

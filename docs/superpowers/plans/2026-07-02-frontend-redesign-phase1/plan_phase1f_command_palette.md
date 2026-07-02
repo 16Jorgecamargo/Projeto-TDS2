@@ -80,7 +80,7 @@ Expected: exits 0
 
 ```bash
 git add frontend/src/features/landing/queries.ts frontend/src/features/demands/queries.ts
-git commit -m "feat(queries): add optional enabled flag to useSearchProfessionals and useDemands"
+git commit -m "feat(queries): adiciona flag enabled opcional a useSearchProfessionals e useDemands"
 ```
 
 ---
@@ -342,7 +342,7 @@ Expected: PASS (5 tests)
 
 ```bash
 git add frontend/src/components/layout/CommandPalette.tsx frontend/src/components/layout/CommandPalette.test.tsx
-git commit -m "feat(layout): add CommandPalette with Ctrl+K, nav filter, and professional/demand search"
+git commit -m "feat(layout): adiciona CommandPalette com Ctrl+K, filtro de nav e busca de profissionais/demandas"
 ```
 
 ---

@@ -104,7 +104,7 @@ Expected: PASS (2 tests)
 
 ```bash
 git add frontend/src/components/layout/AppShell.tsx frontend/src/components/layout/AppShell.test.tsx
-git commit -m "feat(layout): add AppShell composing Topbar, Sidebar, MobileNav, CommandPalette, ToastProvider"
+git commit -m "feat(layout): adiciona AppShell compondo Topbar, Sidebar, MobileNav, CommandPalette, ToastProvider"
 ```
 
 ---
@@ -170,7 +170,7 @@ Expected: PASS (1 test)
 
 ```bash
 git add frontend/src/features/chat/pages/ChatIndexPage.tsx frontend/src/features/chat/pages/ChatIndexPage.test.tsx
-git commit -m "feat(chat): add ChatIndexPage placeholder for the new /chat nav destination"
+git commit -m "feat(chat): adiciona ChatIndexPage placeholder para o novo destino de nav /chat"
 ```
 
 ---
@@ -259,7 +259,7 @@ Expected: PASS (1 test)
 ```bash
 git add frontend/src/App.tsx frontend/src/App.test.tsx
 git rm frontend/src/components/Layout.tsx
-git commit -m "feat(layout): swap Layout for AppShell as the router's layout component"
+git commit -m "feat(layout): troca Layout por AppShell como componente de layout do router"
 ```
 
 ---
@@ -300,7 +300,7 @@ Expected: PASS (all suites)
 
 ```bash
 git add frontend/src/router/index.tsx
-git commit -m "feat(router): add /chat index route pointing to ChatIndexPage"
+git commit -m "feat(router): adiciona rota indice /chat apontando para ChatIndexPage"
 ```
 
 ---

@@ -165,7 +165,7 @@ Expected: PASS (3 tests)
 
 ```bash
 git add frontend/src/components/ui/Toast.tsx frontend/src/components/ui/Toast.test.tsx
-git commit -m "feat(ui): add Toast primitive with global store"
+git commit -m "feat(ui): adiciona primitivo Toast com store global"
 ```
 
 ---
@@ -300,7 +300,7 @@ Expected: PASS (4 tests)
 
 ```bash
 git add frontend/src/components/ui/Modal.tsx frontend/src/components/ui/Modal.test.tsx
-git commit -m "feat(ui): add Modal primitive"
+git commit -m "feat(ui): adiciona primitivo Modal"
 ```
 
 ---
@@ -439,7 +439,7 @@ Expected: PASS (4 tests)
 
 ```bash
 git add frontend/src/components/ui/Drawer.tsx frontend/src/components/ui/Drawer.test.tsx
-git commit -m "feat(ui): add Drawer primitive"
+git commit -m "feat(ui): adiciona primitivo Drawer"
 ```
 
 ---

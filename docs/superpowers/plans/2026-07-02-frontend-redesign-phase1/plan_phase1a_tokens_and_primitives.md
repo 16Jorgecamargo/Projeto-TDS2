@@ -116,7 +116,7 @@ Expected: exits 0, no TypeScript or Tailwind config errors.
 
 ```bash
 git add frontend/index.html frontend/src/index.css frontend/tailwind.config.js
-git commit -m "feat(design-system): add OKLCH color tokens and Tailwind theme"
+git commit -m "feat(design-system): adiciona tokens de cor OKLCH e tema Tailwind"
 ```
 
 ---
@@ -227,7 +227,7 @@ Expected: PASS (3 tests)
 
 ```bash
 git add frontend/src/components/ui/Button.tsx frontend/src/components/ui/Button.test.tsx
-git commit -m "feat(ui): add Button primitive"
+git commit -m "feat(ui): adiciona primitivo Button"
 ```
 
 ---
@@ -315,7 +315,7 @@ Expected: PASS (3 tests)
 
 ```bash
 git add frontend/src/components/ui/Badge.tsx frontend/src/components/ui/Badge.test.tsx
-git commit -m "feat(ui): add Badge primitive"
+git commit -m "feat(ui): adiciona primitivo Badge"
 ```
 
 ---
@@ -391,7 +391,7 @@ Expected: PASS (3 tests)
 
 ```bash
 git add frontend/src/components/ui/Skeleton.tsx frontend/src/components/ui/Skeleton.test.tsx
-git commit -m "feat(ui): add Skeleton primitive"
+git commit -m "feat(ui): adiciona primitivo Skeleton"
 ```
 
 ---
@@ -475,7 +475,7 @@ Expected: PASS (3 tests)
 
 ```bash
 git add frontend/src/components/ui/EmptyState.tsx frontend/src/components/ui/EmptyState.test.tsx
-git commit -m "feat(ui): add EmptyState primitive"
+git commit -m "feat(ui): adiciona primitivo EmptyState"
 ```
 
 ---
@@ -579,7 +579,7 @@ Expected: PASS (3 tests)
 
 ```bash
 git add frontend/src/components/ui/Avatar.tsx frontend/src/components/ui/Avatar.test.tsx
-git commit -m "feat(ui): add Avatar primitive"
+git commit -m "feat(ui): adiciona primitivo Avatar"
 ```
 
 ---
@@ -697,7 +697,7 @@ Expected: PASS (3 tests)
 
 ```bash
 git add frontend/src/components/ui/Tooltip.tsx frontend/src/components/ui/Tooltip.test.tsx
-git commit -m "feat(ui): add Tooltip primitive"
+git commit -m "feat(ui): adiciona primitivo Tooltip"
 ```
 
 ---
@@ -774,7 +774,7 @@ Expected: PASS (3 tests)
 
 ```bash
 git add frontend/src/components/ui/Card.tsx frontend/src/components/ui/Card.test.tsx
-git commit -m "feat(ui): add Card primitive"
+git commit -m "feat(ui): adiciona primitivo Card"
 ```
 
 ---

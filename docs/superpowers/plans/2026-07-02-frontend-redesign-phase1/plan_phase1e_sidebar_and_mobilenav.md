@@ -147,7 +147,7 @@ Expected: PASS (4 tests)
 
 ```bash
 git add frontend/src/components/layout/Sidebar.tsx frontend/src/components/layout/Sidebar.test.tsx
-git commit -m "feat(layout): add collapsible role-aware Sidebar"
+git commit -m "feat(layout): adiciona Sidebar colapsavel por papel"
 ```
 
 ---
@@ -310,7 +310,7 @@ Expected: PASS (4 tests)
 
 ```bash
 git add frontend/src/components/layout/MobileNav.tsx frontend/src/components/layout/MobileNav.test.tsx
-git commit -m "feat(layout): add MobileNav (bottom tabs + full drawer)"
+git commit -m "feat(layout): adiciona MobileNav (abas inferiores + drawer completo)"
 ```
 
 ---

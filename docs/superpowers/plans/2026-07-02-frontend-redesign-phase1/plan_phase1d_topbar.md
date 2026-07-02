@@ -44,7 +44,7 @@ Expected: exits 0
 
 ```bash
 git add frontend/src/stores/auth.ts
-git commit -m "feat(auth): widen AuthUser type to include name/email already returned by the API"
+git commit -m "feat(auth): amplia tipo AuthUser para incluir name/email ja retornados pela API"
 ```
 
 ---
@@ -193,7 +193,7 @@ Expected: PASS (3 tests)
 
 ```bash
 git add frontend/src/components/layout/ProfileMenu.tsx frontend/src/components/layout/ProfileMenu.test.tsx
-git commit -m "feat(layout): add ProfileMenu"
+git commit -m "feat(layout): adiciona ProfileMenu"
 ```
 
 ---
@@ -314,7 +314,7 @@ Expected: PASS (3 tests)
 
 ```bash
 git add frontend/src/components/layout/Topbar.tsx frontend/src/components/layout/Topbar.test.tsx
-git commit -m "feat(layout): add Topbar with command palette trigger and NotificationBell"
+git commit -m "feat(layout): adiciona Topbar com gatilho da command palette e NotificationBell"
 ```
 
 ---
