@@ -90,8 +90,13 @@ export async function fetchDemand(id: string): Promise<Demand> {
   return data;
 }
 
-export async function publishDemand(values: DemandFormValues): Promise<Demand> {
-  const { data } = await http.post<Demand>('/demands', { ...values, addressId: null, tagIds: [], images: [] });
+export async function publishDemand(values: DemandFormValues, images: string[] = []): Promise<Demand> {
+  const { data } = await http.post<Demand>('/demands', {
+    ...values,
+    addressId: null,
+    tagIds: [],
+    images: images.map((url, position) => ({ url, position })),
+  });
   return data;
 }
 

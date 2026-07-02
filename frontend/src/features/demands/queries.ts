@@ -32,7 +32,7 @@ export function useDemand(id: string) {
 export function usePublishDemand() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (values: DemandFormValues) => publishDemand(values),
+    mutationFn: (input: { values: DemandFormValues; images: string[] }) => publishDemand(input.values, input.images),
     onSuccess: () => client.invalidateQueries({ queryKey: demandKeys.all }),
   });
 }

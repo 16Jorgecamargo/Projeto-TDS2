@@ -1,24 +1,35 @@
+import type { JSX } from 'react';
+import { Badge } from '../../../components/ui/Badge';
 import type { Demand } from '../api';
 
 const currency = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+const STATUS_LABELS: Record<Demand['status'], string> = {
+  open: 'Aberta',
+  in_progress: 'Em andamento',
+  closed: 'Concluída',
+  cancelled: 'Cancelada',
+};
 
 interface DemandCardProps {
   demand: Demand;
   onOpen: (id: string) => void;
 }
 
-export function DemandCard({ demand, onOpen }: DemandCardProps) {
+export function DemandCard({ demand, onOpen }: DemandCardProps): JSX.Element {
   return (
     <button
       type="button"
       onClick={() => onOpen(demand.id)}
-      className="flex w-full flex-col gap-1 rounded-xl border border-slate-200 p-4 text-left hover:border-slate-400"
+      className="flex w-full flex-col gap-2 rounded-lg bg-surface p-4 text-left hover:shadow-hover"
     >
-      <span className="text-base font-semibold text-slate-900">{demand.title}</span>
-      <span className="text-sm text-slate-500">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-base font-semibold text-ink">{demand.title}</span>
+        <Badge tone={demand.status === 'open' ? 'urgent' : 'neutral'}>{STATUS_LABELS[demand.status]}</Badge>
+      </div>
+      <span className="text-sm text-muted">
         {currency(demand.budgetMin)} — {currency(demand.budgetMax)}
       </span>
-      <span className="text-xs uppercase tracking-wide text-slate-400">{demand.status}</span>
     </button>
   );
 }
