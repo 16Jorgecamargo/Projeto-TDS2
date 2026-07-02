@@ -36,6 +36,7 @@ import { paymentRoutes } from './modules/payment/payment.routes.js';
 import { refundsRoutes } from './modules/refunds/refunds.routes.js';
 import { withdrawalsRoutes } from './modules/withdrawals/withdrawals.routes.js';
 import { reviewRoutes } from './modules/review/review.routes.js';
+import { socialRoutes } from './modules/social/social.routes.js';
 
 interface BuildAppOptions {
   dataSource?: DataSource;
@@ -94,6 +95,7 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
   await app.register(refundsRoutes, { prefix: '/api' });
   await app.register(withdrawalsRoutes, { prefix: '/api' });
   await app.register(reviewRoutes, { prefix: '/api' });
+  await app.register(socialRoutes, { prefix: '/api' });
 
   return app;
 }
