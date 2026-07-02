@@ -2,10 +2,12 @@ import { fileURLToPath } from 'node:url';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from './app.js';
 import { env } from './config/env.js';
+import { startNotificationWorker } from './modules/notification/notification.worker.js';
 
 export async function start(): Promise<FastifyInstance> {
   const app = await buildApp();
   await app.listen({ port: env.PORT, host: env.HOST });
+  startNotificationWorker();
   return app;
 }
 
