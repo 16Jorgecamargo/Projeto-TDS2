@@ -7,11 +7,11 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import { formatDate } from '../../../lib/utils';
 
 export function DashboardAgendaWidget(): JSX.Element {
-  const { data: profile } = useMyProfile();
+  const { data: profile, isPending: isProfilePending } = useMyProfile();
   const { data: contracts, isPending: isContractsPending } = useContracts();
   const { data: slots, isPending: isSlotsPending } = useSlots(profile?.id);
 
-  const isPending = isContractsPending || isSlotsPending;
+  const isPending = isContractsPending || isProfilePending || (Boolean(profile?.id) && isSlotsPending);
 
   const upcoming = (contracts ?? [])
     .filter(

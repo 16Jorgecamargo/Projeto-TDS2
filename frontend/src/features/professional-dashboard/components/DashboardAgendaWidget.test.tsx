@@ -60,4 +60,15 @@ describe('DashboardAgendaWidget', () => {
 
     expect(screen.getByText('Nenhum compromisso ou disponibilidade cadastrada')).toBeInTheDocument();
   });
+
+  it('mostra estado vazio (nao fica preso carregando) quando o profissional ainda nao tem perfil salvo', () => {
+    vi.mocked(useMyProfile).mockReturnValue({ data: undefined, isPending: false } as never);
+    vi.mocked(useContracts).mockReturnValue({ data: [], isPending: false } as never);
+    vi.mocked(useSlots).mockReturnValue({ data: undefined, isPending: true } as never);
+
+    renderWithProviders(<DashboardAgendaWidget />);
+
+    expect(screen.getByText('Nenhum compromisso ou disponibilidade cadastrada')).toBeInTheDocument();
+    expect(screen.queryByRole('status', { name: 'Carregando agenda' })).not.toBeInTheDocument();
+  });
 });
