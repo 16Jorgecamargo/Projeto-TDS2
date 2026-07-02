@@ -1,4 +1,4 @@
-import type { JSX } from 'react';
+import { useEffect, type JSX } from 'react';
 import { NavLink } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../stores/auth';
@@ -7,6 +7,8 @@ import { useCommandPaletteStore } from '../../stores/commandPalette';
 import { getMobilePrimaryItems, getDashboardItem, getChatItem, type NavItem } from '../../lib/navConfig';
 import { Tooltip } from '../ui/Tooltip';
 import { cn } from '../../lib/utils';
+
+const AUTO_COLLAPSE_QUERY = '(max-width: 1023px)';
 
 function getPrimaryRouteIndexes(items: NavItem[]): Set<number> {
   const seenRoutes = new Set<string>();
@@ -24,7 +26,16 @@ export function Sidebar(): JSX.Element | null {
   const role = useAuthStore((state) => state.user?.role);
   const collapsed = useSidebarStore((state) => state.collapsed);
   const toggle = useSidebarStore((state) => state.toggle);
+  const setCollapsed = useSidebarStore((state) => state.setCollapsed);
   const openPalette = useCommandPaletteStore((state) => state.openPalette);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(AUTO_COLLAPSE_QUERY);
+    const syncCollapsed = (event: MediaQueryList | MediaQueryListEvent) => setCollapsed(event.matches);
+    syncCollapsed(mediaQuery);
+    mediaQuery.addEventListener('change', syncCollapsed);
+    return () => mediaQuery.removeEventListener('change', syncCollapsed);
+  }, [setCollapsed]);
 
   if (!role) return null;
 

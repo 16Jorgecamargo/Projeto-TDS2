@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../../test/renderWithProviders';
@@ -7,11 +7,36 @@ import { useAuthStore } from '../../stores/auth';
 import { useSidebarStore } from '../../stores/sidebar';
 import { useCommandPaletteStore } from '../../stores/commandPalette';
 
+function mockNarrowViewport(matches: boolean) {
+  const original = window.matchMedia;
+  window.matchMedia = (query: string) =>
+    ({
+      matches,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }) as MediaQueryList;
+  return () => {
+    window.matchMedia = original;
+  };
+}
+
 describe('Sidebar', () => {
+  let restoreMatchMedia: () => void;
+
   beforeEach(() => {
     useAuthStore.getState().clear();
     useSidebarStore.setState({ collapsed: false });
     useCommandPaletteStore.setState({ open: false });
+    restoreMatchMedia = mockNarrowViewport(false);
+  });
+
+  afterEach(() => {
+    restoreMatchMedia();
   });
 
   it('não renderiza nada sem usuário logado', () => {
@@ -41,9 +66,19 @@ describe('Sidebar', () => {
   });
 
   it('esconde os rótulos de texto quando colapsada', () => {
+    restoreMatchMedia();
+    restoreMatchMedia = mockNarrowViewport(true);
     useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
-    useSidebarStore.setState({ collapsed: true });
     renderWithProviders(<Sidebar />);
+    expect(screen.queryByText('Minhas demandas')).not.toBeInTheDocument();
+  });
+
+  it('colapsa automaticamente quando a tela e estreita (menos de 1024px)', () => {
+    restoreMatchMedia();
+    restoreMatchMedia = mockNarrowViewport(true);
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
+    renderWithProviders(<Sidebar />);
+    expect(useSidebarStore.getState().collapsed).toBe(true);
     expect(screen.queryByText('Minhas demandas')).not.toBeInTheDocument();
   });
 
