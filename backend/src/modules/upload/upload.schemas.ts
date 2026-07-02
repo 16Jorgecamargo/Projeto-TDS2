@@ -15,4 +15,13 @@ export const uploadResponseSchema = z
   })
   .describe('Resultado do upload de imagem');
 
+export const uploadImageBodySchema = z
+  .object({
+    file: z.any().describe('Arquivo de imagem enviado no campo "file"'),
+  })
+  .partial()
+  .nullable()
+  .optional()
+  .describe('Upload de imagem via multipart/form-data');
+
 export type UploadResponse = z.infer<typeof uploadResponseSchema>;

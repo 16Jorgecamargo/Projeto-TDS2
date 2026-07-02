@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { env } from '../../config/env.js';
 import { UploadService } from './upload.service.js';
 import { UploadController } from './upload.controller.js';
-import { uploadResponseSchema } from './upload.schemas.js';
+import { uploadImageBodySchema, uploadResponseSchema } from './upload.schemas.js';
 
 export async function uploadRoutes(app: FastifyInstance): Promise<void> {
   const service = new UploadService({
@@ -18,6 +18,8 @@ export async function uploadRoutes(app: FastifyInstance): Promise<void> {
     schema: {
       tags: ['upload'],
       summary: 'Enviar imagem (multipart/form-data, campo "file")',
+      consumes: ['multipart/form-data'],
+      body: uploadImageBodySchema,
       response: { 201: uploadResponseSchema },
     },
     handler: controller.uploadImage,
