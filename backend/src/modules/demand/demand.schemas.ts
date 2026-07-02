@@ -10,9 +10,9 @@ export const demandStatusEnum = z
 export const demandImageSchema = z.object({
   url: z
     .string()
-    .url()
-    .describe('URL da imagem')
-    .openapi({ example: 'https://cdn.app/demand-image-a.jpg' }),
+    .min(1)
+    .describe('URL da imagem (absoluta ou caminho relativo retornado por /uploads/images)')
+    .openapi({ example: '/uploads/3f2504e0-4f89-41d3-9a0c-0305e82c3301.jpg' }),
   position: z
     .number()
     .int()
