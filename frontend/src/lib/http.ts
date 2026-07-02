@@ -4,18 +4,24 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from 'axios';
 import { useAuthStore, type AuthUser } from '../stores/auth';
+import { getStoredRefreshToken } from './authStorage';
 
 export const http: AxiosInstance = axios.create({ baseURL: '/api' });
 
-const refreshClient: AxiosInstance = axios.create({ baseURL: '/api', withCredentials: true });
+const refreshClient: AxiosInstance = axios.create({ baseURL: '/api' });
 
 export async function refreshAccessToken(): Promise<string> {
+  const refreshToken = getStoredRefreshToken();
+  if (!refreshToken) {
+    throw new Error('No refresh token available');
+  }
   const response = await refreshClient.post<{
     accessToken: string;
+    refreshToken: string;
     user: AuthUser;
-  }>('/auth/refresh');
-  const { accessToken, user } = response.data;
-  useAuthStore.getState().setAuth(user, accessToken);
+  }>('/auth/refresh', { refreshToken });
+  const { accessToken, refreshToken: nextRefreshToken, user } = response.data;
+  useAuthStore.getState().setAuth(user, accessToken, nextRefreshToken);
   return accessToken;
 }
 

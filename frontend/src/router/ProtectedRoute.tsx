@@ -6,9 +6,13 @@ interface ProtectedRouteProps {
   roles?: Role[];
 }
 
-export function ProtectedRoute({ roles }: ProtectedRouteProps): JSX.Element {
+export function ProtectedRoute({ roles }: ProtectedRouteProps): JSX.Element | null {
   const user = useAuthStore((state) => state.user);
+  const isBootstrapping = useAuthStore((state) => state.isBootstrapping);
 
+  if (isBootstrapping) {
+    return null;
+  }
   if (!user) {
     return <Navigate to="/login" replace />;
   }

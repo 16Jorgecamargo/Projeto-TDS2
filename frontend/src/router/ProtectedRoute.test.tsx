@@ -21,6 +21,7 @@ function renderAt(initial: string, roles?: ('client' | 'professional' | 'admin')
 describe('ProtectedRoute', () => {
   beforeEach(() => {
     useAuthStore.getState().clear();
+    useAuthStore.getState().finishBootstrapping();
   });
 
   it('redirects anonymous users to login', () => {
