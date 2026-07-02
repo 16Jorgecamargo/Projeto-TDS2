@@ -12,3 +12,4 @@ test-results
 .overclock-app/
 .superpowers/
 .claude/
+.playwright-mcp/
