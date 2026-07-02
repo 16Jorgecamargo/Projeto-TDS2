@@ -4,7 +4,7 @@ import { Notification } from '../../infra/database/entities/notification.entity.
 import { PushDeviceToken } from '../../infra/database/entities/push-device-token.entity.js';
 import { NotificationService } from './notification.service.js';
 import { NotificationController } from './notification.controller.js';
-import { idParamSchema, paginationQuerySchema } from '../../shared/schemas.js';
+import { emptyBodySchema, idParamSchema, paginationQuerySchema } from '../../shared/schemas.js';
 import {
   notificationListResponseSchema,
   registerDeviceBodySchema,
@@ -35,6 +35,7 @@ export async function notificationRoutes(app: FastifyInstance): Promise<void> {
       tags: ['notification'],
       summary: 'Marcar notificacao como lida',
       params: idParamSchema,
+      body: emptyBodySchema,
       response: { 204: z.void() },
     },
     handler: controller.markRead,

@@ -36,6 +36,8 @@ export function paginatedResponse<T extends ZodTypeAny>(itemSchema: T) {
   });
 }
 
+export const emptyBodySchema = z.object({}).describe('Empty request body').openapi({ example: {} }).nullish();
+
 export const errorResponseSchema = z.object({
   error: z
     .object({

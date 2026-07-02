@@ -7,7 +7,7 @@ import { Quote } from '../../infra/database/entities/quote.entity.js';
 import { QuoteItem } from '../../infra/database/entities/quote-item.entity.js';
 import { ServiceDemand } from '../../infra/database/entities/service-demand.entity.js';
 import { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
-import { idParamSchema } from '../../shared/schemas.js';
+import { emptyBodySchema, idParamSchema } from '../../shared/schemas.js';
 import { requireRole } from '../../plugins/auth.js';
 import { createQuoteSchema, quoteResponseSchema } from './quote.schemas.js';
 
@@ -59,6 +59,7 @@ export async function quoteRoutes(app: FastifyInstance): Promise<void> {
       tags: ['quotes'],
       summary: 'Retirar orcamento',
       params: idParamSchema,
+      body: emptyBodySchema,
       response: { 200: quoteResponseSchema },
     },
     handler: controller.withdraw,

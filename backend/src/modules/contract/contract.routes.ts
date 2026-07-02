@@ -10,7 +10,7 @@ import { Schedule } from '../../infra/database/entities/schedule.entity.js';
 import { ContractProgressUpdate } from '../../infra/database/entities/contract-progress-update.entity.js';
 import { ContractProgressImage } from '../../infra/database/entities/contract-progress-image.entity.js';
 import { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
-import { idParamSchema } from '../../shared/schemas.js';
+import { emptyBodySchema, idParamSchema } from '../../shared/schemas.js';
 import { requireRole } from '../../plugins/auth.js';
 import {
   acceptQuoteSchema,
@@ -70,6 +70,7 @@ export async function contractRoutes(app: FastifyInstance): Promise<void> {
       tags: ['contracts'],
       summary: 'Iniciar execucao',
       params: idParamSchema,
+      body: emptyBodySchema,
       response: { 200: contractResponseSchema },
     },
     handler: controller.startContract,
@@ -81,6 +82,7 @@ export async function contractRoutes(app: FastifyInstance): Promise<void> {
       tags: ['contracts'],
       summary: 'Concluir contrato',
       params: idParamSchema,
+      body: emptyBodySchema,
       response: { 200: contractResponseSchema },
     },
     handler: controller.completeContract,

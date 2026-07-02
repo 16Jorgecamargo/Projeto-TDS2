@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { AddressService } from './address.service.js';
 import { AddressController } from './address.controller.js';
 import { Address } from '../../infra/database/entities/address.entity.js';
-import { idParamSchema } from '../../shared/schemas.js';
+import { emptyBodySchema, idParamSchema } from '../../shared/schemas.js';
 import { addressSchema, createAddressSchema, updateAddressSchema } from './address.schemas.js';
 
 export async function addressRoutes(app: FastifyInstance): Promise<void> {
@@ -32,7 +32,13 @@ export async function addressRoutes(app: FastifyInstance): Promise<void> {
   });
   app.post('/addresses/:id/default', {
     onRequest: [app.authenticate],
-    schema: { tags: ['address'], summary: 'Define endereco padrao', params: idParamSchema, response: { 204: z.void() } },
+    schema: {
+      tags: ['address'],
+      summary: 'Define endereco padrao',
+      params: idParamSchema,
+      body: emptyBodySchema,
+      response: { 204: z.void() },
+    },
     handler: controller.setDefault,
   });
 }

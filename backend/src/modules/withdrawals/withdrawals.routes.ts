@@ -6,7 +6,7 @@ import { WalletService } from '../wallet/wallet.service.js';
 import { Withdrawal } from '../../infra/database/entities/withdrawal.entity.js';
 import { Wallet } from '../../infra/database/entities/wallet.entity.js';
 import { WalletTransaction } from '../../infra/database/entities/wallet-transaction.entity.js';
-import { idParamSchema } from '../../shared/schemas.js';
+import { emptyBodySchema, idParamSchema } from '../../shared/schemas.js';
 import { requireRole } from '../../plugins/auth.js';
 import { requestWithdrawalSchema, withdrawalResponseSchema } from './withdrawals.schemas.js';
 
@@ -49,6 +49,7 @@ export async function withdrawalsRoutes(app: FastifyInstance): Promise<void> {
       tags: ['withdrawals'],
       summary: 'Processar saque',
       params: idParamSchema,
+      body: emptyBodySchema,
       response: { 200: withdrawalResponseSchema },
     },
     handler: controller.processWithdrawal,

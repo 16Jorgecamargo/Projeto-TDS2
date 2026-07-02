@@ -12,6 +12,7 @@ import {
   recordConsentSchema,
   deletionRequestSchema,
 } from './account.schemas.js';
+import { emptyBodySchema } from '../../shared/schemas.js';
 
 export async function accountRoutes(app: FastifyInstance): Promise<void> {
   const service = new AccountService({
@@ -57,7 +58,12 @@ export async function accountRoutes(app: FastifyInstance): Promise<void> {
   });
   app.post('/account/deletion', {
     onRequest: [app.authenticate],
-    schema: { tags: ['account'], summary: 'Solicita exclusao de conta', response: { 201: deletionRequestSchema } },
+    schema: {
+      tags: ['account'],
+      summary: 'Solicita exclusao de conta',
+      body: emptyBodySchema,
+      response: { 201: deletionRequestSchema },
+    },
     handler: controller.requestDeletion,
   });
   app.delete('/account/deletion', {

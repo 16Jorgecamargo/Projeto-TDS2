@@ -8,7 +8,7 @@ import { DemandImage } from '../../infra/database/entities/demand-image.entity.j
 import { DemandTag } from '../../infra/database/entities/demand-tag.entity.js';
 import { DemandInvitation } from '../../infra/database/entities/demand-invitation.entity.js';
 import { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
-import { idParamSchema } from '../../shared/schemas.js';
+import { emptyBodySchema, idParamSchema } from '../../shared/schemas.js';
 import { requireRole } from '../../plugins/auth.js';
 import {
   createDemandSchema,
@@ -80,6 +80,7 @@ export async function demandRoutes(app: FastifyInstance): Promise<void> {
       tags: ['demands'],
       summary: 'Cancelar demanda',
       params: idParamSchema,
+      body: emptyBodySchema,
       response: { 200: demandResponseSchema },
     },
     handler: controller.cancel,
