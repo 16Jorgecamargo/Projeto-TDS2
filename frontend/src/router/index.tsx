@@ -18,6 +18,7 @@ import DemandDetailPage from '../features/demands/pages/DemandDetailPage';
 import ContractListPage from '../features/contracts/pages/ContractListPage';
 import ContractDetailPage from '../features/contracts/pages/ContractDetailPage';
 import WalletPage from '../features/wallet/pages/WalletPage';
+import { NotificationsPage } from '../features/notifications/pages/NotificationsPage';
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
           { path: '/contracts', element: <ContractListPage /> },
           { path: '/contracts/:id', element: <ContractDetailPage /> },
           { path: '/wallet', element: <WalletPage /> },
+          { path: '/notifications', element: <NotificationsPage /> },
         ],
       },
       {
