@@ -52,7 +52,22 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
 
-  await app.register(helmet, { contentSecurityPolicy: false });
+  await app.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: [`'self'`],
+        scriptSrc: [`'self'`, `'unsafe-inline'`],
+        styleSrc: [`'self'`, `'unsafe-inline'`],
+        imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+        objectSrc: [`'none'`],
+        upgradeInsecureRequests: null,
+      },
+    },
+    hsts: { maxAge: 15552000, includeSubDomains: true, preload: true },
+    frameguard: { action: 'deny' },
+    referrerPolicy: { policy: 'no-referrer' },
+    crossOriginEmbedderPolicy: false,
+  });
   await app.register(cors, { origin: env.CORS_ORIGIN, credentials: true });
   await app.register(rateLimit, {
     max: env.RATE_LIMIT_MAX,
