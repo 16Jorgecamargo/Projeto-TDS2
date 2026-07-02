@@ -3,6 +3,7 @@ import type { Payment } from '../../infra/database/entities/payment.entity.js';
 import type { Contract } from '../../infra/database/entities/contract.entity.js';
 import type { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
 import { NotFoundError, ForbiddenError, ConflictError, UnprocessableError } from '../../shared/errors.js';
+import { businessMetrics } from '../../observability/metrics.js';
 import type { WalletService } from '../wallet/wallet.service.js';
 import type { FeesService } from '../fees/fees.service.js';
 import type { PlatformFeeResponse } from '../fees/fees.schemas.js';
@@ -89,6 +90,7 @@ export class PaymentService {
     payment.paid_at = new Date();
     payment = await this.deps.payments.save(payment);
 
+    businessMetrics.paymentsProcessed.inc();
     return this.toResponse(payment);
   }
 

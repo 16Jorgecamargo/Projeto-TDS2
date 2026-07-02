@@ -6,6 +6,7 @@ import type { Schedule } from '../../infra/database/entities/schedule.entity.js'
 import type { ContractProgressUpdate } from '../../infra/database/entities/contract-progress-update.entity.js';
 import type { ContractProgressImage } from '../../infra/database/entities/contract-progress-image.entity.js';
 import { NotFoundError, ForbiddenError, UnprocessableError } from '../../shared/errors.js';
+import { businessMetrics } from '../../observability/metrics.js';
 import type {
   ScheduleInput,
   ProgressUpdateInput,
@@ -112,6 +113,7 @@ export class ContractService {
       );
     }
 
+    businessMetrics.contractsSigned.inc();
     return this.toResponse(contract);
   }
 

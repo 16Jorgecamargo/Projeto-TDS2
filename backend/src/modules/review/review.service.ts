@@ -3,6 +3,7 @@ import type { Review } from '../../infra/database/entities/review.entity.js';
 import type { Contract } from '../../infra/database/entities/contract.entity.js';
 import type { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
 import { ConflictError, ForbiddenError, NotFoundError } from '../../shared/errors.js';
+import { businessMetrics } from '../../observability/metrics.js';
 import type { ReviewResponse } from './review.schemas.js';
 
 export type NotificationChannel = 'in_app' | 'push' | 'email';
@@ -110,6 +111,7 @@ export class ReviewService {
       entityId: saved.id,
     });
 
+    businessMetrics.reviewsCreated.inc();
     return this.toResponse(saved);
   }
 

@@ -3,6 +3,7 @@ import type { Quote } from '../../infra/database/entities/quote.entity.js';
 import type { QuoteItem } from '../../infra/database/entities/quote-item.entity.js';
 import type { ServiceDemand } from '../../infra/database/entities/service-demand.entity.js';
 import { NotFoundError, ForbiddenError, UnprocessableError } from '../../shared/errors.js';
+import { businessMetrics } from '../../observability/metrics.js';
 import type { CreateQuoteInput, QuoteResponse } from './quote.schemas.js';
 
 interface QuoteServiceDeps {
@@ -72,6 +73,7 @@ export class QuoteService {
         ),
       ),
     );
+    businessMetrics.quotesCreated.inc();
     return this.toResponse(quote, savedItems);
   }
 

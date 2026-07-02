@@ -4,6 +4,7 @@ import type { DemandImage } from '../../infra/database/entities/demand-image.ent
 import type { DemandTag } from '../../infra/database/entities/demand-tag.entity.js';
 import type { DemandInvitation } from '../../infra/database/entities/demand-invitation.entity.js';
 import { NotFoundError, ForbiddenError, ConflictError } from '../../shared/errors.js';
+import { businessMetrics } from '../../observability/metrics.js';
 import type {
   CreateDemandInput,
   UpdateDemandInput,
@@ -76,6 +77,7 @@ export class DemandService {
         this.deps.tags.save(this.deps.tags.create({ demand_id: demand.id, tag_id: tagId })),
       ),
     );
+    businessMetrics.demandsCreated.inc();
     return this.toResponse(demand, images, input.tagIds);
   }
 

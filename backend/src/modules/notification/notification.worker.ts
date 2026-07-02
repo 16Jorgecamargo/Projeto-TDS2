@@ -7,6 +7,7 @@ import { PushDeviceToken } from '../../infra/database/entities/push-device-token
 import { NOTIFICATION_QUEUE_NAME, type NotificationJobData } from './notification.queue.js';
 import { pushProvider, type PushPayload } from './providers/push.provider.js';
 import { emailProvider, type EmailPayload } from './providers/email.provider.js';
+import { businessMetrics } from '../../observability/metrics.js';
 
 export interface NotificationWorkerDeps {
   notifications: Repository<Notification>;
@@ -41,6 +42,8 @@ export async function processNotificationJob(
   if (data.channel === 'email') {
     await deps.emailProvider.send(data.userId, { title: data.title, body: data.body });
   }
+
+  businessMetrics.notificationsSent.inc();
 }
 
 export function startNotificationWorker(): Worker<NotificationJobData> {
