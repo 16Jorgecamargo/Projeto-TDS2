@@ -29,4 +29,50 @@ describe('loadConfig', () => {
     const shortSecret = { ...validEnv, JWT_ACCESS_SECRET: 'short' } as NodeJS.ProcessEnv;
     expect(() => loadConfig(shortSecret)).toThrow('Invalid environment configuration');
   });
+
+  it('applies rate limit defaults', () => {
+    const config = loadConfig(validEnv);
+    expect(config.RATE_LIMIT_MAX).toBe(100);
+    expect(config.RATE_LIMIT_WINDOW).toBe('1 minute');
+  });
+});
+
+describe('production secret hardening', () => {
+  const strong = 'K7pQ2wZ9xL4mN8vR1tB6yH3cD5fJ0sAz';
+  const strongRefresh = 'M2nB4vC6xZ8lK0jH1gF3dS5aP7oI9uYz';
+
+  const productionEnv = {
+    ...validEnv,
+    NODE_ENV: 'production',
+    JWT_ACCESS_SECRET: strong,
+    JWT_REFRESH_SECRET: strongRefresh,
+  } as NodeJS.ProcessEnv;
+
+  it('rejects placeholder secrets in production', () => {
+    const weakEnv = {
+      ...productionEnv,
+      JWT_ACCESS_SECRET: 'change-me-access-secret-32-characters-min',
+    } as NodeJS.ProcessEnv;
+    expect(() => loadConfig(weakEnv)).toThrow('Invalid environment configuration');
+  });
+
+  it('rejects placeholder refresh secrets in production', () => {
+    const weakEnv = {
+      ...productionEnv,
+      JWT_REFRESH_SECRET: 'change-me-refresh-secret-32-characters-min',
+    } as NodeJS.ProcessEnv;
+    expect(() => loadConfig(weakEnv)).toThrow('Invalid environment configuration');
+  });
+
+  it('accepts strong secrets in production', () => {
+    expect(() => loadConfig(productionEnv)).not.toThrow();
+  });
+
+  it('allows placeholder secrets outside production', () => {
+    const weakEnv = {
+      ...validEnv,
+      JWT_ACCESS_SECRET: 'change-me-access-secret-32-characters-min',
+    } as NodeJS.ProcessEnv;
+    expect(() => loadConfig(weakEnv)).not.toThrow();
+  });
 });

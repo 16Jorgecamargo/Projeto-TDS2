@@ -55,8 +55,8 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
   await app.register(helmet, { contentSecurityPolicy: false });
   await app.register(cors, { origin: env.CORS_ORIGIN, credentials: true });
   await app.register(rateLimit, {
-    max: env.NODE_ENV === 'production' ? 100 : 10000,
-    timeWindow: '1 minute',
+    max: env.RATE_LIMIT_MAX,
+    timeWindow: env.RATE_LIMIT_WINDOW,
     keyGenerator: (request) => request.ip,
   });
   await app.register(compress, { global: true });

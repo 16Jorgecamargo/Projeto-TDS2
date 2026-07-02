@@ -16,4 +16,5 @@ export function loadTestEnv(): void {
   process.env.DATABASE_NAME = process.env.TEST_DB_NAME;
   process.env.TEST_REDIS_HOST = process.env.TEST_REDIS_HOST ?? '127.0.0.1';
   process.env.TEST_REDIS_PORT = process.env.TEST_REDIS_PORT ?? '6379';
+  process.env.RATE_LIMIT_MAX = process.env.RATE_LIMIT_MAX ?? '10000';
 }
