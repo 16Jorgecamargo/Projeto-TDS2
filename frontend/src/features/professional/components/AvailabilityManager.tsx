@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { useSlots, useAddSlot, useRemoveSlot } from '../queries';
+import { Card } from '../../../components/ui/Card';
+import { Button } from '../../../components/ui/Button';
+import { EmptyState } from '../../../components/ui/EmptyState';
 
-const WEEKDAYS = ['Domingo', 'Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
+const WEEKDAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
 export function AvailabilityManager({ professionalId }: { professionalId: string | undefined }) {
-  const { data } = useSlots(professionalId);
+  const { data, isPending } = useSlots(professionalId);
   const addSlot = useAddSlot(professionalId);
   const removeSlot = useRemoveSlot(professionalId);
   const [weekday, setWeekday] = useState(1);
@@ -12,39 +15,56 @@ export function AvailabilityManager({ professionalId }: { professionalId: string
   const [endTime, setEndTime] = useState('18:00');
 
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">Disponibilidade</h2>
-      <div className="flex gap-2">
-        <select value={weekday} onChange={(e) => setWeekday(Number(e.target.value))} className="rounded border px-2 py-1">
+    <Card>
+      <h2 className="mb-3 text-lg font-semibold text-ink">Disponibilidade</h2>
+      <div className="mb-3 flex flex-wrap gap-2">
+        <select
+          value={weekday}
+          onChange={(e) => setWeekday(Number(e.target.value))}
+          className="rounded-sm border border-surface px-2 py-1 text-ink"
+        >
           {WEEKDAYS.map((label, index) => (
             <option key={label} value={index}>
               {label}
             </option>
           ))}
         </select>
-        <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="rounded border px-2 py-1" />
-        <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="rounded border px-2 py-1" />
-        <button
-          type="button"
-          disabled={addSlot.isPending}
-          onClick={() => addSlot.mutate({ weekday, startTime, endTime })}
-          className="rounded bg-slate-900 px-4 py-2 text-white disabled:opacity-50"
-        >
+        <input
+          type="time"
+          value={startTime}
+          onChange={(e) => setStartTime(e.target.value)}
+          className="rounded-sm border border-surface px-2 py-1 text-ink"
+        />
+        <input
+          type="time"
+          value={endTime}
+          onChange={(e) => setEndTime(e.target.value)}
+          className="rounded-sm border border-surface px-2 py-1 text-ink"
+        />
+        <Button type="button" disabled={addSlot.isPending} onClick={() => addSlot.mutate({ weekday, startTime, endTime })}>
           Adicionar
-        </button>
+        </Button>
       </div>
-      <ul className="flex flex-col gap-2">
-        {data?.map((slot) => (
-          <li key={slot.id} className="flex items-center justify-between rounded border px-3 py-2">
-            <span>
-              {WEEKDAYS[slot.weekday]} {slot.startTime}-{slot.endTime}
-            </span>
-            <button type="button" onClick={() => removeSlot.mutate(slot.id)} className="text-sm text-red-600 underline">
-              Remover
-            </button>
-          </li>
-        ))}
-      </ul>
-    </section>
+      {isPending ? null : !data || data.length === 0 ? (
+        <EmptyState title="Nenhum horário cadastrado" />
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {data.map((slot) => (
+            <li key={slot.id} className="flex items-center justify-between rounded-sm bg-surface px-3 py-2">
+              <span className="text-sm text-ink">
+                {WEEKDAYS[slot.weekday]} {slot.startTime}-{slot.endTime}
+              </span>
+              <button
+                type="button"
+                onClick={() => removeSlot.mutate(slot.id)}
+                className="text-sm font-semibold text-accent underline"
+              >
+                Remover
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
   );
 }
