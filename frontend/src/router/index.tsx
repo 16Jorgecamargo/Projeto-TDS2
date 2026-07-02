@@ -19,6 +19,7 @@ import ContractListPage from '../features/contracts/pages/ContractListPage';
 import ContractDetailPage from '../features/contracts/pages/ContractDetailPage';
 import WalletPage from '../features/wallet/pages/WalletPage';
 import { NotificationsPage } from '../features/notifications/pages/NotificationsPage';
+import { ChatPage } from '../features/chat/pages/ChatPage';
 
 export const router = createBrowserRouter([
   {
@@ -44,6 +45,7 @@ export const router = createBrowserRouter([
           { path: '/contracts/:id', element: <ContractDetailPage /> },
           { path: '/wallet', element: <WalletPage /> },
           { path: '/notifications', element: <NotificationsPage /> },
+          { path: '/chat/:roomId', element: <ChatPage /> },
         ],
       },
       {
