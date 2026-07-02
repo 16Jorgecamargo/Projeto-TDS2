@@ -1,17 +1,27 @@
 import type { JSX } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { DemandForm } from '../components/DemandForm';
 import { usePublishDemand } from '../queries';
+import { inviteProfessional } from '../api';
 import type { DemandFormValues } from '../schemas';
 
 export default function PublishDemandPage(): JSX.Element {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const professionalId = searchParams.get('professionalId');
   const publish = usePublishDemand();
 
   function handleSubmit(values: DemandFormValues, images: string[]) {
     publish.mutate(
       { values, images },
-      { onSuccess: (demand) => navigate(`/demands/${demand.id}`) },
+      {
+        onSuccess: async (demand) => {
+          if (professionalId) {
+            await inviteProfessional(demand.id, professionalId);
+          }
+          navigate(`/demands/${demand.id}`);
+        },
+      },
     );
   }
 
