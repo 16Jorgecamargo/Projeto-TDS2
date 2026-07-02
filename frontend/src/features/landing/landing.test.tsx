@@ -9,6 +9,11 @@ import { landingApi } from './api';
 import { searchFormSchema } from './schemas';
 
 vi.mock('./api', () => ({ landingApi: { searchProfessionals: vi.fn() } }));
+vi.mock('../favorites/queries', () => ({
+  useFavoriteIds: () => new Set<string>(),
+  useAddFavorite: () => ({ mutate: vi.fn(), isPending: false }),
+  useRemoveFavorite: () => ({ mutate: vi.fn(), isPending: false }),
+}));
 
 function renderResults() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -41,7 +46,7 @@ describe('ProfessionalResults', () => {
   it('mostra mensagem quando nao ha resultados', async () => {
     vi.mocked(landingApi.searchProfessionals).mockResolvedValue({ items: [], page: 1, limit: 20, total: 0 });
     renderResults();
-    await waitFor(() => expect(screen.getByText('Nenhum profissional encontrado.')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Nenhum profissional encontrado')).toBeInTheDocument());
   });
 });
 

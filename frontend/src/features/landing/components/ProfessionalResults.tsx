@@ -1,17 +1,55 @@
+import type { JSX } from 'react';
 import { ProfessionalCard } from '../../professional/components/ProfessionalCard';
 import { useSearchProfessionals } from '../queries';
+import { useFavoriteIds } from '../../favorites/queries';
+import { Skeleton } from '../../../components/ui/Skeleton';
+import { EmptyState } from '../../../components/ui/EmptyState';
 import type { SearchParams } from '../api';
 
-export function ProfessionalResults({ params }: { params: SearchParams }) {
-  const { data, isLoading, isError } = useSearchProfessionals(params);
+type SortOption = 'rating' | 'price';
 
-  if (isLoading) return <p>Carregando...</p>;
-  if (isError) return <p>Nao foi possivel carregar os resultados.</p>;
-  if (!data || data.items.length === 0) return <p>Nenhum profissional encontrado.</p>;
+export interface ProfessionalResultsProps {
+  params: SearchParams;
+  onlyAvailable?: boolean;
+  sort?: SortOption;
+}
+
+export function ProfessionalResults({
+  params,
+  onlyAvailable = false,
+  sort = 'rating',
+}: ProfessionalResultsProps): JSX.Element {
+  const { data, isPending, isError } = useSearchProfessionals(params);
+  const favoriteIds = useFavoriteIds();
+
+  if (isPending) {
+    return (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Skeleton className="h-40 w-full" aria-label="Carregando profissionais" />
+        <Skeleton className="h-40 w-full" aria-label="Carregando profissionais" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return <EmptyState title="Não foi possível carregar os resultados" />;
+  }
+
+  let items = data?.items ?? [];
+  if (onlyAvailable) {
+    items = items.filter((item) => item.isAvailable);
+  }
+  items = [...items].sort((a, b) =>
+    sort === 'rating' ? b.ratingAverage - a.ratingAverage : (a.hourlyRate ?? Infinity) - (b.hourlyRate ?? Infinity),
+  );
+
+  if (items.length === 0) {
+    return <EmptyState title="Nenhum profissional encontrado" description="Tente ampliar os filtros de busca." />;
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {data.items.map((item) => (
+      {items.map((item) => (
         <ProfessionalCard
           key={item.id}
           id={item.id}
@@ -20,6 +58,8 @@ export function ProfessionalResults({ params }: { params: SearchParams }) {
           hourlyRate={item.hourlyRate}
           ratingAverage={item.ratingAverage}
           ratingCount={item.ratingCount}
+          isAvailable={item.isAvailable}
+          isFavorite={favoriteIds.has(item.id)}
         />
       ))}
     </div>
