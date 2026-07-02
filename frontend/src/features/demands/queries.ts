@@ -6,8 +6,9 @@ import {
   fetchDemandQuotes,
   acceptQuote,
   inviteProfessional,
+  createQuote,
 } from './api';
-import type { DemandFormValues } from './schemas';
+import type { DemandFormValues, QuoteFormValues } from './schemas';
 
 export const demandKeys = {
   all: ['demands'] as const,
@@ -47,5 +48,13 @@ export function useAcceptQuote(demandId: string) {
 export function useInviteProfessional(demandId: string) {
   return useMutation({
     mutationFn: (professionalId: string) => inviteProfessional(demandId, professionalId),
+  });
+}
+
+export function useCreateQuote(demandId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (values: QuoteFormValues) => createQuote(demandId, values),
+    onSuccess: () => client.invalidateQueries({ queryKey: demandKeys.quotes(demandId) }),
   });
 }

@@ -11,3 +11,17 @@ export const demandFormSchema = z
   .refine((v) => v.budgetMax >= v.budgetMin, { message: 'Máximo deve ser >= mínimo', path: ['budgetMax'] });
 
 export type DemandFormValues = z.infer<typeof demandFormSchema>;
+
+export const quoteItemFormSchema = z.object({
+  description: z.string().min(2, 'Mínimo 2 caracteres').max(200),
+  quantity: z.coerce.number().int('Deve ser inteiro').positive('Deve ser maior que zero'),
+  unitPrice: z.coerce.number().nonnegative('Não pode ser negativo'),
+});
+
+export const quoteFormSchema = z.object({
+  message: z.string().min(5, 'Mínimo 5 caracteres').max(2000),
+  validUntil: z.string().optional(),
+  items: z.array(quoteItemFormSchema).min(1, 'Adicione ao menos um item').max(50),
+});
+
+export type QuoteFormValues = z.infer<typeof quoteFormSchema>;

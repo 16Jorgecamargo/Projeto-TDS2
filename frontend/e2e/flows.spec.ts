@@ -19,7 +19,7 @@ async function loginAsUser(page: Page, email: string, password: string): Promise
 }
 
 test.describe('fluxo cruzando perfis de cliente e profissional', () => {
-  test('cliente publica demanda, profissional visualiza, orçamento enviado via API aparece para o cliente', async ({
+  test('cliente publica demanda, profissional envia orçamento pelo formulário, cliente visualiza e aceita', async ({
     browser,
   }) => {
     const categoryId = seedCategory();
@@ -79,18 +79,20 @@ test.describe('fluxo cruzando perfis de cliente e profissional', () => {
           },
         });
         expect(profileResponse.ok()).toBeTruthy();
-
-        const quoteResponse = await professionalApi.post(`/api/demands/${demandId}/quotes`, {
-          data: {
-            message: 'Posso realizar a instalação ainda esta semana.',
-            validUntil: null,
-            items: [{ description: 'Instalação de split 12000 BTU', quantity: 2, unitPrice: 450 }],
-          },
-        });
-        expect(quoteResponse.ok()).toBeTruthy();
       } finally {
         await professionalApi.dispose();
       }
+
+      await professionalPage.reload();
+      await expect(professionalPage.getByRole('heading', { name: 'Enviar orçamento' })).toBeVisible();
+
+      await professionalPage.getByLabel('Mensagem ao cliente').fill('Posso realizar a instalação ainda esta semana.');
+      await professionalPage.getByPlaceholder('Descrição').fill('Instalação de split 12000 BTU');
+      await professionalPage.getByPlaceholder('Qtd').fill('2');
+      await professionalPage.getByPlaceholder('Preço unit.').fill('450');
+      await professionalPage.getByRole('button', { name: 'Enviar orçamento' }).click();
+
+      await expect(professionalPage.getByText('R$ 900,00')).toBeVisible();
 
       await loginAsUser(clientPage, client.email, client.password);
       await spaNavigate(clientPage, `/demands/${demandId}`);

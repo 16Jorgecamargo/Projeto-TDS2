@@ -1,16 +1,20 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useDemand, useDemandQuotes, useAcceptQuote } from '../queries';
+import { useDemand, useDemandQuotes, useAcceptQuote, useCreateQuote } from '../queries';
 import { InviteProfessionalDialog } from '../components/InviteProfessionalDialog';
+import { QuoteForm } from '../components/QuoteForm';
+import { useAuthStore } from '../../../stores/auth';
 
 const currency = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export default function DemandDetailPage() {
   const { id = '' } = useParams();
   const [inviting, setInviting] = useState(false);
+  const role = useAuthStore((state) => state.user?.role);
   const { data: demand } = useDemand(id);
   const { data: quotes } = useDemandQuotes(id);
   const accept = useAcceptQuote(id);
+  const createQuote = useCreateQuote(id);
 
   if (!demand) return <p className="p-6 text-slate-500">Carregando…</p>;
   return (
@@ -41,6 +45,9 @@ export default function DemandDetailPage() {
           </li>
         ))}
       </ul>
+      {role === 'professional' && demand.status === 'open' && (
+        <QuoteForm submitting={createQuote.isPending} onSubmit={(values) => createQuote.mutate(values)} />
+      )}
       {inviting && <InviteProfessionalDialog demandId={id} onClose={() => setInviting(false)} />}
     </section>
   );

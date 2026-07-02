@@ -1,5 +1,5 @@
 import { http } from '../../lib/http';
-import type { DemandFormValues } from './schemas';
+import type { DemandFormValues, QuoteFormValues } from './schemas';
 
 export type DemandStatus = 'open' | 'in_progress' | 'closed' | 'cancelled';
 
@@ -107,4 +107,13 @@ export async function acceptQuote(quoteId: string): Promise<Contract> {
 
 export async function inviteProfessional(demandId: string, professionalId: string): Promise<void> {
   await http.post(`/demands/${demandId}/invitations`, { professionalId });
+}
+
+export async function createQuote(demandId: string, values: QuoteFormValues): Promise<Quote> {
+  const { data } = await http.post<Quote>(`/demands/${demandId}/quotes`, {
+    message: values.message,
+    validUntil: values.validUntil ? new Date(values.validUntil).toISOString() : null,
+    items: values.items,
+  });
+  return data;
 }
