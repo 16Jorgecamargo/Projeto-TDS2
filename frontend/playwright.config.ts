@@ -27,7 +27,7 @@ export default defineConfig({
     },
     {
       name: 'professionals',
-      testMatch: ['professionals/**/*.spec.ts'],
+      testMatch: ['professionals.spec.ts', 'professionals/**/*.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },
     {
