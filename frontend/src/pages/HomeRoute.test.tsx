@@ -8,6 +8,9 @@ vi.mock('../features/landing/pages/LandingPage', () => ({ default: () => <div>la
 vi.mock('../features/dashboard/pages/ClientDashboardPage', () => ({
   ClientDashboardPage: () => <div>client-dashboard</div>,
 }));
+vi.mock('../features/professional-dashboard/pages/ProfessionalDashboardPage', () => ({
+  ProfessionalDashboardPage: () => <div>professional-dashboard</div>,
+}));
 
 describe('HomeRoute', () => {
   beforeEach(() => {
@@ -25,9 +28,9 @@ describe('HomeRoute', () => {
     expect(screen.getByText('client-dashboard')).toBeInTheDocument();
   });
 
-  it('renderiza a LandingPage para usuario com papel professional', () => {
+  it('renderiza o ProfessionalDashboardPage para usuario com papel professional', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 'token');
     renderWithProviders(<HomeRoute />);
-    expect(screen.getByText('landing-page')).toBeInTheDocument();
+    expect(screen.getByText('professional-dashboard')).toBeInTheDocument();
   });
 });

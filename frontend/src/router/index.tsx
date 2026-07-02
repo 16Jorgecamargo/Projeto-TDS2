@@ -9,7 +9,7 @@ import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
 import SettingsPage from '../features/settings/pages/SettingsPage';
 import PublicProfilePage from '../features/professional/pages/PublicProfilePage';
-import ProfessionalDashboardPage from '../features/professional/pages/ProfessionalDashboardPage';
+import ProfessionalDashboardPage from '../features/professional-dashboard/pages/ProfessionalDashboardPage';
 import { HomeRoute } from '../pages/HomeRoute';
 import SearchPage from '../features/landing/pages/SearchPage';
 import PublishDemandPage from '../features/demands/pages/PublishDemandPage';
