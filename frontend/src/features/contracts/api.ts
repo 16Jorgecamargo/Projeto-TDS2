@@ -2,6 +2,16 @@ import { http } from '../../lib/http';
 
 export type ContractStatus = 'active' | 'completed' | 'cancelled' | 'disputed';
 
+export type ScheduleStatus = 'scheduled' | 'confirmed' | 'completed' | 'cancelled';
+
+export interface Schedule {
+  id: string;
+  scheduledDate: string;
+  durationMinutes: number | null;
+  notes: string | null;
+  status: ScheduleStatus;
+}
+
 export interface Contract {
   id: string;
   demandId: string;
@@ -14,6 +24,8 @@ export interface Contract {
   cancellationReason: string | null;
   startedAt: string | null;
   completedAt: string | null;
+  cancelledAt: string | null;
+  schedule: Schedule | null;
   createdAt: string;
 }
 
