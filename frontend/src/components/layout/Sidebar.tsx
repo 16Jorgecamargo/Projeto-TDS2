@@ -1,9 +1,10 @@
 import type { JSX } from 'react';
 import { NavLink } from 'react-router-dom';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../stores/auth';
 import { useSidebarStore } from '../../stores/sidebar';
-import { getNavItems, type NavItem } from '../../lib/navConfig';
+import { useCommandPaletteStore } from '../../stores/commandPalette';
+import { getMobilePrimaryItems, getDashboardItem, getChatItem, type NavItem } from '../../lib/navConfig';
 import { Tooltip } from '../ui/Tooltip';
 import { cn } from '../../lib/utils';
 
@@ -23,11 +24,57 @@ export function Sidebar(): JSX.Element | null {
   const role = useAuthStore((state) => state.user?.role);
   const collapsed = useSidebarStore((state) => state.collapsed);
   const toggle = useSidebarStore((state) => state.toggle);
+  const openPalette = useCommandPaletteStore((state) => state.openPalette);
 
   if (!role) return null;
 
-  const items = getNavItems(role);
-  const primaryRouteIndexes = getPrimaryRouteIndexes(items);
+  const dashboardItem = getDashboardItem(role);
+  const chatItem = getChatItem(role);
+  const primaryItems = getMobilePrimaryItems(role);
+  const linkItems = [dashboardItem, ...(chatItem ? [chatItem] : []), ...primaryItems];
+  const primaryRouteIndexes = getPrimaryRouteIndexes(linkItems);
+
+  const searchButton = (
+    <button
+      type="button"
+      onClick={openPalette}
+      className="flex items-center gap-3 rounded-sm px-3 py-2 text-sm font-semibold text-muted hover:bg-surface hover:text-ink"
+    >
+      <MagnifyingGlassIcon className="h-5 w-5 shrink-0" />
+      {!collapsed && <span>Buscar</span>}
+    </button>
+  );
+
+  function renderLink(item: NavItem, linkIndex: number) {
+    const isPrimaryOccurrence = primaryRouteIndexes.has(linkIndex);
+    const link = (
+      <NavLink
+        to={item.to}
+        end={item.to === '/'}
+        aria-label={collapsed ? item.label : undefined}
+        aria-current={isPrimaryOccurrence ? 'page' : false}
+        className={({ isActive }) =>
+          cn(
+            'flex items-center gap-3 rounded-sm px-3 py-2 text-sm font-semibold transition-colors',
+            isActive && isPrimaryOccurrence
+              ? 'bg-surface text-primary'
+              : 'text-muted hover:bg-surface hover:text-ink',
+          )
+        }
+      >
+        <item.icon className="h-5 w-5 shrink-0" />
+        {!collapsed && <span>{item.label}</span>}
+      </NavLink>
+    );
+
+    return collapsed ? (
+      <Tooltip key={item.to + item.label} label={item.label}>
+        {link}
+      </Tooltip>
+    ) : (
+      <span key={item.to + item.label}>{link}</span>
+    );
+  }
 
   return (
     <aside
@@ -37,36 +84,14 @@ export function Sidebar(): JSX.Element | null {
       )}
     >
       <nav className="flex flex-1 flex-col gap-1 px-2" aria-label="Navegação principal">
-        {items.map((item, index) => {
-          const isPrimaryOccurrence = primaryRouteIndexes.has(index);
-          const link = (
-            <NavLink
-              to={item.to}
-              end={item.to === '/'}
-              aria-label={collapsed ? item.label : undefined}
-              aria-current={isPrimaryOccurrence ? 'page' : false}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 rounded-sm px-3 py-2 text-sm font-semibold transition-colors',
-                  isActive && isPrimaryOccurrence
-                    ? 'bg-surface text-primary'
-                    : 'text-muted hover:bg-surface hover:text-ink',
-                )
-              }
-            >
-              <item.icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
-            </NavLink>
-          );
-
-          return collapsed ? (
-            <Tooltip key={item.to + item.label} label={item.label}>
-              {link}
-            </Tooltip>
-          ) : (
-            <span key={item.to + item.label}>{link}</span>
-          );
-        })}
+        {renderLink(dashboardItem, 0)}
+        {collapsed ? (
+          <Tooltip label="Buscar">{searchButton}</Tooltip>
+        ) : (
+          searchButton
+        )}
+        {chatItem && renderLink(chatItem, 1)}
+        {primaryItems.map((item, offset) => renderLink(item, (chatItem ? 2 : 1) + offset))}
       </nav>
       <button
         type="button"
