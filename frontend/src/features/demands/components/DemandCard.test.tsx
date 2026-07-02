@@ -31,6 +31,14 @@ describe('DemandCard', () => {
     render(<DemandCard demand={{ ...baseDemand, status: 'closed' }} onOpen={vi.fn()} />);
 
     expect(screen.getByText('Concluída')).toBeInTheDocument();
+    expect(screen.queryByTestId('demand-cancelled-icon')).not.toBeInTheDocument();
+  });
+
+  it('distingue o badge Cancelada do badge Concluída com um icone', () => {
+    render(<DemandCard demand={{ ...baseDemand, status: 'cancelled' }} onOpen={vi.fn()} />);
+
+    expect(screen.getByText('Cancelada')).toBeInTheDocument();
+    expect(screen.getByTestId('demand-cancelled-icon')).toBeInTheDocument();
   });
 
   it('chama onOpen com o id ao clicar', async () => {

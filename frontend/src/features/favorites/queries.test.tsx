@@ -3,7 +3,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { fetchFavorites, addFavorite, removeFavorite } from './api';
-import { useFavorites, useFavoriteIds, useAddFavorite, useRemoveFavorite } from './queries';
+import { useFavorites, useFavoriteIds, useAddFavorite, useRemoveFavorite, favoriteKeys } from './queries';
 
 vi.mock('./api', () => ({
   fetchFavorites: vi.fn(),
@@ -18,6 +18,10 @@ function wrapper({ children }: { children: ReactNode }) {
 
 describe('favorites queries', () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it('favoriteKeys.list gera chaves distintas para limites diferentes na mesma pagina', () => {
+    expect(favoriteKeys.list(1, 20)).not.toEqual(favoriteKeys.list(1, 100));
+  });
 
   it('useFavorites busca a pagina informada', async () => {
     vi.mocked(fetchFavorites).mockResolvedValue({ items: [], page: 1, limit: 20, total: 0 });

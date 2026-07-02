@@ -1,4 +1,5 @@
 import type { JSX } from 'react';
+import { XCircleIcon } from '@heroicons/react/24/solid';
 import { Badge } from '../../../components/ui/Badge';
 import type { Demand } from '../api';
 
@@ -25,7 +26,14 @@ export function DemandCard({ demand, onOpen }: DemandCardProps): JSX.Element {
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-base font-semibold text-ink">{demand.title}</span>
-        <Badge tone={demand.status === 'open' ? 'urgent' : 'neutral'}>{STATUS_LABELS[demand.status]}</Badge>
+        <Badge tone={demand.status === 'open' ? 'urgent' : 'neutral'}>
+          <span className="flex items-center gap-1">
+            {demand.status === 'cancelled' && (
+              <XCircleIcon className="h-3.5 w-3.5 text-muted" data-testid="demand-cancelled-icon" />
+            )}
+            {STATUS_LABELS[demand.status]}
+          </span>
+        </Badge>
       </div>
       <span className="text-sm text-muted">
         {currency(demand.budgetMin)} — {currency(demand.budgetMax)}

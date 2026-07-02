@@ -33,7 +33,7 @@ export function ReviewList({ professionalId }: ReviewListProps): JSX.Element {
             {Array.from({ length: 5 }).map((_, index) => (
               <StarIcon
                 key={index}
-                className={index < review.rating ? 'h-4 w-4 text-accent' : 'h-4 w-4 text-surface'}
+                className={index < review.rating ? 'h-4 w-4 text-accent' : 'h-4 w-4 text-muted'}
               />
             ))}
           </div>
