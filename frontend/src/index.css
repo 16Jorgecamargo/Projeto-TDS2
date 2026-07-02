@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --color-bg: oklch(1.000 0.000 0);
+  --color-surface: oklch(0.960 0.014 280);
+  --color-ink: oklch(0.200 0.020 280);
+  --color-muted: oklch(0.520 0.012 280);
+  --color-primary: oklch(0.420 0.150 280);
+  --color-primary-hover: oklch(0.360 0.150 280);
+  --color-accent: oklch(0.680 0.190 45);
+  --color-accent-hover: oklch(0.610 0.190 45);
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-ink font-sans;
+  }
+}
