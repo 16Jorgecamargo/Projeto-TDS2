@@ -1,4 +1,4 @@
-import type { Repository } from 'typeorm';
+import { QueryFailedError, type Repository } from 'typeorm';
 import type { Wallet } from '../../infra/database/entities/wallet.entity.js';
 import type { WalletTransaction } from '../../infra/database/entities/wallet-transaction.entity.js';
 import { UnprocessableError } from '../../shared/errors.js';
@@ -51,14 +51,22 @@ export class WalletService {
   async ensureWallet(userId: string): Promise<Wallet> {
     const existing = await this.deps.wallets.findOne({ where: { user_id: userId } });
     if (existing) return existing;
-    return this.deps.wallets.save(
-      this.deps.wallets.create({
-        user_id: userId,
-        balance: '0.00',
-        pending_balance: '0.00',
-        currency: 'BRL',
-      }),
-    );
+    try {
+      return await this.deps.wallets.save(
+        this.deps.wallets.create({
+          user_id: userId,
+          balance: '0.00',
+          pending_balance: '0.00',
+          currency: 'BRL',
+        }),
+      );
+    } catch (error) {
+      if (error instanceof QueryFailedError) {
+        const created = await this.deps.wallets.findOne({ where: { user_id: userId } });
+        if (created) return created;
+      }
+      throw error;
+    }
   }
 
   async getByUserId(userId: string): Promise<WalletResponse> {

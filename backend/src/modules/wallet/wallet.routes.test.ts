@@ -72,6 +72,22 @@ describe('wallet routes', () => {
     expect(resB.json().userId).toBe(userB.userId);
   });
 
+  it('cria a carteira corretamente mesmo com requisicoes concorrentes na primeira chamada', async () => {
+    const { headers } = await registerUser(app, 'client');
+
+    const [resA, resB, resC] = await Promise.all([
+      app.inject({ method: 'GET', url: '/api/wallet', headers }),
+      app.inject({ method: 'GET', url: '/api/wallet', headers }),
+      app.inject({ method: 'GET', url: '/api/wallet', headers }),
+    ]);
+
+    expect(resA.statusCode).toBe(200);
+    expect(resB.statusCode).toBe(200);
+    expect(resC.statusCode).toBe(200);
+    expect(resA.json().id).toBe(resB.json().id);
+    expect(resB.json().id).toBe(resC.json().id);
+  });
+
   it('rejeita acesso nao autenticado', async () => {
     const walletRes = await app.inject({
       method: 'GET',
