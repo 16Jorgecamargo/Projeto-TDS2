@@ -4,10 +4,11 @@ const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:4173';
 
 export default defineConfig({
   testDir: 'e2e',
+  timeout: 30_000,
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
   use: {
     baseURL,
     trace: 'on-first-retry',
@@ -22,17 +23,17 @@ export default defineConfig({
     {
       name: 'clients',
       testMatch: ['clients/**/*.spec.ts'],
-      use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/client.json' },
+      use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'professionals',
       testMatch: ['professionals/**/*.spec.ts'],
-      use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/professional.json' },
+      use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'admins',
       testMatch: ['admins/**/*.spec.ts'],
-      use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/admin.json' },
+      use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'flows',
