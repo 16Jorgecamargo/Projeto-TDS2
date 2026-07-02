@@ -14,13 +14,13 @@ describe('navConfig', () => {
     expect(getNavItems('admin')).toHaveLength(6);
   });
 
-  it('separa os 4 primeiros itens como prioridade mobile do cliente', () => {
+  it('separa os 4 primeiros itens como prioridade mobile do cliente, excluindo Buscar profissional (ja disponivel na busca do topbar)', () => {
     const primary = getMobilePrimaryItems('client');
     expect(primary.map((item) => item.label)).toEqual([
       'Dashboard',
-      'Buscar profissional',
       'Minhas demandas',
       'Contratos',
+      'Chat',
     ]);
   });
 

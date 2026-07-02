@@ -47,26 +47,26 @@ export function MobileNav({ open, onClose, onOpenMore }: MobileNavProps): JSX.El
               key={item.to + item.label}
               to={item.to}
               end={item.to === '/'}
+              aria-label={item.label}
               aria-current={isPrimaryOccurrence ? 'page' : false}
               className={({ isActive }) =>
                 cn(
-                  'flex flex-1 flex-col items-center gap-1 py-2 text-xs font-semibold',
+                  'flex flex-1 items-center justify-center py-3',
                   isActive && isPrimaryOccurrence ? 'text-primary' : 'text-muted',
                 )
               }
             >
-              <item.icon className="h-5 w-5" />
-              {item.label}
+              <item.icon className="h-7 w-7" strokeWidth={1.75} />
             </NavLink>
           );
         })}
         <button
           type="button"
           onClick={onOpenMore}
-          className="flex flex-1 flex-col items-center gap-1 py-2 text-xs font-semibold text-muted"
+          aria-label="Mais"
+          className="flex flex-1 items-center justify-center py-3 text-muted"
         >
-          <EllipsisHorizontalIcon className="h-5 w-5" />
-          Mais
+          <EllipsisHorizontalIcon className="h-7 w-7" strokeWidth={1.75} />
         </button>
       </nav>
       <Drawer open={open} onClose={onClose} title="Menu" side="left">

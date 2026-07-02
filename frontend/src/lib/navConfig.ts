@@ -63,13 +63,16 @@ const navByRole: Record<Role, NavItem[]> = {
 };
 
 const MOBILE_PRIMARY_COUNT = 4;
+const MOBILE_PRIMARY_EXCLUDED_ROUTES = new Set(['/search']);
 
 export function getNavItems(role: Role): NavItem[] {
   return navByRole[role];
 }
 
 export function getMobilePrimaryItems(role: Role): NavItem[] {
-  return getNavItems(role).slice(0, MOBILE_PRIMARY_COUNT);
+  return getNavItems(role)
+    .filter((item) => !MOBILE_PRIMARY_EXCLUDED_ROUTES.has(item.to))
+    .slice(0, MOBILE_PRIMARY_COUNT);
 }
 
 export function getMobileOverflowItems(role: Role): NavItem[] {
