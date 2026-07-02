@@ -142,6 +142,10 @@ export class AuthService {
     await this.deps.users.update(record.user.id, { email_verified_at: new Date() });
   }
 
+  async skipEmailVerification(userId: string): Promise<void> {
+    await this.deps.users.update(userId, { email_verified_at: new Date() });
+  }
+
   async requestPasswordReset(email: string): Promise<void> {
     const user = await this.deps.users.findOne({ where: { email } });
     if (!user) {

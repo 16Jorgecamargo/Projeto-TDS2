@@ -9,6 +9,7 @@ import { PhoneVerificationToken } from '../../infra/database/entities/phone-veri
 import { PasswordResetToken } from '../../infra/database/entities/password-reset-token.entity.js';
 import { UserOauthAccount } from '../../infra/database/entities/user-oauth-account.entity.js';
 import { mailQueue } from '../../infra/queues/index.js';
+import { emptyBodySchema } from '../../shared/schemas.js';
 import {
   registerSchema,
   loginSchema,
@@ -81,6 +82,17 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       response: { 204: z.void() },
     },
     handler: controller.verifyEmail,
+  });
+
+  app.post('/auth/verify-email/skip', {
+    onRequest: [app.authenticate],
+    schema: {
+      tags: ['auth'],
+      summary: 'Ignora verificacao de e-mail (uso em desenvolvimento)',
+      body: emptyBodySchema,
+      response: { 204: z.void() },
+    },
+    handler: controller.skipEmailVerification,
   });
 
   app.post('/auth/password/forgot', {

@@ -67,6 +67,28 @@ describe('auth routes', () => {
     expect(reuse.statusCode).toBe(401);
   });
 
+  it('ignora verificacao de e-mail via /auth/verify-email/skip', async () => {
+    const email = `skip-${Date.now()}@example.com`;
+    const register = await app.inject({
+      method: 'POST',
+      url: '/api/auth/register',
+      payload: { name: 'Skip', email, phone: '+5551999990004', password: 'S3nh@Forte', role: 'client' },
+    });
+    const accessToken = register.json().accessToken as string;
+
+    const skip = await app.inject({
+      method: 'POST',
+      url: '/api/auth/verify-email/skip',
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+    expect(skip.statusCode).toBe(204);
+  });
+
+  it('rejeita /auth/verify-email/skip sem autenticacao', async () => {
+    const skip = await app.inject({ method: 'POST', url: '/api/auth/verify-email/skip' });
+    expect(skip.statusCode).toBe(401);
+  });
+
   it('logout revoga o refresh token', async () => {
     const email = `logout-${Date.now()}@example.com`;
     const register = await app.inject({

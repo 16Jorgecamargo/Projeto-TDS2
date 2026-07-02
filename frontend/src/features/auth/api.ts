@@ -45,4 +45,7 @@ export const authApi = {
   async verifyEmail(token: string): Promise<void> {
     await http.post('/auth/verify-email', { token });
   },
+  async skipEmailVerification(): Promise<void> {
+    await http.post('/auth/verify-email/skip');
+  },
 };

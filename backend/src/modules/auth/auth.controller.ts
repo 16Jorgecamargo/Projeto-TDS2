@@ -39,6 +39,11 @@ export class AuthController {
     return reply.status(204).send();
   };
 
+  skipEmailVerification = async (req: FastifyRequest, reply: FastifyReply) => {
+    await this.service.skipEmailVerification(req.user!.id);
+    return reply.status(204).send();
+  };
+
   forgotPassword = async (
     req: FastifyRequest<{ Body: RequestPasswordResetInput }>,
     reply: FastifyReply,
