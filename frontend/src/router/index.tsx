@@ -10,7 +10,7 @@ import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
 import SettingsPage from '../features/settings/pages/SettingsPage';
 import PublicProfilePage from '../features/professional/pages/PublicProfilePage';
 import ProfessionalDashboardPage from '../features/professional/pages/ProfessionalDashboardPage';
-import LandingPage from '../features/landing/pages/LandingPage';
+import { HomeRoute } from '../pages/HomeRoute';
 import SearchPage from '../features/landing/pages/SearchPage';
 import PublishDemandPage from '../features/demands/pages/PublishDemandPage';
 import DemandListPage from '../features/demands/pages/DemandListPage';
@@ -27,7 +27,7 @@ export const router = createBrowserRouter([
   {
     element: <App />,
     children: [
-      { path: '/', element: <LandingPage /> },
+      { path: '/', element: <HomeRoute /> },
       { path: '/search', element: <SearchPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
