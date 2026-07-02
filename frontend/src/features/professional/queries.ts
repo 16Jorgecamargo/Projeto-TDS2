@@ -112,3 +112,20 @@ export function useRemoveServiceArea() {
     },
   });
 }
+
+export function useAddPortfolioImage(professionalId: string | undefined, itemId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { imageUrl: string; position: number }) =>
+      professionalApi.addPortfolioImage(itemId, payload),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['professional', 'portfolio', professionalId] }),
+  });
+}
+
+export function useRemovePortfolioImage(professionalId: string | undefined) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (imageId: string) => professionalApi.removePortfolioImage(imageId),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['professional', 'portfolio', professionalId] }),
+  });
+}

@@ -16,7 +16,7 @@ export const portfolioItemResponseSchema = portfolioItemSchema.extend({
     .array(
       z.object({
         id: z.string().uuid().describe('ID da imagem').openapi({ example: '9c0d1111-1111-1111-1111-111111111111' }),
-        imageUrl: z.string().url().describe('URL da imagem').openapi({ example: 'https://cdn.app/img.jpg' }),
+        imageUrl: z.string().min(1).describe('URL da imagem (absoluta ou caminho relativo retornado por /uploads/images)').openapi({ example: '/uploads/3f2504e0-4f89-41d3-9a0c-0305e82c3301.jpg' }),
         position: z.number().int().describe('Posicao').openapi({ example: 0 }),
       }),
     )
@@ -25,7 +25,7 @@ export const portfolioItemResponseSchema = portfolioItemSchema.extend({
 });
 
 export const portfolioImageSchema = z.object({
-  imageUrl: z.string().url().describe('URL da imagem').openapi({ example: 'https://cdn.app/img.jpg' }),
+  imageUrl: z.string().min(1).describe('URL da imagem (absoluta ou caminho relativo retornado por /uploads/images)').openapi({ example: '/uploads/3f2504e0-4f89-41d3-9a0c-0305e82c3301.jpg' }),
   position: z.number().int().min(0).describe('Posicao de exibicao').openapi({ example: 0 }),
 });
 
