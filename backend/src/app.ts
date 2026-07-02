@@ -6,6 +6,10 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
+import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
+import { mkdirSync } from 'node:fs';
+import path from 'node:path';
 import {
   jsonSchemaTransform,
   serializerCompiler,
@@ -41,6 +45,7 @@ import { socialRoutes } from './modules/social/social.routes.js';
 import { notificationRoutes } from './modules/notification/notification.routes.js';
 import { chatRoutes } from './modules/chat/chat.routes.js';
 import { adminRoutes } from './modules/admin/admin.routes.js';
+import { uploadRoutes } from './modules/upload/upload.routes.js';
 
 interface BuildAppOptions {
   dataSource?: DataSource;
@@ -80,6 +85,13 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
   await app.register(requestIdPlugin);
   await app.register(metricsPlugin);
   await app.register(authPlugin, { accessSecret: env.JWT_ACCESS_SECRET });
+
+  const uploadDir = path.resolve(env.UPLOAD_DIR);
+  mkdirSync(uploadDir, { recursive: true });
+  await app.register(multipart, {
+    limits: { fileSize: (env.UPLOAD_MAX_SIZE_MB + 1) * 1024 * 1024 },
+  });
+  await app.register(fastifyStatic, { root: uploadDir, prefix: '/uploads/' });
 
   await app.register(swagger, {
     openapi: {
@@ -123,6 +135,7 @@ export async function buildApp(opts?: BuildAppOptions): Promise<FastifyInstance>
   await app.register(notificationRoutes, { prefix: '/api' });
   await app.register(chatRoutes, { prefix: '/api' });
   await app.register(adminRoutes, { prefix: '/api' });
+  await app.register(uploadRoutes, { prefix: '/api' });
 
   return app;
 }
