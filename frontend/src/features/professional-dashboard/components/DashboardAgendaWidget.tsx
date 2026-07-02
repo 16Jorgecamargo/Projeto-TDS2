@@ -14,7 +14,12 @@ export function DashboardAgendaWidget(): JSX.Element {
   const isPending = isContractsPending || isSlotsPending;
 
   const upcoming = (contracts ?? [])
-    .filter((contract) => contract.schedule !== null)
+    .filter(
+      (contract) =>
+        contract.schedule !== null &&
+        !['completed', 'cancelled'].includes(contract.schedule.status) &&
+        new Date(contract.schedule.scheduledDate).getTime() > Date.now(),
+    )
     .sort(
       (a, b) => new Date(a.schedule!.scheduledDate).getTime() - new Date(b.schedule!.scheduledDate).getTime(),
     );

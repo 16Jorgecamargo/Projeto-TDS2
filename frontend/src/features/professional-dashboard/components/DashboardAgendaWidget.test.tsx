@@ -34,6 +34,23 @@ describe('DashboardAgendaWidget', () => {
     expect(screen.getByText('2 dias com disponibilidade cadastrada')).toBeInTheDocument();
   });
 
+  it('ignora compromissos cancelados e passados ao escolher o proximo', () => {
+    vi.mocked(useMyProfile).mockReturnValue({ data: { id: 'prof1' } } as never);
+    vi.mocked(useContracts).mockReturnValue({
+      data: [
+        { id: 'c1', status: 'active', schedule: { id: 's1', scheduledDate: '2020-01-05T10:00:00Z', durationMinutes: 60, notes: null, status: 'cancelled' } },
+        { id: 'c2', status: 'active', schedule: { id: 's2', scheduledDate: '2030-01-10T10:00:00Z', durationMinutes: 60, notes: 'Levar ferramentas', status: 'confirmed' } },
+      ],
+      isPending: false,
+    } as never);
+    vi.mocked(useSlots).mockReturnValue({ data: [], isPending: false } as never);
+
+    renderWithProviders(<DashboardAgendaWidget />);
+
+    expect(screen.getByText('10/01/2030')).toBeInTheDocument();
+    expect(screen.getByText('Levar ferramentas')).toBeInTheDocument();
+  });
+
   it('mostra estado vazio quando nao ha compromissos nem disponibilidade', () => {
     vi.mocked(useMyProfile).mockReturnValue({ data: { id: 'prof1' } } as never);
     vi.mocked(useContracts).mockReturnValue({ data: [], isPending: false } as never);
