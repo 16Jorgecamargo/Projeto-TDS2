@@ -56,6 +56,40 @@ describe('portfolio routes', () => {
     expect(publicList.json()[0].images).toHaveLength(1);
   });
 
+  it('aceita imagem com URL relativa retornada pelo upload e le publicamente com a mesma URL', async () => {
+    const headers = await professionalHeader(app);
+    const profile = await app.inject({
+      method: 'PUT',
+      url: '/api/professionals/me',
+      headers,
+      payload: { headline: 'Marceneiro', bio: null, yearsExperience: null, hourlyRate: null, serviceRadiusKm: null },
+    });
+    const professionalId = profile.json().id;
+
+    const item = await app.inject({
+      method: 'POST',
+      url: '/api/portfolio/me/items',
+      headers,
+      payload: { categoryId: null, title: 'Movel planejado com upload relativo', description: null, completedAt: null },
+    });
+    expect(item.statusCode).toBe(201);
+
+    const relativeImageUrl = '/uploads/abc123.jpg';
+    const image = await app.inject({
+      method: 'POST',
+      url: `/api/portfolio/me/items/${item.json().id}/images`,
+      headers,
+      payload: { imageUrl: relativeImageUrl, position: 0 },
+    });
+    expect(image.statusCode).toBe(201);
+    expect(image.json().imageUrl).toBe(relativeImageUrl);
+
+    const publicList = await app.inject({ method: 'GET', url: `/api/portfolio/${professionalId}/items` });
+    expect(publicList.statusCode).toBe(200);
+    expect(publicList.json()[0].images).toHaveLength(1);
+    expect(publicList.json()[0].images[0].imageUrl).toBe(relativeImageUrl);
+  });
+
   it('rejeita atualizar item de outro profissional com 404', async () => {
     const headerA = await professionalHeader(app);
     await app.inject({
