@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { useMyProfile, useAddServiceArea, useRemoveServiceArea, usePublicProfile } from '../queries';
+import { Card } from '../../../components/ui/Card';
+import { Button } from '../../../components/ui/Button';
+import { EmptyState } from '../../../components/ui/EmptyState';
 
 export function ServiceAreaManager() {
   const { data: profile } = useMyProfile();
@@ -9,39 +12,57 @@ export function ServiceAreaManager() {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
 
+  const areas = publicProfile?.serviceAreas ?? [];
+
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">Areas de atendimento</h2>
-      <div className="flex gap-2">
-        <input className="flex-1 rounded border px-3 py-2" placeholder="Cidade" value={city} onChange={(e) => setCity(e.target.value)} />
+    <Card>
+      <h2 className="mb-3 text-lg font-semibold text-ink">Áreas de atendimento</h2>
+      <div className="mb-3 flex gap-2">
         <input
-          className="w-16 rounded border px-3 py-2"
+          className="flex-1 rounded-sm border border-surface px-3 py-2 text-ink"
+          placeholder="Cidade"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+        />
+        <input
+          className="w-16 rounded-sm border border-surface px-3 py-2 text-ink"
           placeholder="UF"
           maxLength={2}
           value={state}
           onChange={(e) => setState(e.target.value.toUpperCase())}
         />
-        <button
+        <Button
           type="button"
           disabled={!city || state.length !== 2 || addArea.isPending}
-          onClick={() => addArea.mutate({ city, state, radiusKm: null })}
-          className="rounded bg-slate-900 px-4 py-2 text-white disabled:opacity-50"
+          onClick={() => {
+            addArea.mutate({ city, state, radiusKm: null });
+            setCity('');
+            setState('');
+          }}
         >
           Adicionar
-        </button>
+        </Button>
       </div>
-      <ul className="flex flex-col gap-2">
-        {publicProfile?.serviceAreas.map((area) => (
-          <li key={area.id} className="flex items-center justify-between rounded border px-3 py-2">
-            <span>
-              {area.city} - {area.state}
-            </span>
-            <button type="button" onClick={() => removeArea.mutate(area.id)} className="text-sm text-red-600 underline">
-              Remover
-            </button>
-          </li>
-        ))}
-      </ul>
-    </section>
+      {areas.length === 0 ? (
+        <EmptyState title="Nenhuma área de atendimento cadastrada" />
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {areas.map((area) => (
+            <li key={area.id} className="flex items-center justify-between rounded-sm bg-surface px-3 py-2">
+              <span className="text-sm text-ink">
+                {area.city} - {area.state}
+              </span>
+              <button
+                type="button"
+                onClick={() => removeArea.mutate(area.id)}
+                className="text-sm font-semibold text-accent underline"
+              >
+                Remover
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
   );
 }
