@@ -65,4 +65,19 @@ describe('PublishDemandPage', () => {
     expect(inviteProfessional).not.toHaveBeenCalled();
     expect(navigateMock).toHaveBeenCalledWith('/demands/d1');
   });
+
+  it('navega para a demanda mesmo quando convite automatico falha', async () => {
+    const mutate = vi.fn((_input, options?: { onSuccess: (demand: { id: string }) => void }) => {
+      options?.onSuccess({ id: 'd1' });
+    });
+    vi.mocked(usePublishDemand).mockReturnValue({ mutate, isPending: false } as never);
+    vi.mocked(inviteProfessional).mockRejectedValue(new Error('Invite failed'));
+    const user = userEvent.setup();
+    renderPage('/demands/new?professionalId=prof-1');
+
+    await user.click(screen.getByRole('button', { name: 'Simular publicacao' }));
+
+    expect(inviteProfessional).toHaveBeenCalledWith('d1', 'prof-1');
+    expect(navigateMock).toHaveBeenCalledWith('/demands/d1');
+  });
 });

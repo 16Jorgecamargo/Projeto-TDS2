@@ -17,7 +17,10 @@ export default function PublishDemandPage(): JSX.Element {
       {
         onSuccess: async (demand) => {
           if (professionalId) {
-            await inviteProfessional(demand.id, professionalId);
+            try {
+              await inviteProfessional(demand.id, professionalId);
+            } catch {
+            }
           }
           navigate(`/demands/${demand.id}`);
         },
