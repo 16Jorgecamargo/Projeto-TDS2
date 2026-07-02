@@ -22,7 +22,7 @@ export default defineConfig({
     },
     {
       name: 'clients',
-      testMatch: ['clients/**/*.spec.ts'],
+      testMatch: ['clients.spec.ts', 'clients/**/*.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },
     {

@@ -32,6 +32,15 @@ async function seedAdminInDatabase(email: string, password: string, name: string
   return parsed.id;
 }
 
+export function seedCategory(): string {
+  const output = execFileSync('npx', ['tsx', 'src/scripts/seed-e2e-category.ts'], {
+    cwd: backendDir,
+    encoding: 'utf-8',
+  });
+  const parsed = JSON.parse(output) as { id: string };
+  return parsed.id;
+}
+
 export async function seedUser(
   role: Role,
   overrides: Partial<{ email: string; name: string }> = {},
