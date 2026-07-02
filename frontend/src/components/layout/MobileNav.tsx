@@ -53,7 +53,7 @@ export function MobileNav(): JSX.Element | null {
   return (
     <nav
       aria-label="Navegação principal"
-      className="fixed inset-x-0 bottom-0 z-sticky flex border-t border-surface bg-bg md:hidden"
+      className="fixed inset-x-0 bottom-0 z-sticky flex border-t border-surface bg-bg nav:hidden"
     >
       <NavTab item={linkItems[0]} isPrimaryOccurrence={primaryRouteIndexes.has(0)} />
       {primaryItems.map((item, offset) => {

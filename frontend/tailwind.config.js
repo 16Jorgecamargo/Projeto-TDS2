@@ -2,6 +2,9 @@ export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
+      screens: {
+        nav: '424px',
+      },
       colors: {
         bg: 'var(--color-bg)',
         surface: 'var(--color-surface)',

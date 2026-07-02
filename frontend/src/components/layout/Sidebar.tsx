@@ -90,7 +90,7 @@ export function Sidebar(): JSX.Element | null {
   return (
     <aside
       className={cn(
-        'hidden shrink-0 flex-col border-r border-surface bg-bg py-4 md:flex',
+        'hidden shrink-0 flex-col border-r border-surface bg-bg py-4 nav:flex',
         collapsed ? 'w-16' : 'w-64',
       )}
     >

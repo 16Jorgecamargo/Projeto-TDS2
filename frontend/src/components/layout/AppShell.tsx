@@ -15,7 +15,7 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
       <Topbar />
       <div className="flex flex-1">
         <Sidebar />
-        <main className="flex-1 px-4 py-6 pb-20 md:pb-6">{children}</main>
+        <main className="flex-1 px-4 py-6 pb-20 nav:pb-6">{children}</main>
       </div>
       <MobileNav />
       <CommandPalette />
