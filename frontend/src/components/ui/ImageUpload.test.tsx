@@ -1,0 +1,71 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ImageUpload } from './ImageUpload';
+import { uploadImage } from '../../features/uploads/api';
+import { useToastStore } from './Toast';
+
+vi.mock('../../features/uploads/api', () => ({ uploadImage: vi.fn() }));
+
+describe('ImageUpload', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useToastStore.setState({ toasts: [] });
+  });
+
+  it('renderiza o rotulo', () => {
+    render(<ImageUpload onUploaded={vi.fn()} label="Foto da demanda" />);
+    expect(screen.getByLabelText('Foto da demanda')).toBeInTheDocument();
+  });
+
+  it('envia o arquivo selecionado e chama onUploaded com o resultado', async () => {
+    vi.mocked(uploadImage).mockResolvedValue({ url: '/uploads/abc.jpg', filename: 'abc.jpg', size: 1024 });
+    const onUploaded = vi.fn();
+    const user = userEvent.setup();
+    render(<ImageUpload onUploaded={onUploaded} />);
+
+    const file = new File(['conteudo'], 'foto.jpg', { type: 'image/jpeg' });
+    const input = screen.getByLabelText('Enviar imagem');
+    await user.upload(input, file);
+
+    await waitFor(() =>
+      expect(onUploaded).toHaveBeenCalledWith({ url: '/uploads/abc.jpg', filename: 'abc.jpg', size: 1024 }),
+    );
+  });
+
+  it('mostra skeleton enquanto o upload esta em andamento', async () => {
+    let resolveUpload: (value: { url: string; filename: string; size: number }) => void = () => {};
+    vi.mocked(uploadImage).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveUpload = resolve;
+        }),
+    );
+    const user = userEvent.setup();
+    render(<ImageUpload onUploaded={vi.fn()} />);
+
+    const file = new File(['conteudo'], 'foto.jpg', { type: 'image/jpeg' });
+    const input = screen.getByLabelText('Enviar imagem');
+    await user.upload(input, file);
+
+    expect(screen.getByRole('status', { name: 'Enviando imagem' })).toBeInTheDocument();
+
+    resolveUpload({ url: '/uploads/abc.jpg', filename: 'abc.jpg', size: 1024 });
+    await waitFor(() =>
+      expect(screen.queryByRole('status', { name: 'Enviando imagem' })).not.toBeInTheDocument(),
+    );
+  });
+
+  it('mostra toast de erro quando o upload falha', async () => {
+    vi.mocked(uploadImage).mockRejectedValue(new Error('falhou'));
+    const user = userEvent.setup();
+    render(<ImageUpload onUploaded={vi.fn()} />);
+
+    const file = new File(['conteudo'], 'foto.jpg', { type: 'image/jpeg' });
+    const input = screen.getByLabelText('Enviar imagem');
+    await user.upload(input, file);
+
+    await waitFor(() => expect(useToastStore.getState().toasts).toHaveLength(1));
+    expect(useToastStore.getState().toasts[0]).toMatchObject({ tone: 'error' });
+  });
+});

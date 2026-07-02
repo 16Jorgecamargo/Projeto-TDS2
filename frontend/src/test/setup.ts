@@ -9,6 +9,13 @@ Object.assign(globalThis, {
   AbortSignal: NativeAbortSignal,
 });
 
+let objectUrlCounter = 0;
+globalThis.URL.createObjectURL = () => {
+  objectUrlCounter += 1;
+  return `blob:http://localhost/${objectUrlCounter}`;
+};
+globalThis.URL.revokeObjectURL = () => undefined;
+
 afterEach(() => {
   cleanup();
 });
