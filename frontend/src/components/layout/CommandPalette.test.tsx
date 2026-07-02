@@ -37,7 +37,7 @@ describe('CommandPalette', () => {
   it('lista itens de navegação do papel ao abrir', () => {
     useCommandPaletteStore.setState({ open: true });
     renderWithProviders(<CommandPalette />);
-    expect(screen.getByRole('button', { name: /Buscar profissional/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Minhas demandas/ })).toBeInTheDocument();
   });
 
   it('filtra a navegação pelo texto digitado', async () => {

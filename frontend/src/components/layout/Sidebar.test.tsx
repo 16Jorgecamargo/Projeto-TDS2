@@ -20,7 +20,7 @@ describe('Sidebar', () => {
   it('renderiza os itens de navegação do papel do cliente', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
     renderWithProviders(<Sidebar />);
-    expect(screen.getByRole('link', { name: /Buscar profissional/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Minhas demandas/ })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Carteira/ })).toBeInTheDocument();
   });
 
@@ -28,7 +28,7 @@ describe('Sidebar', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
     useSidebarStore.setState({ collapsed: true });
     renderWithProviders(<Sidebar />);
-    expect(screen.queryByText('Buscar profissional')).not.toBeInTheDocument();
+    expect(screen.queryByText('Minhas demandas')).not.toBeInTheDocument();
   });
 
   it('alterna o estado ao clicar no botão de colapsar', async () => {
@@ -45,16 +45,15 @@ describe('Sidebar', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
     renderWithProviders(<Sidebar />, { route: '/admin' });
 
-    const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
     const denunciasLink = screen.getByRole('link', { name: 'Denúncias' });
     const disputasLink = screen.getByRole('link', { name: 'Disputas' });
     const usuariosLink = screen.getByRole('link', { name: 'Usuários' });
 
-    expect(dashboardLink.classList.contains('bg-surface')).toBe(true);
-    expect(dashboardLink.classList.contains('text-primary')).toBe(true);
-    expect(dashboardLink).toHaveAttribute('aria-current', 'page');
+    expect(denunciasLink.classList.contains('bg-surface')).toBe(true);
+    expect(denunciasLink.classList.contains('text-primary')).toBe(true);
+    expect(denunciasLink).toHaveAttribute('aria-current', 'page');
 
-    for (const link of [denunciasLink, disputasLink, usuariosLink]) {
+    for (const link of [disputasLink, usuariosLink]) {
       expect(link.classList.contains('bg-surface')).toBe(false);
       expect(link.classList.contains('text-primary')).toBe(false);
       expect(link).not.toHaveAttribute('aria-current', 'page');

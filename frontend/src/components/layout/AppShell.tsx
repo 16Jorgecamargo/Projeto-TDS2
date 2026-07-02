@@ -1,4 +1,4 @@
-import { useState, type JSX, type ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
@@ -10,20 +10,14 @@ export interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps): JSX.Element {
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
   return (
     <div className="flex min-h-screen flex-col bg-bg text-ink">
-      <Topbar onOpenMobileNav={() => setMobileNavOpen(true)} />
+      <Topbar />
       <div className="flex flex-1">
         <Sidebar />
         <main className="flex-1 px-4 py-6 pb-20 md:pb-6">{children}</main>
       </div>
-      <MobileNav
-        open={mobileNavOpen}
-        onClose={() => setMobileNavOpen(false)}
-        onOpenMore={() => setMobileNavOpen(true)}
-      />
+      <MobileNav />
       <CommandPalette />
       <ToastProvider />
     </div>
