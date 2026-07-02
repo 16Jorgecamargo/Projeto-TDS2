@@ -35,6 +35,18 @@ describe('loadConfig', () => {
     expect(config.RATE_LIMIT_MAX).toBe(100);
     expect(config.RATE_LIMIT_WINDOW).toBe('1 minute');
   });
+
+  it('applies upload defaults', () => {
+    const config = loadConfig(validEnv);
+    expect(config.UPLOAD_DIR).toBe('./uploads');
+    expect(config.UPLOAD_MAX_SIZE_MB).toBe(5);
+    expect(config.UPLOAD_ALLOWED_MIME).toBe('image/jpeg,image/png,image/webp');
+  });
+
+  it('accepts a custom UPLOAD_MAX_SIZE_MB override', () => {
+    const config = loadConfig({ ...validEnv, UPLOAD_MAX_SIZE_MB: '10' } as NodeJS.ProcessEnv);
+    expect(config.UPLOAD_MAX_SIZE_MB).toBe(10);
+  });
 });
 
 describe('production secret hardening', () => {

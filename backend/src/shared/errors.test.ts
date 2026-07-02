@@ -7,6 +7,7 @@ import {
   NotFoundError,
   ConflictError,
   UnprocessableError,
+  PayloadTooLargeError,
 } from './errors.js';
 
 describe('AppError hierarchy', () => {
@@ -26,6 +27,7 @@ describe('AppError hierarchy', () => {
     expect([new NotFoundError().statusCode, new NotFoundError().code]).toEqual([404, 'NOT_FOUND']);
     expect([new ConflictError().statusCode, new ConflictError().code]).toEqual([409, 'CONFLICT']);
     expect([new UnprocessableError().statusCode, new UnprocessableError().code]).toEqual([422, 'UNPROCESSABLE']);
+    expect([new PayloadTooLargeError().statusCode, new PayloadTooLargeError().code]).toEqual([413, 'PAYLOAD_TOO_LARGE']);
   });
 
   it('accepts a custom message and details on subclasses', () => {

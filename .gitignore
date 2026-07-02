@@ -6,6 +6,7 @@ coverage
 *.log
 .DS_Store
 backend/dist
+backend/uploads/
 frontend/dist
 playwright-report
 test-results

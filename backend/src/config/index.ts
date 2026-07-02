@@ -24,6 +24,9 @@ const envSchema = z
     SENTRY_ENVIRONMENT: z.string().default('development'),
     RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
     RATE_LIMIT_WINDOW: z.string().min(1).default('1 minute'),
+    UPLOAD_DIR: z.string().min(1).default('./uploads'),
+    UPLOAD_MAX_SIZE_MB: z.coerce.number().int().positive().default(5),
+    UPLOAD_ALLOWED_MIME: z.string().min(1).default('image/jpeg,image/png,image/webp'),
   })
   .superRefine((data, ctx) => {
     if (data.NODE_ENV !== 'production') {
