@@ -135,6 +135,6 @@ schemas.ts    Zod (react-hook-form resolvers)
 - [x] Fase 9 — demand/contract
 - [x] Fase 10 — wallet/payment
 - [x] Fase 11 — social/comm
-- [ ] Fase 12 — observability
-- [ ] Fase 13 — integração/E2E
-- [ ] Fase 14 — hardening/CI/CD (plano escrito)
+- [x] Fase 12 — observability
+- [x] Fase 13 — integração/E2E
+- [x] Fase 14 — hardening/CI/CD (plano escrito)

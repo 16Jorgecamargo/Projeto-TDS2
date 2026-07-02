@@ -8,6 +8,7 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['src/test/setup.ts'],
     include: ['src/**/*.test.ts', '../infra/**/*.test.ts'],
+    fileParallelism: false,
     hookTimeout: 30000,
     testTimeout: 30000,
     coverage: {
