@@ -15,6 +15,8 @@ import SearchPage from '../features/landing/pages/SearchPage';
 import PublishDemandPage from '../features/demands/pages/PublishDemandPage';
 import DemandListPage from '../features/demands/pages/DemandListPage';
 import DemandDetailPage from '../features/demands/pages/DemandDetailPage';
+import ContractListPage from '../features/contracts/pages/ContractListPage';
+import ContractDetailPage from '../features/contracts/pages/ContractDetailPage';
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +38,8 @@ export const router = createBrowserRouter([
           { path: '/professional/dashboard', element: <ProfessionalDashboardPage /> },
           { path: '/demands', element: <DemandListPage /> },
           { path: '/demands/:id', element: <DemandDetailPage /> },
+          { path: '/contracts', element: <ContractListPage /> },
+          { path: '/contracts/:id', element: <ContractDetailPage /> },
         ],
       },
       {
