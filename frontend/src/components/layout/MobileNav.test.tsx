@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../../test/renderWithProviders';
 import { MobileNav } from './MobileNav';
@@ -43,5 +43,48 @@ describe('MobileNav', () => {
 
     expect(screen.getByRole('dialog', { name: 'Menu' })).toBeInTheDocument();
     expect(screen.getAllByText('Carteira').length).toBeGreaterThan(0);
+  });
+
+  it('destaca somente o primeiro item nas abas inferiores entre os que compartilham a mesma rota', () => {
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
+    renderWithProviders(<MobileNav open={false} onClose={vi.fn()} onOpenMore={vi.fn()} />, {
+      route: '/admin',
+    });
+
+    const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
+    const denunciasLink = screen.getByRole('link', { name: 'Denúncias' });
+    const disputasLink = screen.getByRole('link', { name: 'Disputas' });
+    const usuariosLink = screen.getByRole('link', { name: 'Usuários' });
+
+    expect(dashboardLink.classList.contains('text-primary')).toBe(true);
+    expect(dashboardLink).toHaveAttribute('aria-current', 'page');
+
+    for (const link of [denunciasLink, disputasLink, usuariosLink]) {
+      expect(link.classList.contains('text-primary')).toBe(false);
+      expect(link).not.toHaveAttribute('aria-current', 'page');
+    }
+  });
+
+  it('destaca somente o primeiro item no drawer entre os que compartilham a mesma rota', () => {
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
+    renderWithProviders(<MobileNav open onClose={vi.fn()} onOpenMore={vi.fn()} />, {
+      route: '/admin',
+    });
+
+    const drawerNav = within(screen.getByRole('navigation', { name: 'Menu completo' }));
+    const dashboardLink = drawerNav.getByRole('link', { name: 'Dashboard' });
+    const denunciasLink = drawerNav.getByRole('link', { name: 'Denúncias' });
+    const disputasLink = drawerNav.getByRole('link', { name: 'Disputas' });
+    const usuariosLink = drawerNav.getByRole('link', { name: 'Usuários' });
+
+    expect(dashboardLink.classList.contains('bg-surface')).toBe(true);
+    expect(dashboardLink.classList.contains('text-primary')).toBe(true);
+    expect(dashboardLink).toHaveAttribute('aria-current', 'page');
+
+    for (const link of [denunciasLink, disputasLink, usuariosLink]) {
+      expect(link.classList.contains('bg-surface')).toBe(false);
+      expect(link.classList.contains('text-primary')).toBe(false);
+      expect(link).not.toHaveAttribute('aria-current', 'page');
+    }
   });
 });

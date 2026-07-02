@@ -40,4 +40,24 @@ describe('Sidebar', () => {
 
     expect(useSidebarStore.getState().collapsed).toBe(true);
   });
+
+  it('destaca somente o primeiro item de navegação entre os que compartilham a mesma rota', () => {
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
+    renderWithProviders(<Sidebar />, { route: '/admin' });
+
+    const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
+    const denunciasLink = screen.getByRole('link', { name: 'Denúncias' });
+    const disputasLink = screen.getByRole('link', { name: 'Disputas' });
+    const usuariosLink = screen.getByRole('link', { name: 'Usuários' });
+
+    expect(dashboardLink.classList.contains('bg-surface')).toBe(true);
+    expect(dashboardLink.classList.contains('text-primary')).toBe(true);
+    expect(dashboardLink).toHaveAttribute('aria-current', 'page');
+
+    for (const link of [denunciasLink, disputasLink, usuariosLink]) {
+      expect(link.classList.contains('bg-surface')).toBe(false);
+      expect(link.classList.contains('text-primary')).toBe(false);
+      expect(link).not.toHaveAttribute('aria-current', 'page');
+    }
+  });
 });
