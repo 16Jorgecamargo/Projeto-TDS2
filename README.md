@@ -133,6 +133,9 @@ Arquivo `backend/.env` (baseado em `backend/.env.example`), validado por `src/co
 | `SENTRY_ENVIRONMENT` | `development` | Tag de ambiente enviada ao Sentry |
 | `RATE_LIMIT_MAX` | `100` | Requisições por janela, por IP (global) |
 | `RATE_LIMIT_WINDOW` | `1 minute` | Janela do rate limit (sintaxe do `@fastify/rate-limit`) |
+| `UPLOAD_DIR` | `./uploads` | Diretório onde imagens enviadas são salvas (resolvido a partir do cwd do processo; em Docker vira `/app/uploads`, montado no volume `uploads_data`) |
+| `UPLOAD_MAX_SIZE_MB` | `5` | Tamanho máximo por arquivo, em MB |
+| `UPLOAD_ALLOWED_MIME` | `image/jpeg,image/png,image/webp` | Tipos MIME aceitos, detectados pelos magic bytes reais do arquivo (nunca pelo `Content-Type` enviado pelo cliente) |
 
 **Hardening de produção:** em `NODE_ENV=production`, o schema rejeita qualquer `JWT_*_SECRET` que contenha os padrões `change-me`, `placeholder` ou `secret` (regex `WEAK_SECRET_PATTERN`) — isso impede subir produção com o segredo de exemplo do `.env.example` por acidente.
 
@@ -338,6 +341,7 @@ Backend organizado em módulos verticais (`src/modules/<nome>/{*.routes,*.servic
 | `withdrawals` | Saque de saldo da carteira para profissional |
 | `review` | Avaliação mútua cliente ⇄ profissional pós-contrato |
 | `social` | Favoritar profissionais |
+| `upload` | Upload de imagens (multipart, autenticado) — salva em disco com nome UUID, valida tipo pelos magic bytes reais, retorna URL pública servida em `/uploads/*` |
 | `notification` | Notificações assíncronas (fila BullMQ + worker dedicado) |
 | `chat` | Mensagens em tempo real via Socket.IO (`chat.gateway.ts`) |
 | `audit` | Trilha de auditoria de ações administrativas/moderação |
@@ -364,7 +368,7 @@ Backend organizado em módulos verticais (`src/modules/<nome>/{*.routes,*.servic
 
 `docker-compose.yml` define 6 serviços:
 
-- **`app`** — build de `backend/Dockerfile` (multi-stage: build TS → runtime `node:20-alpine` só com deps de produção). Recebe `DATABASE_HOST=mysql` e `REDIS_HOST=redis` via `environment` (sobrepõe o que estiver no `.env` local), espera `mysql`/`redis` saudáveis, expõe `3000`, healthcheck em `GET /api/health`.
+- **`app`** — build de `backend/Dockerfile` (multi-stage: build TS → runtime `node:20-alpine` só com deps de produção). Recebe `DATABASE_HOST=mysql` e `REDIS_HOST=redis` via `environment` (sobrepõe o que estiver no `.env` local), espera `mysql`/`redis` saudáveis, expõe `3000`, healthcheck em `GET /api/health`. Monta o volume `uploads_data:/app/uploads` para persistir imagens enviadas entre restarts do container — armazenamento local; múltiplas réplicas do serviço `app` precisariam de um volume compartilhado (NFS/EFS) ou migração para storage externo (S3/MinIO) para escalar horizontalmente.
 - **`frontend`** — build de `frontend/Dockerfile` (multi-stage: build Vite → `nginx:1.27-alpine` servindo estático). `nginx.conf` faz proxy reverso de `/api/*` e `/socket.io/*` (com upgrade de conexão para WebSocket) para `http://app:3000`; todo o resto cai em SPA fallback (`try_files ... /index.html`). Expõe `8080` externamente.
 - **`mysql`** — MySQL 8.0, dados persistidos em volume `mysql_data`, healthcheck via `mysqladmin ping`.
 - **`redis`** — Redis 7 alpine, volume `redis_data`, healthcheck via `redis-cli ping`.
