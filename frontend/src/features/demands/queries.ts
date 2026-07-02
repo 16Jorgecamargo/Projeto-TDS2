@@ -17,8 +17,12 @@ export const demandKeys = {
   quotes: (id: string) => ['demands', id, 'quotes'] as const,
 };
 
-export function useDemands(mine?: boolean) {
-  return useQuery({ queryKey: demandKeys.list(mine), queryFn: () => fetchDemands({ mine }) });
+export function useDemands(mine?: boolean, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: demandKeys.list(mine),
+    queryFn: () => fetchDemands({ mine }),
+    enabled: options?.enabled ?? true,
+  });
 }
 
 export function useDemand(id: string) {
