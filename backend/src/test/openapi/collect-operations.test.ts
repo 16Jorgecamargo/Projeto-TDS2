@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { collectOperations, hasRequestBody, type OpenApiDocument } from './collect-operations';
+import { collectOperations, hasRequestBody, type OpenApiDocument } from './collect-operations.js';
 
 const document: OpenApiDocument = {
   openapi: '3.0.0',

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { metricsRegistry, businessMetrics, observeHttp } from './metrics';
+import { metricsRegistry, businessMetrics, observeHttp } from './metrics.js';
 
 describe('metrics registry', () => {
   it('expõe métricas default e o histograma HTTP', async () => {

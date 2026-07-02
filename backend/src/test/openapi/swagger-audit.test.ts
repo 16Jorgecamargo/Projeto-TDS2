@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { FastifyInstance } from 'fastify';
-import { buildApp } from '../../app';
-import { collectOperations, hasRequestBody, type OpenApiDocument } from './collect-operations';
+import { buildApp } from '../../app.js';
+import { collectOperations, hasRequestBody, type OpenApiDocument } from './collect-operations.js';
 
 let app: FastifyInstance;
 let entries: ReturnType<typeof collectOperations>;
