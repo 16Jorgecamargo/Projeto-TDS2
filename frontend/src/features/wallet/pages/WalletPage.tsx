@@ -1,34 +1,34 @@
-import { useState } from 'react';
+import { useState, type JSX } from 'react';
 import { useWallet, useTransactions } from '../queries';
 import { WalletBalanceCard } from '../components/WalletBalanceCard';
 import { TransactionList } from '../components/TransactionList';
 import { WithdrawDialog } from '../components/WithdrawDialog';
+import { Button } from '../../../components/ui/Button';
+import { Skeleton } from '../../../components/ui/Skeleton';
 
-export default function WalletPage() {
+export default function WalletPage(): JSX.Element {
   const [showWithdraw, setShowWithdraw] = useState(false);
   const wallet = useWallet();
   const transactions = useTransactions(1);
 
-  if (wallet.isLoading || !wallet.data) {
-    return <p className="p-6 text-gray-500">Carregando carteira...</p>;
-  }
-
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-6">
+    <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Carteira</h1>
-        <button onClick={() => setShowWithdraw(true)} className="rounded bg-blue-600 px-4 py-2 text-white">
-          Sacar
-        </button>
+        <h1 className="text-3xl font-bold text-ink">Carteira</h1>
+        <Button onClick={() => setShowWithdraw(true)}>Sacar</Button>
       </div>
-      <WalletBalanceCard
-        balance={wallet.data.balance}
-        pendingBalance={wallet.data.pendingBalance}
-        currency={wallet.data.currency}
-      />
-      <section>
-        <h2 className="mb-2 text-lg font-medium">Movimentações</h2>
-        <TransactionList transactions={transactions.data?.items ?? []} />
+      {wallet.isPending || !wallet.data ? (
+        <Skeleton className="h-24 w-full" aria-label="Carregando carteira" />
+      ) : (
+        <WalletBalanceCard balance={wallet.data.balance} pendingBalance={wallet.data.pendingBalance} />
+      )}
+      <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-semibold text-ink">Movimentações</h2>
+        {transactions.isPending ? (
+          <Skeleton className="h-24 w-full" aria-label="Carregando movimentações" />
+        ) : (
+          <TransactionList transactions={transactions.data?.items ?? []} />
+        )}
       </section>
       {showWithdraw && <WithdrawDialog onClose={() => setShowWithdraw(false)} />}
     </div>

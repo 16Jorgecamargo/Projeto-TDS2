@@ -1,24 +1,35 @@
+import type { JSX } from 'react';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { formatCurrency, formatDate } from '../../../lib/utils';
 import type { WalletTransaction } from '../api';
 
 interface TransactionListProps {
   transactions: WalletTransaction[];
 }
 
-export function TransactionList({ transactions }: TransactionListProps) {
+const TYPE_LABELS: Record<WalletTransaction['type'], string> = {
+  credit: 'Crédito',
+  debit: 'Débito',
+  hold: 'Retenção',
+  release: 'Liberação',
+};
+
+export function TransactionList({ transactions }: TransactionListProps): JSX.Element {
   if (transactions.length === 0) {
-    return <p className="text-sm text-gray-400">Nenhuma movimentação ainda.</p>;
+    return <EmptyState title="Nenhuma movimentação ainda" />;
   }
+
   return (
-    <ul className="divide-y divide-gray-100">
+    <ul className="flex flex-col gap-2">
       {transactions.map((tx) => (
-        <li key={tx.id} className="flex items-center justify-between py-3">
+        <li key={tx.id} className="flex items-center justify-between rounded-lg bg-surface p-3">
           <div>
-            <p className="text-sm font-medium text-gray-900">{tx.description ?? tx.type}</p>
-            <p className="text-xs text-gray-400">{new Date(tx.createdAt).toLocaleString('pt-BR')}</p>
+            <p className="text-sm font-medium text-ink">{tx.description ?? TYPE_LABELS[tx.type]}</p>
+            <p className="text-xs text-muted">{formatDate(tx.createdAt)}</p>
           </div>
-          <span className={tx.type === 'credit' ? 'text-green-600' : 'text-red-600'}>
+          <span className={tx.type === 'credit' ? 'text-accent' : 'text-ink'}>
             {tx.type === 'credit' ? '+' : '-'}
-            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(tx.amount)}
+            {formatCurrency(tx.amount)}
           </span>
         </li>
       ))}

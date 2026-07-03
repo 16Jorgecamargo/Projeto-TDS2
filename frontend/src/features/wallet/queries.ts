@@ -9,7 +9,7 @@ import {
 
 export const walletKeys = {
   wallet: ['wallet'] as const,
-  transactions: (page: number) => ['wallet', 'transactions', page] as const,
+  transactions: (page: number, limit: number) => ['wallet', 'transactions', page, limit] as const,
   withdrawals: ['wallet', 'withdrawals'] as const,
 };
 
@@ -17,10 +17,10 @@ export function useWallet() {
   return useQuery({ queryKey: walletKeys.wallet, queryFn: fetchWallet });
 }
 
-export function useTransactions(page: number) {
+export function useTransactions(page: number, limit = 20) {
   return useQuery({
-    queryKey: walletKeys.transactions(page),
-    queryFn: () => fetchTransactions(page),
+    queryKey: walletKeys.transactions(page, limit),
+    queryFn: () => fetchTransactions(page, limit),
   });
 }
 

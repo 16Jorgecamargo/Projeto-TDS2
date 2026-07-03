@@ -1,13 +1,16 @@
+import type { JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { withdrawFormSchema, type WithdrawFormInput } from '../schemas';
 import { useRequestWithdrawal } from '../queries';
+import { Modal } from '../../../components/ui/Modal';
+import { Button } from '../../../components/ui/Button';
 
 interface WithdrawDialogProps {
   onClose: () => void;
 }
 
-export function WithdrawDialog({ onClose }: WithdrawDialogProps) {
+export function WithdrawDialog({ onClose }: WithdrawDialogProps): JSX.Element {
   const { register, handleSubmit, formState } = useForm<WithdrawFormInput>({
     resolver: zodResolver(withdrawFormSchema),
     defaultValues: { amount: 0, paymentMethod: 'pix', destination: '' },
@@ -19,33 +22,52 @@ export function WithdrawDialog({ onClose }: WithdrawDialogProps) {
   });
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-white p-6 shadow">
-      <h2 className="text-lg font-semibold">Solicitar saque</h2>
-      <div>
-        <label className="block text-sm text-gray-600">Valor</label>
-        <input type="number" step="0.01" {...register('amount')} className="w-full rounded border p-2" />
-        {formState.errors.amount && <p className="text-xs text-red-600">{formState.errors.amount.message}</p>}
-      </div>
-      <div>
-        <label className="block text-sm text-gray-600">Método</label>
-        <select {...register('paymentMethod')} className="w-full rounded border p-2">
-          <option value="pix">PIX</option>
-          <option value="bank_transfer">Transferência bancária</option>
-        </select>
-      </div>
-      <div>
-        <label className="block text-sm text-gray-600">Destino</label>
-        <input {...register('destination')} className="w-full rounded border p-2" />
-        {formState.errors.destination && <p className="text-xs text-red-600">{formState.errors.destination.message}</p>}
-      </div>
-      <div className="flex justify-end gap-2">
-        <button type="button" onClick={onClose} className="rounded px-4 py-2 text-gray-600">
-          Cancelar
-        </button>
-        <button type="submit" disabled={mutation.isPending} className="rounded bg-blue-600 px-4 py-2 text-white">
-          Confirmar
-        </button>
-      </div>
-    </form>
+    <Modal open onClose={onClose} title="Solicitar saque">
+      <form onSubmit={onSubmit} className="flex flex-col gap-3">
+        <label htmlFor="withdraw-amount" className="flex flex-col gap-1">
+          <span className="text-sm text-muted">Valor</span>
+          <input
+            id="withdraw-amount"
+            type="number"
+            step="0.01"
+            {...register('amount')}
+            className="rounded-sm border border-surface px-3 py-2 text-ink"
+          />
+        </label>
+        {formState.errors.amount && (
+          <span className="text-xs text-accent">{formState.errors.amount.message}</span>
+        )}
+        <label htmlFor="withdraw-method" className="flex flex-col gap-1">
+          <span className="text-sm text-muted">Método</span>
+          <select
+            id="withdraw-method"
+            {...register('paymentMethod')}
+            className="rounded-sm border border-surface px-3 py-2 text-ink"
+          >
+            <option value="pix">PIX</option>
+            <option value="bank_transfer">Transferência bancária</option>
+          </select>
+        </label>
+        <label htmlFor="withdraw-destination" className="flex flex-col gap-1">
+          <span className="text-sm text-muted">Destino</span>
+          <input
+            id="withdraw-destination"
+            {...register('destination')}
+            className="rounded-sm border border-surface px-3 py-2 text-ink"
+          />
+        </label>
+        {formState.errors.destination && (
+          <span className="text-xs text-accent">{formState.errors.destination.message}</span>
+        )}
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="ghost" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={mutation.isPending}>
+            Confirmar
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

@@ -48,9 +48,9 @@ export async function fetchWallet(): Promise<Wallet> {
   return data;
 }
 
-export async function fetchTransactions(page: number): Promise<Paginated<WalletTransaction>> {
+export async function fetchTransactions(page: number, limit = 20): Promise<Paginated<WalletTransaction>> {
   const { data } = await http.get<Paginated<WalletTransaction>>('/wallet/transactions', {
-    params: { page },
+    params: { page, limit },
   });
   return data;
 }
