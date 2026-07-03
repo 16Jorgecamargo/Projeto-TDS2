@@ -10,7 +10,7 @@ export function ChatPage(): JSX.Element {
   }
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-2xl flex-col gap-4 p-6">
+    <div className="mx-auto flex h-[calc(100vh-4rem-5rem)] max-w-2xl flex-col gap-4 p-6 nav:h-[calc(100vh-4rem-1.5rem)]">
       <h1 className="text-2xl font-semibold text-ink">Conversa</h1>
       <div className="flex-1">
         <ChatWindow roomId={roomId} />
