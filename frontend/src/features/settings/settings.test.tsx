@@ -34,8 +34,10 @@ describe('DeleteAccountPanel', () => {
     });
 
     render(<DeleteAccountPanel />, { wrapper });
-    const button = await screen.findByRole('button', { name: /solicitar exclusao/i });
+    const button = await screen.findByRole('button', { name: /solicitar exclusão/i });
     fireEvent.click(button);
+    const confirmButton = await screen.findByRole('button', { name: /confirmar exclusão/i });
+    fireEvent.click(confirmButton);
     await waitFor(() => expect(settingsApi.requestDeletion).toHaveBeenCalled());
   });
 
@@ -47,7 +49,7 @@ describe('DeleteAccountPanel', () => {
       scheduledFor: '2026-07-31T00:00:00.000Z',
     });
     render(<DeleteAccountPanel />, { wrapper });
-    const cancel = await screen.findByRole('button', { name: /cancelar exclusao/i });
+    const cancel = await screen.findByRole('button', { name: /cancelar exclusão/i });
     fireEvent.click(cancel);
     await waitFor(() => expect(settingsApi.cancelDeletion).toHaveBeenCalled());
   });
