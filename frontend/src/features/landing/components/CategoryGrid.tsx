@@ -1,7 +1,9 @@
+import type { JSX } from 'react';
 import { Link } from 'react-router-dom';
 import { useCategories } from '../../professional/queries';
+import { Card } from '../../../components/ui/Card';
 
-export function CategoryGrid() {
+export function CategoryGrid(): JSX.Element {
   const { data } = useCategories();
 
   return (
@@ -9,13 +11,10 @@ export function CategoryGrid() {
       {data
         ?.filter((category) => category.isActive)
         .map((category) => (
-          <Link
-            key={category.id}
-            to={`/search?categoryId=${category.id}`}
-            className="rounded border p-4 text-center hover:border-slate-400"
-          >
-            {category.name}
-          </Link>
+          <Card key={category.id} interactive className="relative p-4 text-center">
+            <Link to={`/search?categoryId=${category.id}`} className="absolute inset-0" aria-label={category.name} />
+            <span className="text-ink">{category.name}</span>
+          </Card>
         ))}
     </div>
   );
