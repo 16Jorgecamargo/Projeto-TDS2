@@ -12,13 +12,13 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(function A
 ) {
   return (
     <label className="flex flex-col gap-1 text-sm">
-      <span className="font-medium text-slate-700">{label}</span>
+      <span className="font-medium text-ink">{label}</span>
       <input
         ref={ref}
-        className="rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-500 focus:outline-none"
+        className="rounded-sm border border-surface px-3 py-2 text-ink focus:border-primary focus:outline-none"
         {...props}
       />
-      {error ? <span className="text-xs text-red-600">{error}</span> : null}
+      {error ? <span className="text-xs text-accent">{error}</span> : null}
     </label>
   );
 });
