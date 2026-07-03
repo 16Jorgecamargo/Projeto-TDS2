@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { http } from '../../lib/http';
 
 export type ContractStatus = 'active' | 'completed' | 'cancelled' | 'disputed';
@@ -42,6 +43,20 @@ export interface ProgressUpdate {
   createdAt: string;
 }
 
+export type PaymentMethod = 'wallet' | 'credit_card' | 'pix' | 'boleto';
+export type PaymentStatus = 'pending' | 'authorized' | 'captured' | 'failed' | 'refunded';
+
+export interface Payment {
+  id: string;
+  contractId: string;
+  payerId: string;
+  amount: number;
+  status: PaymentStatus;
+  method: PaymentMethod;
+  paidAt: string | null;
+  createdAt: string;
+}
+
 export async function fetchContracts(): Promise<Contract[]> {
   const { data } = await http.get<Contract[]>('/contracts');
   return data;
@@ -77,4 +92,21 @@ export async function completeContract(id: string): Promise<Contract> {
 
 export async function openDispute(id: string, reason: string): Promise<void> {
   await http.post(`/contracts/${id}/disputes`, { reason });
+}
+
+export async function fetchPayment(contractId: string): Promise<Payment | null> {
+  try {
+    const { data } = await http.get<Payment>(`/contracts/${contractId}/payment`);
+    return data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+export async function payContract(contractId: string, method: PaymentMethod): Promise<Payment> {
+  const { data } = await http.post<Payment>(`/contracts/${contractId}/payment`, { method });
+  return data;
 }

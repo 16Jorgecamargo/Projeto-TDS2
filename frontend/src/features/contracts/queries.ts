@@ -7,12 +7,16 @@ import {
   startContract,
   completeContract,
   openDispute,
+  fetchPayment,
+  payContract,
+  type PaymentMethod,
 } from './api';
 
 export const contractKeys = {
   all: ['contracts'] as const,
   detail: (id: string) => ['contracts', 'detail', id] as const,
   progress: (id: string) => ['contracts', id, 'progress'] as const,
+  payment: (id: string) => ['contracts', id, 'payment'] as const,
 };
 
 export function useContracts() {
@@ -56,5 +60,24 @@ export function useOpenDispute(id: string) {
   return useMutation({
     mutationFn: (reason: string) => openDispute(id, reason),
     onSuccess: () => client.invalidateQueries({ queryKey: contractKeys.detail(id) }),
+  });
+}
+
+export function usePayment(contractId: string) {
+  return useQuery({
+    queryKey: contractKeys.payment(contractId),
+    queryFn: () => fetchPayment(contractId),
+    enabled: !!contractId,
+  });
+}
+
+export function usePayContract(contractId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (method: PaymentMethod) => payContract(contractId, method),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: contractKeys.payment(contractId) });
+      client.invalidateQueries({ queryKey: contractKeys.detail(contractId) });
+    },
   });
 }

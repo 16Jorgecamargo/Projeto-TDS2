@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { startContract } from './api';
-import { useStartContract } from './queries';
+import { startContract, fetchPayment, payContract } from './api';
+import { useStartContract, usePayment, usePayContract } from './queries';
 
 vi.mock('./api', () => ({
   fetchContracts: vi.fn(),
@@ -13,6 +13,8 @@ vi.mock('./api', () => ({
   startContract: vi.fn(),
   completeContract: vi.fn(),
   openDispute: vi.fn(),
+  fetchPayment: vi.fn(),
+  payContract: vi.fn(),
 }));
 
 function wrapper({ children }: { children: ReactNode }) {
@@ -37,5 +39,36 @@ describe('useStartContract', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(startContract).toHaveBeenCalledWith('c1');
+  });
+});
+
+describe('usePayment', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('busca o pagamento do contrato informado', async () => {
+    vi.mocked(fetchPayment).mockResolvedValue(null);
+
+    const { result } = renderHook(() => usePayment('c1'), { wrapper });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(fetchPayment).toHaveBeenCalledWith('c1');
+    expect(result.current.data).toBeNull();
+  });
+});
+
+describe('usePayContract', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('paga o contrato com o metodo informado', async () => {
+    vi.mocked(payContract).mockResolvedValue({
+      id: 'pay1', contractId: 'c1', payerId: 'u1', amount: 300,
+      status: 'captured', method: 'wallet', paidAt: '2026-07-01T00:00:00Z', createdAt: '2026-07-01T00:00:00Z',
+    });
+
+    const { result } = renderHook(() => usePayContract('c1'), { wrapper });
+    result.current.mutate('wallet');
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(payContract).toHaveBeenCalledWith('c1', 'wallet');
   });
 });
