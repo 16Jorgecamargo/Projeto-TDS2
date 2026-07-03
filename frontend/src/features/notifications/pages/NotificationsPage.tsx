@@ -1,46 +1,59 @@
+import type { JSX } from 'react';
 import { useNotifications, useMarkNotificationRead } from '../queries';
+import { Card } from '../../../components/ui/Card';
+import { Badge } from '../../../components/ui/Badge';
+import { Skeleton } from '../../../components/ui/Skeleton';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { Button } from '../../../components/ui/Button';
 
-export function NotificationsPage() {
+export function NotificationsPage(): JSX.Element {
   const notifications = useNotifications();
   const markRead = useMarkNotificationRead();
 
   if (notifications.isLoading || !notifications.data) {
-    return <p className="p-6 text-gray-500">Carregando notificações...</p>;
+    return (
+      <div className="flex flex-col gap-4 p-6">
+        <h1 className="text-2xl font-semibold text-ink">Notificações</h1>
+        <Skeleton className="h-16 w-full" aria-label="Carregando notificações" />
+      </div>
+    );
   }
 
   const items = notifications.data.items;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-6">
-      <h1 className="text-2xl font-semibold">Notificações</h1>
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
+      <h1 className="text-2xl font-semibold text-ink">Notificações</h1>
       {items.length === 0 ? (
-        <p className="text-sm text-gray-400">Nenhuma notificação ainda.</p>
+        <EmptyState title="Nenhuma notificação ainda" />
       ) : (
-        <ul className="divide-y divide-gray-100 rounded-2xl bg-white shadow">
+        <Card className="flex flex-col gap-0 divide-y divide-surface p-0">
           {items.map((notification) => (
-            <li key={notification.id} className="flex items-start justify-between gap-4 p-4">
-              <div>
-                <p className="text-sm font-medium text-gray-900">{notification.title}</p>
-                {notification.body && (
-                  <p className="text-sm text-gray-500">{notification.body}</p>
-                )}
-                <p className="mt-1 text-xs text-gray-400">
+            <div key={notification.id} className="flex items-start justify-between gap-4 p-4">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-ink">{notification.title}</p>
+                  {!notification.readAt && <Badge tone="urgent">Não lida</Badge>}
+                </div>
+                {notification.body && <p className="text-sm text-muted">{notification.body}</p>}
+                <p className="text-xs text-muted">
                   {new Date(notification.createdAt).toLocaleString('pt-BR')}
                 </p>
               </div>
               {!notification.readAt && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => markRead.mutate(notification.id)}
                   disabled={markRead.isPending}
-                  className="shrink-0 text-sm text-blue-600"
                 >
                   Marcar lida
-                </button>
+                </Button>
               )}
-            </li>
+            </div>
           ))}
-        </ul>
+        </Card>
       )}
     </div>
   );
