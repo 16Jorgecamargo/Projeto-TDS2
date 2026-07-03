@@ -77,7 +77,7 @@ describe('ConsentsPanel', () => {
     ]);
 
     render(<ConsentsPanel />, { wrapper });
-    const checkbox = await screen.findByRole('checkbox', { name: /comunicacoes de marketing/i });
+    const checkbox = await screen.findByRole('checkbox', { name: /comunicações de marketing/i });
     await waitFor(() => expect(checkbox).not.toBeChecked());
   });
 });
