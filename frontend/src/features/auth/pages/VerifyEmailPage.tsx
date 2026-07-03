@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type JSX } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { authApi } from '../api';
+import { Card } from '../../../components/ui/Card';
+import { Button } from '../../../components/ui/Button';
 
-export default function VerifyEmailPage() {
+export default function VerifyEmailPage(): JSX.Element {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const token = params.get('token');
@@ -36,23 +38,26 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-sm p-6 text-center">
-      <h1 className="text-xl font-semibold">Verificacao de e-mail</h1>
-      {!token ? <p>Abra o link enviado ao seu e-mail.</p> : null}
-      {status === 'pending' ? <p>Confirmando...</p> : null}
-      {status === 'done' ? <p className="text-green-600">E-mail confirmado!</p> : null}
-      {status === 'error' ? <p className="text-red-600">Token invalido ou expirado.</p> : null}
-      <Link to="/login" className="mt-4 inline-block text-slate-600 underline">Ir para o login</Link>
-      {!token ? (
-        <button
-          type="button"
-          onClick={handleSkip}
-          disabled={skipping}
-          className="mt-4 block w-full text-sm text-slate-500 underline disabled:opacity-50"
-        >
-          {skipping ? 'Ignorando...' : 'Ignorar por enquanto'}
-        </button>
-      ) : null}
+    <div className="mx-auto max-w-sm p-6">
+      <Card className="text-center">
+        <h1 className="text-xl font-semibold text-ink">Verificacao de e-mail</h1>
+        {!token ? <p className="mt-4 text-sm text-ink">Abra o link enviado ao seu e-mail.</p> : null}
+        {status === 'pending' ? <p className="mt-4 text-sm text-ink">Confirmando...</p> : null}
+        {status === 'done' ? <p className="mt-4 text-sm text-primary">E-mail confirmado!</p> : null}
+        {status === 'error' ? <p className="mt-4 text-sm text-accent">Token invalido ou expirado.</p> : null}
+        <Link to="/login" className="mt-4 inline-block text-sm text-primary underline">Ir para o login</Link>
+        {!token ? (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={handleSkip}
+            disabled={skipping}
+            className="mt-4 w-full"
+          >
+            {skipping ? 'Ignorando...' : 'Ignorar por enquanto'}
+          </Button>
+        ) : null}
+      </Card>
     </div>
   );
 }
