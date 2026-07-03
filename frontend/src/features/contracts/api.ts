@@ -26,6 +26,9 @@ export interface Contract {
   completedAt: string | null;
   cancelledAt: string | null;
   schedule: Schedule | null;
+  clientName: string;
+  professionalHeadline: string;
+  professionalUserId: string;
   createdAt: string;
 }
 
@@ -59,6 +62,11 @@ export async function addProgress(
   values: { description: string; percentage: number },
 ): Promise<ProgressUpdate> {
   const { data } = await http.post<ProgressUpdate>(`/contracts/${id}/progress`, { ...values, images: [] });
+  return data;
+}
+
+export async function startContract(id: string): Promise<Contract> {
+  const { data } = await http.post<Contract>(`/contracts/${id}/start`, {});
   return data;
 }
 

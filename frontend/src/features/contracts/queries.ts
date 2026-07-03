@@ -4,6 +4,7 @@ import {
   fetchContract,
   fetchProgress,
   addProgress,
+  startContract,
   completeContract,
   openDispute,
 } from './api';
@@ -31,6 +32,14 @@ export function useAddProgress(id: string) {
   return useMutation({
     mutationFn: (values: { description: string; percentage: number }) => addProgress(id, values),
     onSuccess: () => client.invalidateQueries({ queryKey: contractKeys.progress(id) }),
+  });
+}
+
+export function useStartContract(id: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => startContract(id),
+    onSuccess: () => client.invalidateQueries({ queryKey: contractKeys.detail(id) }),
   });
 }
 
