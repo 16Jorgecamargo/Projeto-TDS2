@@ -61,6 +61,16 @@ export const contractResponseSchema = z.object({
   completedAt: z.string().datetime().nullable().describe('Conclusao').openapi({ example: null }),
   cancelledAt: z.string().datetime().nullable().describe('Cancelamento').openapi({ example: null }),
   schedule: scheduleResponseSchema.nullable().describe('Agendamento').openapi({ example: null }),
+  clientName: z.string().describe('Nome do cliente').openapi({ example: 'Maria Cliente' }),
+  professionalHeadline: z
+    .string()
+    .describe('Titulo do profissional')
+    .openapi({ example: 'Eletricista Residencial' }),
+  professionalUserId: z
+    .string()
+    .uuid()
+    .describe('ID de usuario do profissional')
+    .openapi({ example: '2b3c4d5e-2222-4b2b-8b2b-222222222222' }),
   createdAt: z.string().datetime().describe('Criacao').openapi({ example: '2026-07-01T12:00:00Z' }),
 });
 

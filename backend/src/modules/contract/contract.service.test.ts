@@ -9,6 +9,8 @@ import type { ServiceDemand } from '../../infra/database/entities/service-demand
 import type { Schedule } from '../../infra/database/entities/schedule.entity.js';
 import type { ContractProgressUpdate } from '../../infra/database/entities/contract-progress-update.entity.js';
 import type { ContractProgressImage } from '../../infra/database/entities/contract-progress-image.entity.js';
+import type { User } from '../../infra/database/entities/user.entity.js';
+import type { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
 
 describe('ContractService', () => {
   let contracts: ReturnType<typeof mockRepo<Contract>>;
@@ -17,6 +19,8 @@ describe('ContractService', () => {
   let schedules: ReturnType<typeof mockRepo<Schedule>>;
   let progress: ReturnType<typeof mockRepo<ContractProgressUpdate>>;
   let progressImages: ReturnType<typeof mockRepo<ContractProgressImage>>;
+  let users: ReturnType<typeof mockRepo<User>>;
+  let professionalProfiles: ReturnType<typeof mockRepo<ProfessionalProfile>>;
   let service: ContractService;
 
   beforeEach(() => {
@@ -26,6 +30,8 @@ describe('ContractService', () => {
     schedules = mockRepo<Schedule>();
     progress = mockRepo<ContractProgressUpdate>();
     progressImages = mockRepo<ContractProgressImage>();
+    users = mockRepo<User>();
+    professionalProfiles = mockRepo<ProfessionalProfile>();
     service = new ContractService({
       contracts: contracts as unknown as Repository<Contract>,
       quotes: quotes as unknown as Repository<Quote>,
@@ -33,6 +39,8 @@ describe('ContractService', () => {
       schedules: schedules as unknown as Repository<Schedule>,
       progress: progress as unknown as Repository<ContractProgressUpdate>,
       progressImages: progressImages as unknown as Repository<ContractProgressImage>,
+      users: users as unknown as Repository<User>,
+      professionalProfiles: professionalProfiles as unknown as Repository<ProfessionalProfile>,
     });
   });
 

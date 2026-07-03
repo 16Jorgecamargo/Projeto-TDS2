@@ -159,6 +159,15 @@ describe('contract routes', () => {
     expect(complete.json().status).toBe('completed');
   });
 
+  it('resposta do contrato inclui nome do cliente e dados do profissional', async () => {
+    const { pro, accept } = await createAcceptedContract();
+
+    expect(accept.json().clientName).toEqual(expect.any(String));
+    expect(accept.json().clientName.length).toBeGreaterThan(0);
+    expect(accept.json().professionalHeadline).toBe('Eletricista');
+    expect(accept.json().professionalUserId).toBe(pro.userId);
+  });
+
   it('cliente nao pode iniciar ou concluir contrato', async () => {
     const { client, contractId } = await createAcceptedContract();
 

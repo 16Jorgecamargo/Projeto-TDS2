@@ -5,6 +5,8 @@ import type { ServiceDemand } from '../../infra/database/entities/service-demand
 import type { Schedule } from '../../infra/database/entities/schedule.entity.js';
 import type { ContractProgressUpdate } from '../../infra/database/entities/contract-progress-update.entity.js';
 import type { ContractProgressImage } from '../../infra/database/entities/contract-progress-image.entity.js';
+import type { User } from '../../infra/database/entities/user.entity.js';
+import type { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
 import { NotFoundError, ForbiddenError, UnprocessableError } from '../../shared/errors.js';
 import { businessMetrics } from '../../observability/metrics.js';
 import type {
@@ -21,6 +23,8 @@ interface ContractServiceDeps {
   schedules: Repository<Schedule>;
   progress: Repository<ContractProgressUpdate>;
   progressImages: Repository<ContractProgressImage>;
+  users: Repository<User>;
+  professionalProfiles: Repository<ProfessionalProfile>;
 }
 
 export class ContractService {
@@ -28,6 +32,10 @@ export class ContractService {
 
   private async toResponse(contract: Contract): Promise<ContractResponse> {
     const schedule = await this.deps.schedules.findOne({ where: { contract_id: contract.id } });
+    const client = await this.deps.users.findOne({ where: { id: contract.client_id } });
+    const professionalProfile = await this.deps.professionalProfiles.findOne({
+      where: { id: contract.professional_id },
+    });
     return {
       id: contract.id,
       demandId: contract.demand_id,
@@ -50,6 +58,9 @@ export class ContractService {
             status: schedule.status,
           }
         : null,
+      clientName: client ? client.full_name : 'Cliente',
+      professionalHeadline: professionalProfile ? professionalProfile.headline : 'Profissional',
+      professionalUserId: professionalProfile ? professionalProfile.user_id : contract.professional_id,
       createdAt: contract.created_at.toISOString(),
     };
   }

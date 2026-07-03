@@ -9,6 +9,7 @@ import { ServiceDemand } from '../../infra/database/entities/service-demand.enti
 import { Schedule } from '../../infra/database/entities/schedule.entity.js';
 import { ContractProgressUpdate } from '../../infra/database/entities/contract-progress-update.entity.js';
 import { ContractProgressImage } from '../../infra/database/entities/contract-progress-image.entity.js';
+import { User } from '../../infra/database/entities/user.entity.js';
 import { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
 import { emptyBodySchema, idParamSchema } from '../../shared/schemas.js';
 import { requireRole } from '../../plugins/auth.js';
@@ -28,6 +29,8 @@ export async function contractRoutes(app: FastifyInstance): Promise<void> {
     schedules: app.dataSource.getRepository(Schedule),
     progress: app.dataSource.getRepository(ContractProgressUpdate),
     progressImages: app.dataSource.getRepository(ContractProgressImage),
+    users: app.dataSource.getRepository(User),
+    professionalProfiles: app.dataSource.getRepository(ProfessionalProfile),
   });
   const controller = new ContractController(service, app.dataSource.getRepository(ProfessionalProfile));
 
