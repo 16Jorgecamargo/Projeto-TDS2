@@ -28,4 +28,13 @@ describe('DashboardReviewsWidget', () => {
     expect(useProfessionalReviews).toHaveBeenCalledWith('prof1');
     expect(screen.getByText('Ótimo!')).toBeInTheDocument();
   });
+
+  it('mostra skeleton enquanto o proprio perfil ainda esta carregando', () => {
+    vi.mocked(useMyProfile).mockReturnValue({ data: undefined, isPending: true } as never);
+    vi.mocked(useProfessionalReviews).mockReturnValue({ data: undefined, isPending: true } as never);
+
+    renderWithProviders(<DashboardReviewsWidget />);
+
+    expect(screen.getByRole('status', { name: 'Carregando avaliações' })).toBeInTheDocument();
+  });
 });

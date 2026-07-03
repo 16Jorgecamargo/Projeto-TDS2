@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import bcrypt from 'bcrypt';
 import type { Repository } from 'typeorm';
 import { AuthService } from './auth.service.js';
@@ -10,6 +10,17 @@ import type { EmailVerificationToken } from '../../infra/database/entities/email
 import type { PhoneVerificationToken } from '../../infra/database/entities/phone-verification-token.entity.js';
 import type { PasswordResetToken } from '../../infra/database/entities/password-reset-token.entity.js';
 import type { UserOauthAccount } from '../../infra/database/entities/user-oauth-account.entity.js';
+
+const { actualConfig } = vi.hoisted(() => ({ actualConfig: {} as Record<string, unknown> }));
+vi.mock('../../config/index.js', async () => {
+  const actual = await vi.importActual<typeof import('../../config/index.js')>('../../config/index.js');
+  Object.assign(actualConfig, actual.getConfig());
+  return { ...actual, getConfig: () => actualConfig };
+});
+
+afterEach(() => {
+  actualConfig.NODE_ENV = 'test';
+});
 
 describe('AuthService register/login', () => {
   let users: ReturnType<typeof mockRepo<User>>;
@@ -229,6 +240,22 @@ describe('AuthService verificacao e reset', () => {
       expires_at: new Date(Date.now() + 100000),
     } as unknown as EmailVerificationToken);
     await expect(service.confirmEmailVerification('x')).rejects.toMatchObject({ statusCode: 400 });
+  });
+
+  it('ignora verificacao de e-mail fora de producao', async () => {
+    actualConfig.NODE_ENV = 'test';
+    users.update.mockResolvedValue({ affected: 1 } as never);
+
+    await service.skipEmailVerification('user-1');
+
+    expect(users.update).toHaveBeenCalledWith('user-1', { email_verified_at: expect.any(Date) });
+  });
+
+  it('rejeita ignorar verificacao de e-mail em producao', async () => {
+    actualConfig.NODE_ENV = 'production';
+
+    await expect(service.skipEmailVerification('user-1')).rejects.toMatchObject({ statusCode: 403 });
+    expect(users.update).not.toHaveBeenCalled();
   });
 
   it('nao vaza existencia da conta no requestPasswordReset', async () => {

@@ -11,7 +11,7 @@ import {
   generateOpaqueToken,
   hashToken,
 } from '../../shared/security/token.js';
-import { ConflictError, UnauthorizedError, NotFoundError, BadRequestError } from '../../shared/errors.js';
+import { ConflictError, UnauthorizedError, NotFoundError, BadRequestError, ForbiddenError } from '../../shared/errors.js';
 import { getConfig } from '../../config/index.js';
 import type { RegisterInput, LoginInput, AuthResult, PublicUser, OauthInput } from './auth.schemas.js';
 
@@ -143,6 +143,9 @@ export class AuthService {
   }
 
   async skipEmailVerification(userId: string): Promise<void> {
+    if (getConfig().NODE_ENV === 'production') {
+      throw new ForbiddenError('Recurso indisponivel em producao');
+    }
     await this.deps.users.update(userId, { email_verified_at: new Date() });
   }
 
