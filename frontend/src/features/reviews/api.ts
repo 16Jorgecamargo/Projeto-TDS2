@@ -27,3 +27,14 @@ export async function fetchProfessionalReviews(
   });
   return data;
 }
+
+export interface CreateReviewInput {
+  contractId: string;
+  rating: number;
+  comment: string;
+}
+
+export async function createReview(input: CreateReviewInput): Promise<Review> {
+  const { data } = await http.post<Review>('/reviews', input);
+  return data;
+}
