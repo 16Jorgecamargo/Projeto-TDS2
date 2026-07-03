@@ -1,11 +1,14 @@
+import type { JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { resetPasswordSchema, type ResetPasswordForm } from '../schemas';
 import { useResetPassword } from '../queries';
 import { AuthField } from '../components/AuthField';
+import { Card } from '../../../components/ui/Card';
+import { Button } from '../../../components/ui/Button';
 
-export default function ResetPasswordPage() {
+export default function ResetPasswordPage(): JSX.Element {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const reset = useResetPassword();
@@ -26,23 +29,34 @@ export default function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <div className="mx-auto max-w-sm p-6 text-center">
-        <h1 className="text-xl font-semibold">Nova senha</h1>
-        <p className="mt-4 text-sm text-red-600">Link de redefinicao invalido ou incompleto.</p>
+      <div className="mx-auto max-w-sm p-6">
+        <Card className="text-center">
+          <h1 className="text-xl font-semibold text-ink">Nova senha</h1>
+          <p className="mt-4 text-sm text-accent">Link de redefinicao invalido ou incompleto.</p>
+        </Card>
       </div>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="mx-auto flex max-w-sm flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold">Nova senha</h1>
-      <input type="hidden" {...register('token')} />
-      <AuthField label="Nova senha" type="password" {...register('password')} error={errors.password?.message} />
-      <AuthField label="Confirmar senha" type="password" {...register('confirmPassword')} error={errors.confirmPassword?.message} />
-      {reset.isError ? <p className="text-sm text-red-600">Token invalido ou expirado</p> : null}
-      <button type="submit" disabled={reset.isPending} className="rounded-lg bg-slate-900 py-2 text-white disabled:opacity-50">
-        Redefinir
-      </button>
-    </form>
+    <div className="mx-auto max-w-sm p-6">
+      <Card>
+        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+          <h1 className="text-xl font-semibold text-ink">Nova senha</h1>
+          <input type="hidden" {...register('token')} />
+          <AuthField label="Nova senha" type="password" {...register('password')} error={errors.password?.message} />
+          <AuthField
+            label="Confirmar senha"
+            type="password"
+            {...register('confirmPassword')}
+            error={errors.confirmPassword?.message}
+          />
+          {reset.isError ? <p className="text-sm text-accent">Token invalido ou expirado</p> : null}
+          <Button type="submit" disabled={reset.isPending}>
+            Redefinir
+          </Button>
+        </form>
+      </Card>
+    </div>
   );
 }
