@@ -3,6 +3,7 @@ import { useWallet, useTransactions } from '../queries';
 import { WalletBalanceCard } from '../components/WalletBalanceCard';
 import { TransactionList } from '../components/TransactionList';
 import { WithdrawDialog } from '../components/WithdrawDialog';
+import { WalletRevenueChart } from '../components/WalletRevenueChart';
 import { Button } from '../../../components/ui/Button';
 import { Skeleton } from '../../../components/ui/Skeleton';
 
@@ -22,6 +23,7 @@ export default function WalletPage(): JSX.Element {
       ) : (
         <WalletBalanceCard balance={wallet.data.balance} pendingBalance={wallet.data.pendingBalance} />
       )}
+      <WalletRevenueChart />
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold text-ink">Movimentações</h2>
         {transactions.isPending ? (
