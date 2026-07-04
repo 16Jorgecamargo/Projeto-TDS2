@@ -1,18 +1,90 @@
-import type { HTMLAttributes, JSX, ReactNode } from 'react';
+import { Children, forwardRef, isValidElement } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { motion } from 'framer-motion';
+import { duration, ease } from '../../lib/motion';
 import { cn } from '../../lib/utils';
 
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  interactive?: boolean;
+const cardVariants = cva('rounded-lg bg-bg', {
+  variants: {
+    variant: {
+      flat: '',
+      bordered: 'border border-border',
+      elevated: 'shadow-xs',
+    },
+    interactive: {
+      true: 'cursor-pointer',
+      false: '',
+    },
+    selected: {
+      true: 'ring-2 ring-primary',
+      false: '',
+    },
+  },
+  defaultVariants: {
+    variant: 'flat',
+    interactive: false,
+    selected: false,
+  },
+});
+
+export interface CardProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd'>,
+    VariantProps<typeof cardVariants> {
   children: ReactNode;
 }
 
-export function Card({ interactive = false, className, children, ...rest }: CardProps): JSX.Element {
+function CardHeader({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn('px-6 py-4', className)} {...rest} />;
+}
+
+function CardBody({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn('px-6 py-4', className)} {...rest} />;
+}
+
+function CardFooter({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn('border-t border-border px-6 py-4', className)} {...rest} />;
+}
+
+const CardRoot = forwardRef<HTMLDivElement, CardProps>(function Card(
+  { variant, interactive, selected, className, children, ...rest },
+  ref,
+) {
+  const hasStructuredChildren = Children.toArray(children).some(
+    (child) =>
+      isValidElement(child) &&
+      (child.type === CardHeader || child.type === CardBody || child.type === CardFooter),
+  );
+
+  const classes = cn(
+    cardVariants({ variant, interactive, selected }),
+    !hasStructuredChildren && 'p-6',
+    className,
+  );
+
+  if (interactive) {
+    return (
+      <motion.div
+        ref={ref}
+        className={classes}
+        whileHover={{ y: -2 }}
+        transition={{ duration: duration.fast, ease: ease.standard }}
+        {...rest}
+      >
+        {children}
+      </motion.div>
+    );
+  }
+
   return (
-    <div
-      className={cn('rounded-lg bg-bg p-6', interactive && 'cursor-pointer transition-shadow hover:shadow-hover', className)}
-      {...rest}
-    >
+    <div ref={ref} className={classes} {...rest}>
       {children}
     </div>
   );
-}
+});
+
+export const Card = Object.assign(CardRoot, {
+  Header: CardHeader,
+  Body: CardBody,
+  Footer: CardFooter,
+});
