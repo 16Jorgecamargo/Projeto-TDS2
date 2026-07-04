@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { App } from '../App';
 import { NotFound } from '../pages/NotFound';
+import { Forbidden } from '../pages/Forbidden';
 import { ProtectedRoute } from './ProtectedRoute';
 import LoginPage from '../features/auth/pages/LoginPage';
 import RegisterPage from '../features/auth/pages/RegisterPage';
@@ -35,7 +36,7 @@ export const router = createBrowserRouter([
       { path: '/verify-email', element: <VerifyEmailPage /> },
       { path: '/forgot-password', element: <ForgotPasswordPage /> },
       { path: '/reset-password', element: <ResetPasswordPage /> },
-      { path: '/forbidden', element: <div /> },
+      { path: '/forbidden', element: <Forbidden /> },
       { path: '/professionals/:id', element: <PublicProfilePage /> },
       {
         element: <ProtectedRoute />,
