@@ -18,23 +18,25 @@ export function SearchBar(): JSX.Element {
   });
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex gap-2">
+    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-2 sm:flex-row">
       <input
         className="flex-1 rounded-sm border border-surface px-3 py-2 text-ink"
         placeholder="O que voce precisa?"
         {...register('q')}
       />
-      <input
-        className="w-40 rounded-sm border border-surface px-3 py-2 text-ink"
-        placeholder="Cidade"
-        {...register('city')}
-      />
-      <input
-        className="w-16 rounded-sm border border-surface px-3 py-2 text-ink uppercase"
-        placeholder="UF"
-        maxLength={2}
-        {...register('state', { setValueAs: (value: string) => value.toUpperCase() })}
-      />
+      <div className="flex gap-2">
+        <input
+          className="w-full min-w-0 flex-1 rounded-sm border border-surface px-3 py-2 text-ink sm:w-40 sm:flex-none"
+          placeholder="Cidade"
+          {...register('city')}
+        />
+        <input
+          className="w-16 shrink-0 rounded-sm border border-surface px-3 py-2 text-ink uppercase"
+          placeholder="UF"
+          maxLength={2}
+          {...register('state', { setValueAs: (value: string) => value.toUpperCase() })}
+        />
+      </div>
       <Button type="submit">Buscar</Button>
     </form>
   );
