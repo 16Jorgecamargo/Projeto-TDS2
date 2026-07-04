@@ -42,7 +42,7 @@ export function ImageUpload({ onUploaded, label = 'Enviar imagem', className }: 
       const result = await uploadImage(file);
       onUploaded(result);
     } catch {
-      toast('Falha ao enviar imagem', 'error');
+      toast('Falha ao enviar imagem', { tone: 'error' });
       setPreview(null);
     } finally {
       setUploading(false);
