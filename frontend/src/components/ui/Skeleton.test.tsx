@@ -17,4 +17,14 @@ describe('Skeleton', () => {
     render(<Skeleton />);
     expect(screen.getByRole('status')).toHaveClass('motion-reduce:animate-none');
   });
+
+  it('aplica rounded-full quando variant=circle', () => {
+    render(<Skeleton variant="circle" />);
+    expect(screen.getByRole('status')).toHaveClass('rounded-full');
+  });
+
+  it('aplica rounded-md por padrão (variant=rect)', () => {
+    render(<Skeleton />);
+    expect(screen.getByRole('status')).toHaveClass('rounded-md');
+  });
 });
