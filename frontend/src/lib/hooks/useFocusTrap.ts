@@ -3,7 +3,7 @@ import { useEffect, useRef, type RefObject } from 'react';
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export function useFocusTrap(active: boolean, containerRef: RefObject<HTMLElement>): void {
+export function useFocusTrap(active: boolean, containerRef: RefObject<HTMLElement | null>): void {
   const previouslyFocused = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -22,7 +22,9 @@ export function useFocusTrap(active: boolean, containerRef: RefObject<HTMLElemen
 
       const nodes = container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
       if (nodes.length === 0) {
-        event.preventDefault();
+        if (container.contains(document.activeElement)) {
+          event.preventDefault();
+        }
         return;
       }
 
