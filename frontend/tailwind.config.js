@@ -10,6 +10,9 @@ export default {
         surface: 'var(--color-surface)',
         ink: 'var(--color-ink)',
         muted: 'var(--color-muted)',
+        border: 'var(--color-border)',
+        focus: 'var(--color-focus)',
+        overlay: 'var(--color-overlay)',
         primary: {
           DEFAULT: 'var(--color-primary)',
           hover: 'var(--color-primary-hover)',
@@ -17,6 +20,22 @@ export default {
         accent: {
           DEFAULT: 'var(--color-accent)',
           hover: 'var(--color-accent-hover)',
+        },
+        success: {
+          DEFAULT: 'var(--color-success)',
+          hover: 'var(--color-success-hover)',
+        },
+        warning: {
+          DEFAULT: 'var(--color-warning)',
+          hover: 'var(--color-warning-hover)',
+        },
+        danger: {
+          DEFAULT: 'var(--color-danger)',
+          hover: 'var(--color-danger-hover)',
+        },
+        info: {
+          DEFAULT: 'var(--color-info)',
+          hover: 'var(--color-info-hover)',
         },
       },
       fontFamily: {

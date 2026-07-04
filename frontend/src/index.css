@@ -11,6 +11,17 @@
   --color-primary-hover: oklch(0.360 0.150 280);
   --color-accent: oklch(0.680 0.190 45);
   --color-accent-hover: oklch(0.610 0.190 45);
+  --color-success: oklch(0.620 0.170 145);
+  --color-success-hover: oklch(0.550 0.170 145);
+  --color-warning: oklch(0.760 0.170 80);
+  --color-warning-hover: oklch(0.690 0.170 80);
+  --color-danger: oklch(0.580 0.220 25);
+  --color-danger-hover: oklch(0.510 0.220 25);
+  --color-info: oklch(0.580 0.140 240);
+  --color-info-hover: oklch(0.510 0.140 240);
+  --color-border: oklch(0.880 0.014 280);
+  --color-focus: oklch(0.420 0.150 280);
+  --color-overlay: oklch(0.200 0.020 280 / 0.45);
 }
 
 @layer base {
