@@ -42,7 +42,7 @@ export default function SearchPage(): JSX.Element {
             <select
               value={sort}
               onChange={(event) => setSort(event.target.value as SortOption)}
-              className="rounded-sm border border-surface px-2 py-1 text-sm"
+              className="rounded-sm border border-surface px-2 py-1 text-sm text-ink"
             >
               <option value="rating">Nota</option>
               <option value="price">Preço</option>
