@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Tooltip } from './Tooltip';
 
@@ -40,7 +40,7 @@ describe('Tooltip', () => {
     await user.tab();
     expect(await screen.findByRole('tooltip')).toBeInTheDocument();
     await user.tab();
-    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('tooltip')).not.toBeInTheDocument());
   });
 
   it('respeita o delayMs configurado antes de mostrar', async () => {
