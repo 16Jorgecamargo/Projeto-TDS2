@@ -34,8 +34,15 @@ const buttonVariants = cva(
 export type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>['variant']>;
 export type ButtonSize = NonNullable<VariantProps<typeof buttonVariants>['size']>;
 
+type ConflictingNativeHandlers =
+  | 'onDrag'
+  | 'onDragStart'
+  | 'onDragEnd'
+  | 'onAnimationStart'
+  | 'onAnimationEnd';
+
 export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, ConflictingNativeHandlers>,
     VariantProps<typeof buttonVariants> {
   children: ReactNode;
   loading?: boolean;
@@ -51,7 +58,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 
   if (asChild) {
     return (
-      <Slot ref={ref as never} className={classes} {...rest}>
+      <Slot
+        ref={ref as never}
+        className={classes}
+        aria-disabled={isDisabled || undefined}
+        aria-busy={loading || undefined}
+        {...rest}
+      >
         {children as ReactElement}
       </Slot>
     );

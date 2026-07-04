@@ -45,4 +45,15 @@ describe('Button', () => {
     const link = screen.getByRole('link', { name: 'Ver perfil' });
     expect(link).toHaveClass('bg-transparent');
   });
+
+  it('sinaliza aria-disabled e aria-busy no filho quando asChild com loading/disabled', () => {
+    render(
+      <Button asChild loading>
+        <a href="/perfil">Ver perfil</a>
+      </Button>,
+    );
+    const link = screen.getByRole('link', { name: 'Ver perfil' });
+    expect(link).toHaveAttribute('aria-disabled', 'true');
+    expect(link).toHaveAttribute('aria-busy', 'true');
+  });
 });
