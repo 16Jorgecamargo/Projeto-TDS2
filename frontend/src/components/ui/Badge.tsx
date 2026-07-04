@@ -28,8 +28,15 @@ const badgeVariants = cva('inline-flex items-center gap-1 rounded-full font-semi
 export type BadgeTone = NonNullable<VariantProps<typeof badgeVariants>['tone']>;
 export type BadgeSize = NonNullable<VariantProps<typeof badgeVariants>['size']>;
 
+type ConflictingNativeHandlers =
+  | 'onDrag'
+  | 'onDragStart'
+  | 'onDragEnd'
+  | 'onAnimationStart'
+  | 'onAnimationEnd';
+
 export interface BadgeProps
-  extends HTMLAttributes<HTMLSpanElement>,
+  extends Omit<HTMLAttributes<HTMLSpanElement>, ConflictingNativeHandlers>,
     VariantProps<typeof badgeVariants> {
   children: ReactNode;
 }
@@ -41,7 +48,7 @@ export function Badge({ tone, size, className, children, ...rest }: BadgeProps):
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: duration.fast }}
-      {...(rest as any)}
+      {...rest}
     >
       {children}
     </motion.span>
