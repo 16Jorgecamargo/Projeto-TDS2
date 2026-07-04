@@ -33,7 +33,7 @@ function ContractListItem({
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-base font-semibold text-ink">{otherPartyName}</span>
-        <Badge tone={contract.status === 'disputed' ? 'urgent' : 'neutral'}>
+        <Badge tone={contract.status === 'disputed' ? 'accent' : 'neutral'}>
           <span className="flex items-center gap-1">
             {contract.status === 'cancelled' && (
               <XCircleIcon className="h-3.5 w-3.5 text-muted" data-testid="contract-cancelled-icon" />

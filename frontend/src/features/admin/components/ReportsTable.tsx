@@ -64,7 +64,7 @@ export function ReportsTable(): JSX.Element {
             <tr key={report.id} className="border-t border-surface">
               <td className="py-2 text-ink">{report.id}</td>
               <td className="py-2">
-                <Badge tone={PENDING_STATUSES.includes(report.status) ? 'urgent' : 'neutral'}>
+                <Badge tone={PENDING_STATUSES.includes(report.status) ? 'accent' : 'neutral'}>
                   {STATUS_LABELS[report.status]}
                 </Badge>
               </td>

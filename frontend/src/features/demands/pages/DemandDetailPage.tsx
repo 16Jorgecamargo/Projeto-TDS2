@@ -32,7 +32,7 @@ export default function DemandDetailPage(): JSX.Element {
       <header className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold text-ink">{demand.title}</h1>
-          <Badge tone={demand.status === 'open' ? 'urgent' : 'neutral'}>{demand.status}</Badge>
+          <Badge tone={demand.status === 'open' ? 'accent' : 'neutral'}>{demand.status}</Badge>
         </div>
         <Button variant="ghost" onClick={() => setInviting(true)}>
           Convidar profissional

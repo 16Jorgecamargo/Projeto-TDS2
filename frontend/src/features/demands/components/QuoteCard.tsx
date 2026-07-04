@@ -36,7 +36,7 @@ export function QuoteCard({ quote, canAccept, onAccept, accepting }: QuoteCardPr
     <Card className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <span className="font-semibold text-ink">{profile?.headline ?? 'Profissional'}</span>
-        <Badge tone={quote.status === 'pending' ? 'urgent' : 'neutral'}>{STATUS_LABELS[quote.status]}</Badge>
+        <Badge tone={quote.status === 'pending' ? 'accent' : 'neutral'}>{STATUS_LABELS[quote.status]}</Badge>
       </div>
       {quote.message && <p className="text-sm text-muted">{quote.message}</p>}
       <ul className="flex flex-col gap-1 text-sm text-ink">

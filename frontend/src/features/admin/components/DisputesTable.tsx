@@ -64,7 +64,7 @@ export function DisputesTable(): JSX.Element {
             <tr key={dispute.id} className="border-t border-surface">
               <td className="py-2 text-ink">{dispute.id}</td>
               <td className="py-2">
-                <Badge tone={PENDING_STATUSES.includes(dispute.status) ? 'urgent' : 'neutral'}>
+                <Badge tone={PENDING_STATUSES.includes(dispute.status) ? 'accent' : 'neutral'}>
                   {STATUS_LABELS[dispute.status]}
                 </Badge>
               </td>

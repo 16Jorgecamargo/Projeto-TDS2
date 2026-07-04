@@ -26,7 +26,7 @@ export function DemandCard({ demand, onOpen }: DemandCardProps): JSX.Element {
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-base font-semibold text-ink">{demand.title}</span>
-        <Badge tone={demand.status === 'open' ? 'urgent' : 'neutral'}>
+        <Badge tone={demand.status === 'open' ? 'accent' : 'neutral'}>
           <span className="flex items-center gap-1">
             {demand.status === 'cancelled' && (
               <XCircleIcon className="h-3.5 w-3.5 text-muted" data-testid="demand-cancelled-icon" />

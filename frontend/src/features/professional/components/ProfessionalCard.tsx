@@ -35,7 +35,7 @@ export function ProfessionalCard({
           <Avatar name={headline} size="md" />
           <div>
             <h3 className="font-semibold text-ink">{headline}</h3>
-            {isAvailable && <Badge tone="urgent">Disponível agora</Badge>}
+            {isAvailable && <Badge tone="accent">Disponível agora</Badge>}
           </div>
         </div>
         {bio && <p className="line-clamp-2 text-sm text-muted">{bio}</p>}

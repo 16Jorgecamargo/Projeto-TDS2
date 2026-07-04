@@ -83,7 +83,7 @@ export default function ContractDetailPage(): JSX.Element {
           <h1 className="text-2xl font-bold text-ink">{otherPartyName}</h1>
           <p className="text-sm text-muted">{formatCurrency(contract.total)}</p>
         </div>
-        <Badge tone={contract.status === 'disputed' ? 'urgent' : 'neutral'}>
+        <Badge tone={contract.status === 'disputed' ? 'accent' : 'neutral'}>
           <span className="flex items-center gap-1">
             {contract.status === 'cancelled' && <XCircleIcon className="h-3.5 w-3.5 text-muted" />}
             {STATUS_LABELS[contract.status]}

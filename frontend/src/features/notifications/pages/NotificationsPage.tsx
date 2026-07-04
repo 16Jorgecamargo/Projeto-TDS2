@@ -33,7 +33,7 @@ export function NotificationsPage(): JSX.Element {
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-medium text-ink">{notification.title}</p>
-                  {!notification.readAt && <Badge tone="urgent">Não lida</Badge>}
+                  {!notification.readAt && <Badge tone="accent">Não lida</Badge>}
                 </div>
                 {notification.body && <p className="text-sm text-muted">{notification.body}</p>}
                 <p className="text-xs text-muted">
