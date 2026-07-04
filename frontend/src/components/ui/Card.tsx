@@ -1,5 +1,5 @@
 import { Children, forwardRef, isValidElement } from 'react';
-import type { HTMLAttributes, ReactNode } from 'react';
+import type { HTMLAttributes, KeyboardEvent, MouseEvent, ReactNode } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 import { duration, ease } from '../../lib/motion';
@@ -47,7 +47,7 @@ function CardFooter({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
 }
 
 const CardRoot = forwardRef<HTMLDivElement, CardProps>(function Card(
-  { variant, interactive, selected, className, children, ...rest },
+  { variant, interactive, selected, className, children, onClick, ...rest },
   ref,
 ) {
   const hasStructuredChildren = Children.toArray(children).some(
@@ -63,10 +63,21 @@ const CardRoot = forwardRef<HTMLDivElement, CardProps>(function Card(
   );
 
   if (interactive) {
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onClick?.(event as unknown as MouseEvent<HTMLDivElement>);
+      }
+    };
+
     return (
       <motion.div
         ref={ref}
         className={classes}
+        role="button"
+        tabIndex={0}
+        onClick={onClick}
+        onKeyDown={handleKeyDown}
         whileHover={{ y: -2 }}
         transition={{ duration: duration.fast, ease: ease.standard }}
         {...rest}
@@ -77,7 +88,7 @@ const CardRoot = forwardRef<HTMLDivElement, CardProps>(function Card(
   }
 
   return (
-    <div ref={ref} className={classes} {...rest}>
+    <div ref={ref} className={classes} onClick={onClick} {...rest}>
       {children}
     </div>
   );
