@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type ChangeEvent, type JSX } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type DragEvent, type JSX } from 'react';
+import { motion } from 'framer-motion';
 import { uploadImage, type UploadResult } from '../../features/uploads/api';
 import { useToast } from './Toast';
 import { Skeleton } from './Skeleton';
@@ -15,6 +16,7 @@ const ACCEPTED_MIME = 'image/jpeg,image/png,image/webp';
 export function ImageUpload({ onUploaded, label = 'Enviar imagem', className }: ImageUploadProps): JSX.Element {
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const previewRef = useRef<string | null>(null);
@@ -27,10 +29,7 @@ export function ImageUpload({ onUploaded, label = 'Enviar imagem', className }: 
     };
   }, []);
 
-  async function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  async function processFile(file: File) {
     if (previewRef.current) {
       URL.revokeObjectURL(previewRef.current);
     }
@@ -53,9 +52,40 @@ export function ImageUpload({ onUploaded, label = 'Enviar imagem', className }: 
     }
   }
 
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    void processFile(file);
+  }
+
+  function handleDragOver(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setDragging(true);
+  }
+
+  function handleDragLeave() {
+    setDragging(false);
+  }
+
+  function handleDrop(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setDragging(false);
+    const file = event.dataTransfer.files?.[0];
+    if (!file) return;
+    void processFile(file);
+  }
+
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-sm border border-surface px-3 py-2 text-sm font-semibold text-ink hover:border-primary">
+      <label
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={cn(
+          'inline-flex w-fit cursor-pointer items-center gap-2 rounded-sm border px-3 py-2 text-body-sm font-semibold text-ink transition-colors',
+          dragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary',
+        )}
+      >
         {label}
         <input
           ref={inputRef}
@@ -68,9 +98,11 @@ export function ImageUpload({ onUploaded, label = 'Enviar imagem', className }: 
       </label>
       {uploading && <Skeleton className="h-24 w-24" aria-label="Enviando imagem" />}
       {!uploading && preview && (
-        <img
+        <motion.img
           src={preview}
           alt="Pre-visualizacao da imagem enviada"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           className="h-24 w-24 rounded-md object-cover"
         />
       )}

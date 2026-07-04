@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, cleanup } from '@testing-library/react';
+import { render, screen, waitFor, cleanup, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ImageUpload } from './ImageUpload';
 import { uploadImage } from '../../features/uploads/api';
@@ -101,5 +101,20 @@ describe('ImageUpload', () => {
     await waitFor(() => expect(uploadImage).toHaveBeenCalledTimes(2));
 
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:http://localhost/1');
+  });
+
+  it('processa arquivo solto via drag-and-drop', async () => {
+    vi.mocked(uploadImage).mockResolvedValue({ url: '/uploads/drop.jpg', filename: 'drop.jpg', size: 2048 });
+    const onUploaded = vi.fn();
+    render(<ImageUpload onUploaded={onUploaded} />);
+
+    const label = screen.getByText('Enviar imagem').closest('label') as HTMLLabelElement;
+    const file = new File(['conteudo'], 'drop.jpg', { type: 'image/jpeg' });
+
+    fireEvent.drop(label, { dataTransfer: { files: [file] } });
+
+    await waitFor(() =>
+      expect(onUploaded).toHaveBeenCalledWith({ url: '/uploads/drop.jpg', filename: 'drop.jpg', size: 2048 }),
+    );
   });
 });
