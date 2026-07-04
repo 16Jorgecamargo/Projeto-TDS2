@@ -68,4 +68,21 @@ describe('Tooltip', () => {
 
     expect(await screen.findByRole('tooltip')).toHaveClass('left-full');
   });
+
+  it('nao mostra o tooltip se mouseLeave ocorrer entre mouseEnter e focus consecutivos', async () => {
+    render(
+      <Tooltip label="Carteira" delayMs={150}>
+        <button>Ícone</button>
+      </Tooltip>,
+    );
+
+    const icon = screen.getByText('Ícone');
+    fireEvent.mouseEnter(icon);
+    fireEvent.focus(icon);
+    fireEvent.mouseLeave(icon);
+    fireEvent.blur(icon);
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
 });

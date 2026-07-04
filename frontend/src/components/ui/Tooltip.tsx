@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type JSX, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type JSX, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { duration } from '../../lib/motion';
 import { cn } from '../../lib/utils';
@@ -39,6 +39,9 @@ export function Tooltip({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function show() {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
     timerRef.current = setTimeout(() => setVisible(true), delayMs);
   }
 
@@ -49,6 +52,14 @@ export function Tooltip({
     }
     setVisible(false);
   }
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <span
