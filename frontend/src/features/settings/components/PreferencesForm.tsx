@@ -31,6 +31,19 @@ export function PreferencesForm(): JSX.Element {
         Fuso horário
         <input type="text" {...register('timezone')} className="rounded-sm border border-surface px-2 py-1 text-ink" />
       </label>
+      <label className="flex items-center justify-between gap-2 text-ink">
+        Cidade
+        <input type="text" {...register('city')} className="rounded-sm border border-surface px-2 py-1 text-ink" />
+      </label>
+      <label className="flex items-center justify-between gap-2 text-ink">
+        UF
+        <input
+          type="text"
+          maxLength={2}
+          {...register('state')}
+          className="w-16 rounded-sm border border-surface px-2 py-1 uppercase text-ink"
+        />
+      </label>
       <label className="flex items-center gap-2 text-ink">
         <input type="checkbox" {...register('emailNotifications')} /> Notificações por e-mail
       </label>

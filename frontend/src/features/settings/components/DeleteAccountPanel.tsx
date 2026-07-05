@@ -12,7 +12,7 @@ export function DeleteAccountPanel(): JSX.Element {
 
   return (
     <Card className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold text-accent">Excluir conta</h2>
+      <h2 className="text-lg font-semibold text-danger">Excluir conta</h2>
       {data ? (
         <div className="flex flex-col gap-2">
           <p className="text-sm text-ink">
@@ -29,7 +29,7 @@ export function DeleteAccountPanel(): JSX.Element {
           </Button>
         </div>
       ) : (
-        <Button type="button" variant="accent" onClick={() => setConfirming(true)}>
+        <Button type="button" variant="danger" onClick={() => setConfirming(true)}>
           Solicitar exclusão
         </Button>
       )}
@@ -46,7 +46,7 @@ export function DeleteAccountPanel(): JSX.Element {
               </Button>
               <Button
                 type="button"
-                variant="accent"
+                variant="danger"
                 disabled={request.isPending}
                 onClick={() => {
                   request.mutate();

@@ -7,9 +7,13 @@ export const preferencesSchema = z.object({
   emailNotifications: z.boolean().describe('Notificacoes por e-mail').openapi({ example: true }),
   pushNotifications: z.boolean().describe('Notificacoes push').openapi({ example: true }),
   smsNotifications: z.boolean().describe('Notificacoes por SMS').openapi({ example: false }),
+  city: z.string().nullable().describe('Cidade onde o usuario mora').openapi({ example: 'Porto Alegre' }),
+  state: z.string().nullable().describe('UF onde o usuario mora').openapi({ example: 'RS' }),
 });
 
 export const updatePreferencesSchema = preferencesSchema.partial();
+
+export const CONSENT_VERSION = '2026-07-01';
 
 export const consentTypeSchema = z
   .enum(['terms', 'privacy', 'marketing', 'data_processing'])

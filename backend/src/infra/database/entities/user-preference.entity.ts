@@ -36,6 +36,12 @@ export class UserPreference {
   @Column('boolean', { default: false })
   sms_notifications!: boolean;
 
+  @Column('varchar', { length: 120, nullable: true })
+  city!: string | null;
+
+  @Column('varchar', { length: 2, nullable: true })
+  state!: string | null;
+
   @CreateDateColumn()
   created_at!: Date;
 

@@ -6,6 +6,8 @@ export const preferencesFormSchema = z.object({
   emailNotifications: z.boolean(),
   pushNotifications: z.boolean(),
   smsNotifications: z.boolean(),
+  city: z.string().nullable(),
+  state: z.string().nullable(),
 });
 
 export type PreferencesForm = z.infer<typeof preferencesFormSchema>;

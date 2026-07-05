@@ -6,6 +6,8 @@ import { EmailVerificationToken } from '../../infra/database/entities/email-veri
 import { PhoneVerificationToken } from '../../infra/database/entities/phone-verification-token.entity.js';
 import { PasswordResetToken } from '../../infra/database/entities/password-reset-token.entity.js';
 import { UserOauthAccount } from '../../infra/database/entities/user-oauth-account.entity.js';
+import { UserPreference } from '../../infra/database/entities/user-preference.entity.js';
+import { UserConsent } from '../../infra/database/entities/user-consent.entity.js';
 import {
   signAccessToken,
   generateOpaqueToken,
@@ -13,6 +15,7 @@ import {
 } from '../../shared/security/token.js';
 import { ConflictError, UnauthorizedError, NotFoundError, BadRequestError, ForbiddenError } from '../../shared/errors.js';
 import { getConfig } from '../../config/index.js';
+import { CONSENT_VERSION } from '../account/account.schemas.js';
 import type { RegisterInput, LoginInput, AuthResult, PublicUser, OauthInput } from './auth.schemas.js';
 
 interface MailQueue {
@@ -27,6 +30,8 @@ interface AuthDeps {
   resetTokens: Repository<PasswordResetToken>;
   mailQueue: MailQueue;
   oauthAccounts: Repository<UserOauthAccount>;
+  preferences: Repository<UserPreference>;
+  consents: Repository<UserConsent>;
 }
 
 const TOKEN_TTL_MS = 1000 * 60 * 60;
@@ -57,6 +62,51 @@ export class AuthService {
       role: input.role,
     });
     const user = await this.deps.users.save(entity);
+
+    if (input.city || input.state) {
+      await this.deps.preferences.save(
+        this.deps.preferences.create({
+          user: { id: user.id } as User,
+          city: input.city ?? null,
+          state: input.state ?? null,
+        }),
+      );
+    }
+
+    if (input.acceptedTerms) {
+      const grantedAt = new Date();
+      await this.deps.consents.save([
+        this.deps.consents.create({
+          user: { id: user.id } as User,
+          consent_type: 'terms',
+          granted: true,
+          version: CONSENT_VERSION,
+          granted_at: grantedAt,
+        }),
+        this.deps.consents.create({
+          user: { id: user.id } as User,
+          consent_type: 'privacy',
+          granted: true,
+          version: CONSENT_VERSION,
+          granted_at: grantedAt,
+        }),
+        this.deps.consents.create({
+          user: { id: user.id } as User,
+          consent_type: 'data_processing',
+          granted: true,
+          version: CONSENT_VERSION,
+          granted_at: grantedAt,
+        }),
+        this.deps.consents.create({
+          user: { id: user.id } as User,
+          consent_type: 'marketing',
+          granted: input.marketingConsent ?? false,
+          version: CONSENT_VERSION,
+          granted_at: grantedAt,
+        }),
+      ]);
+    }
+
     return this.issueTokens(user);
   }
 

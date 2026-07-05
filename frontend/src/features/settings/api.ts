@@ -6,6 +6,8 @@ export interface Preferences {
   emailNotifications: boolean;
   pushNotifications: boolean;
   smsNotifications: boolean;
+  city: string | null;
+  state: string | null;
 }
 
 export type ConsentType = 'terms' | 'privacy' | 'marketing' | 'data_processing';

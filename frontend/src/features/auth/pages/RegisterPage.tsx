@@ -2,7 +2,7 @@ import type { JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, Link } from 'react-router-dom';
-import { Briefcase, Lock, Mail, Phone, User } from 'lucide-react';
+import { Briefcase, Lock, Mail, MapPin, Phone, User } from 'lucide-react';
 import { registerSchema, type RegisterForm } from '../schemas';
 import { useRegister } from '../queries';
 import { AuthField } from '../components/AuthField';
@@ -37,7 +37,10 @@ export default function RegisterPage(): JSX.Element {
     watch,
     setValue,
     formState: { errors },
-  } = useForm<RegisterForm>({ resolver: zodResolver(registerSchema), defaultValues: { role: 'client' } });
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { role: 'client', acceptedTerms: false, marketingConsent: false },
+  });
 
   const role = watch('role');
   const password = watch('password') ?? '';
@@ -50,6 +53,10 @@ export default function RegisterPage(): JSX.Element {
         phone: values.phone,
         password: values.password,
         role: values.role,
+        city: values.city,
+        state: values.state,
+        acceptedTerms: values.acceptedTerms,
+        marketingConsent: values.marketingConsent,
       });
       toast('Conta criada com sucesso', { tone: 'success' });
       navigate('/verify-email');
@@ -91,6 +98,16 @@ export default function RegisterPage(): JSX.Element {
           error={errors.email?.message}
         />
         <AuthField label="Telefone" icon={<Phone size={16} />} {...register('phone')} error={errors.phone?.message} />
+        <div className="grid grid-cols-[1fr_80px] gap-3">
+          <AuthField label="Cidade" icon={<MapPin size={16} />} {...register('city')} error={errors.city?.message} />
+          <AuthField
+            label="UF"
+            maxLength={2}
+            className="uppercase"
+            {...register('state')}
+            error={errors.state?.message}
+          />
+        </div>
         <div className="flex flex-col gap-2">
           <AuthField
             label="Senha"
@@ -108,6 +125,20 @@ export default function RegisterPage(): JSX.Element {
           {...register('confirmPassword')}
           error={errors.confirmPassword?.message}
         />
+        <div className="flex flex-col gap-2">
+          <label className="flex items-start gap-2 text-sm text-ink">
+            <input type="checkbox" className="mt-0.5" {...register('acceptedTerms')} />
+            Aceito os Termos de Uso e a Política de Privacidade e autorizo o tratamento dos meus dados
+            pessoais (LGPD)
+          </label>
+          {errors.acceptedTerms && (
+            <span className="text-xs text-danger">{errors.acceptedTerms.message}</span>
+          )}
+          <label className="flex items-start gap-2 text-sm text-ink">
+            <input type="checkbox" className="mt-0.5" {...register('marketingConsent')} />
+            Quero receber comunicações de marketing
+          </label>
+        </div>
         <Button type="submit" disabled={registerMutation.isPending} className="w-full">
           {registerMutation.isPending ? 'Enviando...' : 'Cadastrar'}
         </Button>

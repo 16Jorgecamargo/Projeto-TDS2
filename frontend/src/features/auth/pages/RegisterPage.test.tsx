@@ -38,6 +38,9 @@ describe('RegisterPage', () => {
     fireEvent.change(screen.getByLabelText('Telefone'), { target: { value: '11999990000' } });
     fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'S3nh@Forte' } });
     fireEvent.change(screen.getByLabelText('Confirmar senha'), { target: { value: 'S3nh@Forte' } });
+    fireEvent.change(screen.getByLabelText('Cidade'), { target: { value: 'Porto Alegre' } });
+    fireEvent.change(screen.getByLabelText('UF'), { target: { value: 'RS' } });
+    fireEvent.click(screen.getByLabelText(/aceito os termos/i));
     fireEvent.click(screen.getByRole('button', { name: /cadastrar/i }));
 
     await waitFor(() =>
@@ -62,6 +65,9 @@ describe('RegisterPage', () => {
     fireEvent.change(screen.getByLabelText('Telefone'), { target: { value: '11999990000' } });
     fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'S3nh@Forte' } });
     fireEvent.change(screen.getByLabelText('Confirmar senha'), { target: { value: 'S3nh@Forte' } });
+    fireEvent.change(screen.getByLabelText('Cidade'), { target: { value: 'Porto Alegre' } });
+    fireEvent.change(screen.getByLabelText('UF'), { target: { value: 'RS' } });
+    fireEvent.click(screen.getByLabelText(/aceito os termos/i));
     fireEvent.click(screen.getByRole('button', { name: /cadastrar/i }));
 
     await waitFor(() =>
@@ -86,6 +92,9 @@ describe('RegisterPage', () => {
     fireEvent.change(screen.getByLabelText('Telefone'), { target: { value: '11999990000' } });
     fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'S3nh@Forte' } });
     fireEvent.change(screen.getByLabelText('Confirmar senha'), { target: { value: 'S3nh@Forte' } });
+    fireEvent.change(screen.getByLabelText('Cidade'), { target: { value: 'Porto Alegre' } });
+    fireEvent.change(screen.getByLabelText('UF'), { target: { value: 'RS' } });
+    fireEvent.click(screen.getByLabelText(/aceito os termos/i));
     fireEvent.click(screen.getByRole('button', { name: /cadastrar/i }));
 
     await waitFor(() =>

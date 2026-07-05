@@ -12,7 +12,7 @@ export default function DemandListPage(): JSX.Element {
   const { data, isPending } = useDemands(true);
 
   return (
-    <section className="mx-auto flex max-w-3xl flex-col gap-3 p-6">
+    <section className="flex flex-col gap-3 p-6">
       <BackLink />
       <h1 className="text-2xl font-bold text-ink">Demandas</h1>
       {isPending ? (

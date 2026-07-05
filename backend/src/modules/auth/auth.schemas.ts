@@ -30,6 +30,31 @@ export const registerSchema = z.object({
     .describe('Senha (min 8 caracteres)')
     .openapi({ example: 'S3nh@Forte' }),
   role: roleSchema,
+  city: z
+    .string()
+    .min(1)
+    .max(120)
+    .optional()
+    .describe('Cidade onde o usuario mora')
+    .openapi({ example: 'Porto Alegre' }),
+  state: z
+    .string()
+    .length(2)
+    .optional()
+    .describe('UF onde o usuario mora')
+    .openapi({ example: 'RS' }),
+  acceptedTerms: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe('Aceite dos termos, privacidade e tratamento de dados (LGPD)')
+    .openapi({ example: true }),
+  marketingConsent: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe('Consentimento para comunicacoes de marketing')
+    .openapi({ example: false }),
 });
 
 export const loginSchema = z.object({

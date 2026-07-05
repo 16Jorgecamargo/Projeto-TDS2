@@ -13,10 +13,18 @@ export const registerSchema = z
     password: z.string().min(8, 'Minimo 8 caracteres'),
     confirmPassword: z.string().min(8),
     role: z.enum(['client', 'professional']),
+    city: z.string().min(1, 'Informe a cidade'),
+    state: z.string().length(2, 'Informe a UF'),
+    acceptedTerms: z.boolean(),
+    marketingConsent: z.boolean(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'As senhas nao conferem',
     path: ['confirmPassword'],
+  })
+  .refine((data) => data.acceptedTerms, {
+    message: 'Voce precisa aceitar os termos para continuar',
+    path: ['acceptedTerms'],
   });
 
 export const forgotPasswordSchema = z.object({

@@ -25,6 +25,10 @@ export const authApi = {
     phone: string;
     password: string;
     role: 'client' | 'professional';
+    city: string;
+    state: string;
+    acceptedTerms: boolean;
+    marketingConsent: boolean;
   }): Promise<AuthResult> {
     const { data } = await http.post<AuthResult>('/auth/register', payload);
     return data;

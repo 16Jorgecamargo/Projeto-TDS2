@@ -59,7 +59,7 @@ describe('Topbar', () => {
     renderWithProviders(<Topbar />, { route: '/' });
     expect(screen.queryByRole('link', { name: 'Entrar' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Registrar' })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Notificações' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Notificações' })).toBeInTheDocument();
   });
 
   it('fundo e sempre solido para usuario autenticado mesmo na Landing', () => {

@@ -15,6 +15,7 @@ describe('PreferencesForm', () => {
       data: {
         language: 'pt-BR', timezone: 'America/Sao_Paulo',
         emailNotifications: true, pushNotifications: false, smsNotifications: false,
+        city: 'Porto Alegre', state: 'RS',
       },
     } as never);
     vi.mocked(useUpdatePreferences).mockReturnValue({ mutate, isPending: false } as never);
@@ -29,6 +30,7 @@ describe('PreferencesForm', () => {
     expect(mutate).toHaveBeenCalledWith({
       language: 'pt-BR', timezone: 'America/Sao_Paulo',
       emailNotifications: true, pushNotifications: false, smsNotifications: false,
+      city: 'Porto Alegre', state: 'RS',
     });
   });
 });

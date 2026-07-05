@@ -50,6 +50,8 @@ export class AccountService {
     if (input.emailNotifications !== undefined) base.email_notifications = input.emailNotifications;
     if (input.pushNotifications !== undefined) base.push_notifications = input.pushNotifications;
     if (input.smsNotifications !== undefined) base.sms_notifications = input.smsNotifications;
+    if (input.city !== undefined) base.city = input.city;
+    if (input.state !== undefined) base.state = input.state;
     const saved = await this.deps.preferences.save(base);
     return this.toPrefsDto(saved);
   }
@@ -127,6 +129,8 @@ export class AccountService {
       emailNotifications: p.email_notifications,
       pushNotifications: p.push_notifications,
       smsNotifications: p.sms_notifications,
+      city: p.city,
+      state: p.state,
     };
   }
 

@@ -10,6 +10,8 @@ import type { EmailVerificationToken } from '../../infra/database/entities/email
 import type { PhoneVerificationToken } from '../../infra/database/entities/phone-verification-token.entity.js';
 import type { PasswordResetToken } from '../../infra/database/entities/password-reset-token.entity.js';
 import type { UserOauthAccount } from '../../infra/database/entities/user-oauth-account.entity.js';
+import type { UserPreference } from '../../infra/database/entities/user-preference.entity.js';
+import type { UserConsent } from '../../infra/database/entities/user-consent.entity.js';
 
 const { actualConfig } = vi.hoisted(() => ({ actualConfig: {} as Record<string, unknown> }));
 vi.mock('../../config/index.js', async () => {
@@ -25,11 +27,15 @@ afterEach(() => {
 describe('AuthService register/login', () => {
   let users: ReturnType<typeof mockRepo<User>>;
   let refreshTokens: ReturnType<typeof mockRepo<RefreshToken>>;
+  let preferences: ReturnType<typeof mockRepo<UserPreference>>;
+  let consents: ReturnType<typeof mockRepo<UserConsent>>;
   let service: AuthService;
 
   beforeEach(() => {
     users = mockRepo<User>();
     refreshTokens = mockRepo<RefreshToken>();
+    preferences = mockRepo<UserPreference>();
+    consents = mockRepo<UserConsent>();
     service = new AuthService({
       users: users as unknown as Repository<User>,
       refreshTokens: refreshTokens as unknown as Repository<RefreshToken>,
@@ -38,6 +44,8 @@ describe('AuthService register/login', () => {
       resetTokens: mockRepo() as unknown as Repository<PasswordResetToken>,
       mailQueue: { add: vi.fn() },
       oauthAccounts: mockRepo() as unknown as Repository<UserOauthAccount>,
+      preferences: preferences as unknown as Repository<UserPreference>,
+      consents: consents as unknown as Repository<UserConsent>,
     });
   });
 
@@ -54,6 +62,8 @@ describe('AuthService register/login', () => {
       phone: '+5551999998888',
       password: 'S3nh@Forte',
       role: 'client',
+      acceptedTerms: false,
+      marketingConsent: false,
     });
 
     const saved = users.save.mock.calls[0]![0] as User;
@@ -62,6 +72,41 @@ describe('AuthService register/login', () => {
     expect(result.accessToken).toBeTruthy();
     expect(result.refreshToken).toBeTruthy();
     expect(result.user.email).toBe('maria@example.com');
+    expect(preferences.save).not.toHaveBeenCalled();
+    expect(consents.save).not.toHaveBeenCalled();
+  });
+
+  it('registra cidade/UF e consentimentos quando informados', async () => {
+    users.findOne.mockResolvedValue(null);
+    users.create.mockImplementation((v) => v as User);
+    users.save.mockImplementation(async (v) => ({ ...v, id: 'user-2' }) as User);
+    refreshTokens.create.mockImplementation((v) => v as RefreshToken);
+    refreshTokens.save.mockImplementation(async (v) => v as RefreshToken);
+    preferences.create.mockImplementation((v) => v as UserPreference);
+    preferences.save.mockImplementation(async (v) => v as UserPreference);
+    consents.create.mockImplementation((v) => v as UserConsent);
+    consents.save.mockImplementation(async (v) => v as UserConsent);
+
+    await service.register({
+      name: 'Joao',
+      email: 'joao@example.com',
+      phone: '+5551999998889',
+      password: 'S3nh@Forte',
+      role: 'client',
+      city: 'Porto Alegre',
+      state: 'RS',
+      acceptedTerms: true,
+      marketingConsent: true,
+    });
+
+    const savedPrefs = preferences.save.mock.calls[0]![0] as UserPreference;
+    expect(savedPrefs.city).toBe('Porto Alegre');
+    expect(savedPrefs.state).toBe('RS');
+
+    const savedConsents = consents.save.mock.calls[0]![0] as UserConsent[];
+    expect(savedConsents).toHaveLength(4);
+    expect(savedConsents.find((c) => c.consent_type === 'terms')?.granted).toBe(true);
+    expect(savedConsents.find((c) => c.consent_type === 'marketing')?.granted).toBe(true);
   });
 
   it('rejeita registro com e-mail existente', async () => {
@@ -73,6 +118,8 @@ describe('AuthService register/login', () => {
         phone: '+5551999998888',
         password: 'S3nh@Forte',
         role: 'client',
+        acceptedTerms: false,
+        marketingConsent: false,
       }),
     ).rejects.toMatchObject({ statusCode: 409 });
   });
@@ -119,6 +166,8 @@ describe('AuthService refresh/logout', () => {
       resetTokens: mockRepo() as unknown as Repository<PasswordResetToken>,
       mailQueue: { add: vi.fn() },
       oauthAccounts: mockRepo() as unknown as Repository<UserOauthAccount>,
+      preferences: mockRepo() as unknown as Repository<UserPreference>,
+      consents: mockRepo() as unknown as Repository<UserConsent>,
     });
   });
 
@@ -202,6 +251,8 @@ describe('AuthService verificacao e reset', () => {
       resetTokens: resetTokens as unknown as Repository<PasswordResetToken>,
       mailQueue,
       oauthAccounts: mockRepo() as unknown as Repository<UserOauthAccount>,
+      preferences: mockRepo() as unknown as Repository<UserPreference>,
+      consents: mockRepo() as unknown as Repository<UserConsent>,
     });
   });
 
@@ -304,6 +355,8 @@ describe('AuthService oauth', () => {
       resetTokens: mockRepo() as unknown as Repository<PasswordResetToken>,
       mailQueue: { add: vi.fn() },
       oauthAccounts: oauthAccounts as unknown as Repository<UserOauthAccount>,
+      preferences: mockRepo() as unknown as Repository<UserPreference>,
+      consents: mockRepo() as unknown as Repository<UserConsent>,
     });
     refreshTokens.create.mockImplementation((v) => v as RefreshToken);
     refreshTokens.save.mockImplementation(async (v) => v as RefreshToken);

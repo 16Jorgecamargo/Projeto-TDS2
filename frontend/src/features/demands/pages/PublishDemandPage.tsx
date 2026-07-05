@@ -4,6 +4,7 @@ import { DemandForm } from '../components/DemandForm';
 import { usePublishDemand } from '../queries';
 import { inviteProfessional } from '../api';
 import type { DemandFormValues } from '../schemas';
+import { BackLink } from '../../../components/ui/BackLink';
 
 export default function PublishDemandPage(): JSX.Element {
   const navigate = useNavigate();
@@ -29,8 +30,9 @@ export default function PublishDemandPage(): JSX.Element {
   }
 
   return (
-    <section className="mx-auto max-w-2xl p-6">
-      <h1 className="mb-4 text-2xl font-bold">Publicar demanda</h1>
+    <section className="p-6">
+      <BackLink />
+      <h1 className="mb-4 mt-4 text-2xl font-bold">Publicar demanda</h1>
       <DemandForm submitting={publish.isPending} onSubmit={handleSubmit} />
     </section>
   );

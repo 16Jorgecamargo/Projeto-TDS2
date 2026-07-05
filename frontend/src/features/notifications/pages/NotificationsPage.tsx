@@ -24,7 +24,7 @@ export function NotificationsPage(): JSX.Element {
   const items = notifications.data.items;
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
+    <div className="flex flex-col gap-4 p-6">
       <BackLink />
       <h1 className="text-2xl font-semibold text-ink">Notificações</h1>
       {items.length === 0 ? (

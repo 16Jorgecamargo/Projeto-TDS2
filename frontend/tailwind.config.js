@@ -5,6 +5,9 @@ export default {
       screens: {
         nav: '424px',
       },
+      maxWidth: {
+        app: '1400px',
+      },
       colors: {
         bg: 'var(--color-bg)',
         surface: 'var(--color-surface)',

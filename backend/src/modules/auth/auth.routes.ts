@@ -8,6 +8,8 @@ import { EmailVerificationToken } from '../../infra/database/entities/email-veri
 import { PhoneVerificationToken } from '../../infra/database/entities/phone-verification-token.entity.js';
 import { PasswordResetToken } from '../../infra/database/entities/password-reset-token.entity.js';
 import { UserOauthAccount } from '../../infra/database/entities/user-oauth-account.entity.js';
+import { UserPreference } from '../../infra/database/entities/user-preference.entity.js';
+import { UserConsent } from '../../infra/database/entities/user-consent.entity.js';
 import { mailQueue } from '../../infra/queues/index.js';
 import { emptyBodySchema } from '../../shared/schemas.js';
 import {
@@ -30,6 +32,8 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     phoneTokens: ds.getRepository(PhoneVerificationToken),
     resetTokens: ds.getRepository(PasswordResetToken),
     oauthAccounts: ds.getRepository(UserOauthAccount),
+    preferences: ds.getRepository(UserPreference),
+    consents: ds.getRepository(UserConsent),
     mailQueue,
   });
   const controller = new AuthController(service);
