@@ -7,6 +7,7 @@ import { SearchableSelect } from '../../../components/ui/SearchableSelect';
 import { Button } from '../../../components/ui/Button';
 import { useCategories } from '../../professional/queries';
 import { BRAZIL_STATES } from '../../../lib/brazilStates';
+import { PhotoGallery } from './PhotoGallery';
 
 interface DemandFormProps {
   onSubmit: (values: DemandFormValues, images: string[]) => void;
@@ -146,15 +147,7 @@ export function DemandForm({ onSubmit, submitting }: DemandFormProps): JSX.Eleme
       <div className="flex flex-col gap-2">
         <span className="text-sm text-slate-600">Fotos (opcional)</span>
         <ImageUpload label="Adicionar foto" onUploaded={(result) => setImages((prev) => [...prev, result.url])} />
-        {images.length > 0 && (
-          <ul className="flex flex-wrap gap-2">
-            {images.map((url) => (
-              <li key={url}>
-                <img src={url} alt="Foto da demanda" className="h-16 w-16 rounded-md object-cover" />
-              </li>
-            ))}
-          </ul>
-        )}
+        <PhotoGallery images={images} onRemove={(url) => setImages((prev) => prev.filter((item) => item !== url))} />
       </div>
       <Button type="submit" disabled={submitting}>
         Publicar demanda
