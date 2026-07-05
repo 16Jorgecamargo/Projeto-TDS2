@@ -20,7 +20,7 @@ function renderResults() {
   return render(
     <QueryClientProvider client={client}>
       <MemoryRouter>
-        <ProfessionalResults params={{ q: 'eletricista' }} />
+        <ProfessionalResults params={{ q: 'eletricista' }} onPageChange={vi.fn()} />
       </MemoryRouter>
     </QueryClientProvider>,
   );
