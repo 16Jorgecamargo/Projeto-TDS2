@@ -10,7 +10,6 @@ import {
 } from 'typeorm';
 import { User } from './user.entity.js';
 import { ServiceCategory } from './service-category.entity.js';
-import { Address } from './address.entity.js';
 
 @Entity('service_demands')
 export class ServiceDemand {
@@ -33,13 +32,6 @@ export class ServiceDemand {
   @JoinColumn({ name: 'category_id' })
   category!: ServiceCategory;
 
-  @Column('char', { length: 36, nullable: true })
-  address_id!: string | null;
-
-  @ManyToOne(() => Address, { nullable: true })
-  @JoinColumn({ name: 'address_id' })
-  address!: Address | null;
-
   @Column('varchar', { length: 255 })
   title!: string;
 
@@ -51,6 +43,27 @@ export class ServiceDemand {
 
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   budget_max!: string | null;
+
+  @Column('varchar', { length: 255, nullable: true })
+  street!: string | null;
+
+  @Column('varchar', { length: 20, nullable: true })
+  number!: string | null;
+
+  @Column('varchar', { length: 255, nullable: true })
+  complement!: string | null;
+
+  @Column('varchar', { length: 128, nullable: true })
+  district!: string | null;
+
+  @Column('varchar', { length: 128, nullable: true })
+  city!: string | null;
+
+  @Column('char', { length: 2, nullable: true })
+  state!: string | null;
+
+  @Column('varchar', { length: 9, nullable: true })
+  zip_code!: string | null;
 
   @Column({ type: 'enum', enum: ['open', 'in_progress', 'closed', 'cancelled'], default: 'open' })
   status!: 'open' | 'in_progress' | 'closed' | 'cancelled';
