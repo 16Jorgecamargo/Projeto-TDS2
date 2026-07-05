@@ -162,7 +162,7 @@ export function TopbarSearch(): JSX.Element {
             type="text"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Buscar profissionais, demandas, categorias..."
+            placeholder="O que você esta procurando?"
             className="w-full bg-transparent pr-3 text-sm text-ink placeholder:text-muted focus:outline-none"
           />
         )}

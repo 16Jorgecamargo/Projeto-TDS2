@@ -65,8 +65,9 @@ export class SearchService {
   async listLocations(): Promise<Location[]> {
     const rows = await this.deps.serviceAreas
       .createQueryBuilder('area')
-      .select('DISTINCT area.city', 'city')
+      .select('area.city', 'city')
       .addSelect('area.state', 'state')
+      .distinct(true)
       .orderBy('area.state', 'ASC')
       .addOrderBy('area.city', 'ASC')
       .getRawMany<{ city: string; state: string }>();

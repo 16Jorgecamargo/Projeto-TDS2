@@ -14,6 +14,7 @@ export type MockQueryBuilder = {
   orderBy: Mock;
   addOrderBy: Mock;
   groupBy: Mock;
+  distinct: Mock;
   skip: Mock;
   take: Mock;
   limit: Mock;
@@ -42,6 +43,7 @@ export function mockQueryBuilder(): MockQueryBuilder {
     'orderBy',
     'addOrderBy',
     'groupBy',
+    'distinct',
     'skip',
     'take',
     'limit',
