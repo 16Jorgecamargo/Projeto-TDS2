@@ -142,7 +142,7 @@ export const demandResponseSchema = z.object({
   budgetMax: z.number().nullable().describe('Orçamento máximo').openapi({ example: 500 }),
   status: demandStatusEnum,
   city: z.string().describe('Cidade').openapi({ example: 'Porto Alegre' }),
-  state: z.string().length(2).describe('UF').openapi({ example: 'RS' }),
+  state: z.string().describe('UF').openapi({ example: 'RS' }),
   street: z
     .string()
     .nullable()
