@@ -19,20 +19,7 @@ export function DemandForm({ onSubmit, submitting }: DemandFormProps): JSX.Eleme
     formState: { errors },
   } = useForm<DemandFormValues>({
     resolver: zodResolver(demandFormSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      budgetMin: null,
-      budgetMax: null,
-      categoryId: '',
-      street: '',
-      number: '',
-      complement: null,
-      district: '',
-      city: '',
-      state: '',
-      zipCode: '',
-    },
+    defaultValues: { title: '', description: '', budgetMin: 0, budgetMax: 0, categoryId: '' },
   });
 
   return (

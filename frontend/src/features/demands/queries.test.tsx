@@ -21,8 +21,6 @@ describe('usePublishDemand', () => {
       categoryId: 'c1',
       title: 'Pintar sala',
       description: 'Descricao com mais de vinte caracteres',
-      budgetMin: 100,
-      budgetMax: 200,
       street: 'Rua A',
       number: '123',
       complement: null,

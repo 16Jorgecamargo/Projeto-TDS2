@@ -4,8 +4,6 @@ export const demandFormSchema = z.object({
   categoryId: z.string().uuid('Categoria obrigatória'),
   title: z.string().min(5, 'Mínimo 5 caracteres').max(120),
   description: z.string().min(20, 'Mínimo 20 caracteres').max(4000),
-  budgetMin: z.coerce.number().nonnegative('Orçamento mínimo inválido').nullable(),
-  budgetMax: z.coerce.number().nonnegative('Orçamento máximo inválido').nullable(),
   street: z.string().min(1, 'Informe a rua'),
   number: z.string().min(1, 'Informe o número'),
   complement: z.string().nullable(),
