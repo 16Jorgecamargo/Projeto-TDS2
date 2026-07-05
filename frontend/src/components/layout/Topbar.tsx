@@ -17,7 +17,8 @@ export function Topbar(): JSX.Element {
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
-    setScrolled(latest > SCROLL_THRESHOLD);
+    const isPastThreshold = latest > SCROLL_THRESHOLD;
+    setScrolled((prev) => (prev === isPastThreshold ? prev : isPastThreshold));
   });
 
   const isTransparent = !user && isLanding && !scrolled;
