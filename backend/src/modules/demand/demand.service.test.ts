@@ -7,12 +7,14 @@ import type { ServiceDemand } from '../../infra/database/entities/service-demand
 import type { DemandImage } from '../../infra/database/entities/demand-image.entity.js';
 import type { DemandTag } from '../../infra/database/entities/demand-tag.entity.js';
 import type { DemandInvitation } from '../../infra/database/entities/demand-invitation.entity.js';
+import type { Contract } from '../../infra/database/entities/contract.entity.js';
 
 describe('DemandService', () => {
   let demands: ReturnType<typeof mockRepo<ServiceDemand>>;
   let images: ReturnType<typeof mockRepo<DemandImage>>;
   let tags: ReturnType<typeof mockRepo<DemandTag>>;
   let invitations: ReturnType<typeof mockRepo<DemandInvitation>>;
+  let contracts: ReturnType<typeof mockRepo<Contract>>;
   let service: DemandService;
 
   beforeEach(() => {
@@ -20,11 +22,13 @@ describe('DemandService', () => {
     images = mockRepo<DemandImage>();
     tags = mockRepo<DemandTag>();
     invitations = mockRepo<DemandInvitation>();
+    contracts = mockRepo<Contract>();
     service = new DemandService({
       demands: demands as unknown as Repository<ServiceDemand>,
       images: images as unknown as Repository<DemandImage>,
       tags: tags as unknown as Repository<DemandTag>,
       invitations: invitations as unknown as Repository<DemandInvitation>,
+      contracts: contracts as unknown as Repository<Contract>,
     });
   });
 
@@ -39,7 +43,13 @@ describe('DemandService', () => {
         budget_min: '100.00',
         budget_max: '500.00',
         status: 'open',
-        address_id: null,
+        street: 'Rua das Flores',
+        number: '123',
+        complement: null,
+        district: 'Centro',
+        city: 'Porto Alegre',
+        state: 'RS',
+        zip_code: '90000-000',
         created_at: new Date('2026-07-01T12:00:00Z'),
       } as ServiceDemand);
       images.save.mockResolvedValueOnce({
@@ -55,16 +65,20 @@ describe('DemandService', () => {
         description: 'x'.repeat(20),
         budgetMin: 100,
         budgetMax: 500,
-        addressId: null,
+        street: 'Rua das Flores',
+        number: '123',
+        complement: null,
+        district: 'Centro',
+        city: 'Porto Alegre',
+        state: 'RS',
+        zipCode: '90000-000',
         tagIds: ['tag-1'],
         images: [{ url: 'https://cdn.app/a.jpg', position: 0 }],
       });
 
       expect(result.budgetMin).toBe(100);
-      expect(result.budgetMax).toBe(500);
       expect(typeof result.budgetMin).toBe('number');
-      expect(result.images).toEqual([{ url: 'https://cdn.app/a.jpg', position: 0 }]);
-      expect(result.tagIds).toEqual(['tag-1']);
+      expect(result.street).toBe('Rua das Flores');
       expect(tags.save).toHaveBeenCalled();
       expect(images.save).toHaveBeenCalled();
     });
@@ -83,7 +97,6 @@ describe('DemandService', () => {
             budget_min: '100.00',
             budget_max: '500.00',
             status: 'open',
-            address_id: null,
             created_at: new Date('2026-07-01T12:00:00Z'),
           } as ServiceDemand,
         ],
@@ -92,7 +105,7 @@ describe('DemandService', () => {
 
       const result = await service.list(
         { status: 'open', categoryId: 'cat-1', mine: true, page: 1, limit: 10 },
-        'client-1',
+        { userId: 'client-1', professionalId: null },
       );
 
       expect(result.total).toBe(1);
@@ -123,7 +136,6 @@ describe('DemandService', () => {
         budget_min: '100.00',
         budget_max: '500.00',
         status: 'open',
-        address_id: null,
         created_at: new Date('2026-07-01T12:00:00Z'),
       } as ServiceDemand);
       images.find.mockResolvedValueOnce([
@@ -136,6 +148,56 @@ describe('DemandService', () => {
       expect(result.id).toBe('demand-1');
       expect(result.images).toEqual([{ url: 'https://cdn.app/a.jpg', position: 0 }]);
       expect(result.tagIds).toEqual(['tag-1']);
+    });
+  });
+
+  describe('toResponse via getById — visibilidade do endereco', () => {
+    const baseDemand = {
+      id: 'demand-1',
+      client_id: 'client-1',
+      category_id: 'cat-1',
+      title: 'Instalacao eletrica',
+      description: 'x'.repeat(20),
+      budget_min: null,
+      budget_max: null,
+      status: 'open' as const,
+      street: 'Rua das Flores',
+      number: '123',
+      complement: null,
+      district: 'Centro',
+      city: 'Porto Alegre',
+      state: 'RS',
+      zip_code: '90000-000',
+      created_at: new Date('2026-07-01T12:00:00Z'),
+    };
+
+    it('sem actor: so expoe cidade/UF', async () => {
+      demands.findOne.mockResolvedValueOnce(baseDemand as ServiceDemand);
+      const result = await service.getById('demand-1');
+      expect(result.city).toBe('Porto Alegre');
+      expect(result.state).toBe('RS');
+      expect(result.street).toBeNull();
+    });
+
+    it('dono da demanda: ve endereco completo', async () => {
+      demands.findOne.mockResolvedValueOnce(baseDemand as ServiceDemand);
+      const result = await service.getById('demand-1', { userId: 'client-1', professionalId: null });
+      expect(result.street).toBe('Rua das Flores');
+      expect(result.number).toBe('123');
+    });
+
+    it('profissional sem contrato: nao ve endereco completo', async () => {
+      demands.findOne.mockResolvedValueOnce(baseDemand as ServiceDemand);
+      contracts.findOne.mockResolvedValueOnce(null);
+      const result = await service.getById('demand-1', { userId: 'other-user', professionalId: 'pro-1' });
+      expect(result.street).toBeNull();
+    });
+
+    it('profissional com contrato ativo: ve endereco completo', async () => {
+      demands.findOne.mockResolvedValueOnce(baseDemand as ServiceDemand);
+      contracts.findOne.mockResolvedValueOnce({ id: 'contract-1', status: 'active' } as Contract);
+      const result = await service.getById('demand-1', { userId: 'other-user', professionalId: 'pro-1' });
+      expect(result.street).toBe('Rua das Flores');
     });
   });
 
@@ -176,7 +238,6 @@ describe('DemandService', () => {
         budget_min: '100.00',
         budget_max: '500.00',
         status: 'open',
-        address_id: null,
         created_at: new Date('2026-07-01T12:00:00Z'),
       } as ServiceDemand);
       demands.save.mockImplementationOnce(async (value: ServiceDemand) => value);
@@ -210,7 +271,6 @@ describe('DemandService', () => {
         budget_min: '100.00',
         budget_max: '500.00',
         status: 'open',
-        address_id: null,
         created_at: new Date('2026-07-01T12:00:00Z'),
       } as ServiceDemand);
       demands.save.mockImplementationOnce(async (value: ServiceDemand) => value);

@@ -1,8 +1,9 @@
-import type { Repository } from 'typeorm';
+import { In, type Repository } from 'typeorm';
 import type { ServiceDemand } from '../../infra/database/entities/service-demand.entity.js';
 import type { DemandImage } from '../../infra/database/entities/demand-image.entity.js';
 import type { DemandTag } from '../../infra/database/entities/demand-tag.entity.js';
 import type { DemandInvitation } from '../../infra/database/entities/demand-invitation.entity.js';
+import type { Contract } from '../../infra/database/entities/contract.entity.js';
 import { NotFoundError, ForbiddenError, ConflictError } from '../../shared/errors.js';
 import { businessMetrics } from '../../observability/metrics.js';
 import type {
@@ -13,31 +14,55 @@ import type {
   DemandInvitationResponse,
 } from './demand.schemas.js';
 
+export interface DemandActor {
+  userId: string;
+  professionalId: string | null;
+}
+
 interface DemandServiceDeps {
   demands: Repository<ServiceDemand>;
   images: Repository<DemandImage>;
   tags: Repository<DemandTag>;
   invitations: Repository<DemandInvitation>;
+  contracts: Repository<Contract>;
 }
 
 export class DemandService {
   constructor(private readonly deps: DemandServiceDeps) {}
 
-  private toResponse(
+  private async canRevealFullAddress(demand: ServiceDemand, actor?: DemandActor): Promise<boolean> {
+    if (!actor) return false;
+    if (demand.client_id === actor.userId) return true;
+    if (!actor.professionalId) return false;
+    const contract = await this.deps.contracts.findOne({
+      where: { demand_id: demand.id, professional_id: actor.professionalId, status: In(['active', 'completed']) },
+    });
+    return contract !== null;
+  }
+
+  private async toResponse(
     demand: ServiceDemand,
     images: DemandImage[],
     tagIds: string[],
-  ): DemandResponse {
+    actor?: DemandActor,
+  ): Promise<DemandResponse> {
+    const revealAddress = await this.canRevealFullAddress(demand, actor);
     return {
       id: demand.id,
       clientId: demand.client_id,
       categoryId: demand.category_id,
       title: demand.title,
       description: demand.description,
-      budgetMin: Number(demand.budget_min),
-      budgetMax: Number(demand.budget_max),
+      budgetMin: demand.budget_min !== null ? Number(demand.budget_min) : null,
+      budgetMax: demand.budget_max !== null ? Number(demand.budget_max) : null,
       status: demand.status,
-      addressId: demand.address_id,
+      city: demand.city ?? '',
+      state: demand.state ?? '',
+      street: revealAddress ? demand.street : null,
+      number: revealAddress ? demand.number : null,
+      complement: revealAddress ? demand.complement : null,
+      district: revealAddress ? demand.district : null,
+      zipCode: revealAddress ? demand.zip_code : null,
       images: [...images]
         .sort((a, b) => a.position - b.position)
         .map((i) => ({ url: i.image_url, position: i.position })),
@@ -59,10 +84,16 @@ export class DemandService {
         category_id: input.categoryId,
         title: input.title,
         description: input.description,
-        budget_min: input.budgetMin.toFixed(2),
-        budget_max: input.budgetMax.toFixed(2),
+        budget_min: input.budgetMin !== undefined ? input.budgetMin.toFixed(2) : null,
+        budget_max: input.budgetMax !== undefined ? input.budgetMax.toFixed(2) : null,
+        street: input.street,
+        number: input.number,
+        complement: input.complement,
+        district: input.district,
+        city: input.city,
+        state: input.state,
+        zip_code: input.zipCode,
         status: 'open',
-        address_id: input.addressId,
       }),
     );
     const images = await Promise.all(
@@ -78,17 +109,14 @@ export class DemandService {
       ),
     );
     businessMetrics.demandsCreated.inc();
-    return this.toResponse(demand, images, input.tagIds);
+    return this.toResponse(demand, images, input.tagIds, { userId: clientId, professionalId: null });
   }
 
-  async list(
-    query: DemandListQuery,
-    requesterId: string,
-  ): Promise<{ items: DemandResponse[]; total: number }> {
+  async list(query: DemandListQuery, actor: DemandActor): Promise<{ items: DemandResponse[]; total: number }> {
     const where: Record<string, unknown> = {};
     if (query.status) where.status = query.status;
     if (query.categoryId) where.category_id = query.categoryId;
-    if (query.mine) where.client_id = requesterId;
+    if (query.mine) where.client_id = actor.userId;
     const [rows, total] = await this.deps.demands.findAndCount({
       where,
       order: { created_at: 'DESC' },
@@ -98,17 +126,17 @@ export class DemandService {
     const items = await Promise.all(
       rows.map(async (d) => {
         const { images, tagIds } = await this.loadAssociations(d.id);
-        return this.toResponse(d, images, tagIds);
+        return this.toResponse(d, images, tagIds, actor);
       }),
     );
     return { items, total };
   }
 
-  async getById(id: string): Promise<DemandResponse> {
+  async getById(id: string, actor?: DemandActor): Promise<DemandResponse> {
     const demand = await this.deps.demands.findOne({ where: { id } });
     if (!demand) throw new NotFoundError('Demanda nao encontrada');
     const { images, tagIds } = await this.loadAssociations(id);
-    return this.toResponse(demand, images, tagIds);
+    return this.toResponse(demand, images, tagIds, actor);
   }
 
   async update(id: string, clientId: string, input: UpdateDemandInput): Promise<DemandResponse> {
@@ -120,9 +148,16 @@ export class DemandService {
     if (input.description !== undefined) demand.description = input.description;
     if (input.budgetMin !== undefined) demand.budget_min = input.budgetMin.toFixed(2);
     if (input.budgetMax !== undefined) demand.budget_max = input.budgetMax.toFixed(2);
+    if (input.street !== undefined) demand.street = input.street;
+    if (input.number !== undefined) demand.number = input.number;
+    if (input.complement !== undefined) demand.complement = input.complement;
+    if (input.district !== undefined) demand.district = input.district;
+    if (input.city !== undefined) demand.city = input.city;
+    if (input.state !== undefined) demand.state = input.state;
+    if (input.zipCode !== undefined) demand.zip_code = input.zipCode;
     const saved = await this.deps.demands.save(demand);
     const { images, tagIds } = await this.loadAssociations(id);
-    return this.toResponse(saved, images, tagIds);
+    return this.toResponse(saved, images, tagIds, { userId: clientId, professionalId: null });
   }
 
   async cancel(id: string, clientId: string): Promise<DemandResponse> {
@@ -132,7 +167,7 @@ export class DemandService {
     demand.status = 'cancelled';
     const saved = await this.deps.demands.save(demand);
     const { images, tagIds } = await this.loadAssociations(id);
-    return this.toResponse(saved, images, tagIds);
+    return this.toResponse(saved, images, tagIds, { userId: clientId, professionalId: null });
   }
 
   private invitationToResponse(inv: DemandInvitation): DemandInvitationResponse {

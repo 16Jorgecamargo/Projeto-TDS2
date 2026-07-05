@@ -620,13 +620,20 @@ async function main(): Promise<void> {
       const amount = (randomInt(80, 500) + Math.random()).toFixed(2);
       const completedDaysAgo = randomInt(1, 9);
       const startedDaysAgo = completedDaysAgo + randomInt(1, 20);
+      const demandLocation = pick(CITIES);
 
       demandRows.push(
         demandRepo.create({
           id: demandId,
           client_id: clientId,
           category_id: categoryIdBySlug[professional.categorySlug] as string,
-          address_id: null,
+          street: 'Rua Principal',
+          number: String(randomInt(1, 999)),
+          complement: null,
+          district: 'Centro',
+          city: demandLocation.city,
+          state: demandLocation.state,
+          zip_code: '00000-000',
           title: pick(HEADLINE_TEMPLATES[professional.categorySlug] as string[]),
           description: `Preciso de um profissional de ${professional.categorySlug.replace(/-/g, ' ')} para um serviço.`,
           budget_min: null,
