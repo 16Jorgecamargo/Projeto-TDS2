@@ -10,7 +10,7 @@ const STEPS = [
 
 export function HowItWorks(): JSX.Element {
   return (
-    <section className="mx-auto w-full max-w-6xl px-6 py-16">
+    <section id="como-funciona" className="mx-auto w-full max-w-6xl px-6 py-16">
       <h2 className="mb-6 text-h2 font-bold text-ink">Como funciona</h2>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {STEPS.map(({ icon: Icon, title, description }) => (

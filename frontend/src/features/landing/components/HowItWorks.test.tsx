@@ -10,4 +10,10 @@ describe('HowItWorks', () => {
     expect(screen.getByText('Compare')).toBeInTheDocument();
     expect(screen.getByText('Contrate')).toBeInTheDocument();
   });
+
+  it('expoe id de ancora como-funciona na secao', () => {
+    render(<HowItWorks />);
+    const heading = screen.getByRole('heading', { name: 'Como funciona' });
+    expect(heading.closest('section')).toHaveAttribute('id', 'como-funciona');
+  });
 });
