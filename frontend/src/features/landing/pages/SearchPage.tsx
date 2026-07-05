@@ -1,56 +1,92 @@
 import { useState, type JSX } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { SearchFilters } from '../components/SearchFilters';
+import { PageHeader } from '../components/PageHeader';
+import { SearchToolbar, type SortOption } from '../components/SearchToolbar';
+import { FilterBar } from '../components/FilterBar';
 import { ProfessionalResults } from '../components/ProfessionalResults';
+import { Drawer } from '../../../components/ui/Drawer';
+import { useSearchProfessionals } from '../queries';
 import type { SearchForm } from '../schemas';
 
-type SortOption = 'rating' | 'price';
+const DEFAULT_LIMIT = 12;
+
+type UrlKey = 'q' | 'city' | 'state' | 'categoryId' | 'sort' | 'onlyAvailable' | 'page';
 
 export default function SearchPage(): JSX.Element {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [onlyAvailable, setOnlyAvailable] = useState(false);
-  const [sort, setSort] = useState<SortOption>('rating');
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const value: SearchForm = {
+  const filters: SearchForm = {
     q: searchParams.get('q') ?? undefined,
     city: searchParams.get('city') ?? undefined,
     state: searchParams.get('state')?.toUpperCase() ?? undefined,
     categoryId: searchParams.get('categoryId') ?? undefined,
   };
+  const sort = (searchParams.get('sort') as SortOption | null) ?? 'rating';
+  const onlyAvailable = searchParams.get('onlyAvailable') === 'true';
+  const page = Number(searchParams.get('page') ?? '1');
 
-  function handleChange(next: SearchForm) {
-    const params = new URLSearchParams();
-    if (next.q) params.set('q', next.q);
-    if (next.city) params.set('city', next.city);
-    if (next.state) params.set('state', next.state);
-    if (next.categoryId) params.set('categoryId', next.categoryId);
+  function updateParams(next: Partial<Record<UrlKey, string | undefined>>, resetPage = true) {
+    const params = new URLSearchParams(searchParams);
+    Object.entries(next).forEach(([key, value]) => {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    });
+    if (resetPage && !('page' in next)) {
+      params.delete('page');
+    }
     setSearchParams(params);
   }
 
+  function handleFilterChange(next: SearchForm) {
+    updateParams({ city: next.city, state: next.state, categoryId: next.categoryId });
+  }
+
+  const params = { ...filters, page, limit: DEFAULT_LIMIT };
+  const { data } = useSearchProfessionals(params);
+
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-6 p-6 md:flex-row">
-      <SearchFilters
-        value={value}
-        onChange={handleChange}
-        onlyAvailable={onlyAvailable}
-        onOnlyAvailableChange={setOnlyAvailable}
+    <div className="mx-auto flex max-w-6xl flex-col gap-6 p-6">
+      <PageHeader
+        title="Resultados da busca"
+        subtitle={data ? `${data.total} profissionais encontrados` : undefined}
       />
-      <div className="flex-1">
-        <div className="mb-4 flex justify-end">
-          <label className="flex items-center gap-2 text-sm text-ink">
-            Ordenar por
-            <select
-              value={sort}
-              onChange={(event) => setSort(event.target.value as SortOption)}
-              className="rounded-sm border border-surface px-2 py-1 text-sm text-ink"
-            >
-              <option value="rating">Nota</option>
-              <option value="price">Preço</option>
-            </select>
-          </label>
+      <SearchToolbar
+        query={filters.q ?? ''}
+        onQueryChange={(value) => updateParams({ q: value || undefined })}
+        onOpenFilters={() => setFiltersOpen(true)}
+        sort={sort}
+        onSortChange={(value) => updateParams({ sort: value })}
+      />
+      <div className="flex flex-col gap-6 lg:flex-row">
+        <div className="hidden lg:block lg:w-64">
+          <FilterBar
+            value={filters}
+            onChange={handleFilterChange}
+            onlyAvailable={onlyAvailable}
+            onOnlyAvailableChange={(value) => updateParams({ onlyAvailable: value ? 'true' : undefined })}
+          />
         </div>
-        <ProfessionalResults params={value} onlyAvailable={onlyAvailable} sort={sort} />
+        <div className="flex-1">
+          <ProfessionalResults
+            params={params}
+            onlyAvailable={onlyAvailable}
+            sort={sort}
+            onPageChange={(nextPage) => updateParams({ page: String(nextPage) }, false)}
+          />
+        </div>
       </div>
+      <Drawer open={filtersOpen} onClose={() => setFiltersOpen(false)} title="Filtros" side="right">
+        <FilterBar
+          value={filters}
+          onChange={handleFilterChange}
+          onlyAvailable={onlyAvailable}
+          onOnlyAvailableChange={(value) => updateParams({ onlyAvailable: value ? 'true' : undefined })}
+        />
+      </Drawer>
     </div>
   );
 }
