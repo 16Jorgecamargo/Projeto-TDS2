@@ -27,7 +27,7 @@ export function NotificationsPage(): JSX.Element {
       {items.length === 0 ? (
         <EmptyState title="Nenhuma notificação ainda" />
       ) : (
-        <Card className="flex flex-col gap-0 divide-y divide-surface p-0">
+        <Card noPadding className="flex flex-col gap-0 divide-y divide-surface">
           {items.map((notification) => (
             <div key={notification.id} className="flex items-start justify-between gap-4 p-4">
               <div className="flex flex-col gap-1">

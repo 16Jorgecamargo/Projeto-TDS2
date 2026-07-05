@@ -28,7 +28,7 @@ export function FloatingChatWidget(): JSX.Element {
   const activeRoom = rooms?.find((room) => room.id === activeRoomId);
 
   return (
-    <Card className="fixed bottom-6 right-6 z-modal flex h-[26rem] w-80 flex-col overflow-hidden p-0 shadow-modal">
+    <Card noPadding className="fixed bottom-6 right-6 z-modal flex h-[26rem] w-80 flex-col overflow-hidden shadow-modal">
       <div className="flex shrink-0 items-center gap-2 border-b border-surface px-3 py-2.5">
         {activeRoomId ? (
           <button

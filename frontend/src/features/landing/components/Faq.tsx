@@ -39,7 +39,7 @@ export function Faq(): JSX.Element {
           const isOpen = openIndex === index;
           const answerId = `faq-answer-${index}`;
           return (
-            <Card key={item.question} variant="flat" className="bg-surface p-0">
+            <Card key={item.question} variant="flat" noPadding className="bg-surface">
               <button
                 type="button"
                 aria-expanded={isOpen}

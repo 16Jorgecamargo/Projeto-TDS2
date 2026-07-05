@@ -32,6 +32,7 @@ export interface CardProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd'>,
     VariantProps<typeof cardVariants> {
   children: ReactNode;
+  noPadding?: boolean;
 }
 
 function CardHeader({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
@@ -47,7 +48,7 @@ function CardFooter({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
 }
 
 const CardRoot = forwardRef<HTMLDivElement, CardProps>(function Card(
-  { variant, interactive, selected, className, children, onClick, ...rest },
+  { variant, interactive, selected, noPadding, className, children, onClick, ...rest },
   ref,
 ) {
   const hasStructuredChildren = Children.toArray(children).some(
@@ -58,7 +59,7 @@ const CardRoot = forwardRef<HTMLDivElement, CardProps>(function Card(
 
   const classes = cn(
     cardVariants({ variant, interactive, selected }),
-    !hasStructuredChildren && 'p-6',
+    !hasStructuredChildren && !noPadding && 'p-6',
     className,
   );
 

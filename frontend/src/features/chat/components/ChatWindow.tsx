@@ -22,7 +22,7 @@ export function ChatWindow({ roomId }: ChatWindowProps): JSX.Element {
   }
 
   return (
-    <Card className="flex h-full flex-col p-0">
+    <Card noPadding className="flex h-full flex-col">
       <ul className="flex flex-1 flex-col-reverse gap-1.5 overflow-y-auto p-3">
         {data.items.length === 0 ? (
           <li>
