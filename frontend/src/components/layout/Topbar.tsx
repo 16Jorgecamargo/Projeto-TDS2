@@ -35,14 +35,6 @@ export function Topbar(): JSX.Element {
         <Link to="/" className="flex-1 text-lg font-bold text-ink">
           Services Marketplace
         </Link>
-        {!user && isLanding ? (
-          <a
-            href="#como-funciona"
-            className="hidden text-sm font-semibold text-ink hover:text-primary sm:inline-flex"
-          >
-            Como funciona
-          </a>
-        ) : null}
         {user ? (
           <>
             <TopbarSearch />
