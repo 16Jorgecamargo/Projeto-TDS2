@@ -12,10 +12,20 @@ const COLLAPSED_WIDTH = 40;
 const EXPANDED_WIDTH = 320;
 const MAX_ITEMS_PER_SECTION = 5;
 
-type LocationSuggestion =
+type ResultItem =
   | { type: 'category'; key: string; label: string; categoryId: string }
   | { type: 'city'; key: string; label: string; city: string; state: string }
-  | { type: 'state'; key: string; label: string; state: string };
+  | { type: 'state'; key: string; label: string; state: string }
+  | { type: 'professional'; key: string; label: string; professionalId: string }
+  | { type: 'demand'; key: string; label: string; demandId: string };
+
+const TYPE_LABELS: Record<ResultItem['type'], string> = {
+  category: 'Categoria',
+  city: 'Cidade',
+  state: 'Estado',
+  professional: 'Profissional',
+  demand: 'Demanda',
+};
 
 function useDebouncedValue(value: string, delay: number): string {
   const [debounced, setDebounced] = useState(value);
@@ -38,8 +48,8 @@ export function TopbarSearch(): JSX.Element {
   const { data: categories } = useCategories();
   const { data: locations } = useLocations();
 
-  const locationSuggestions = useMemo<LocationSuggestion[]>(() => {
-    const categorySuggestions: LocationSuggestion[] = (categories ?? [])
+  const locationSuggestions = useMemo<ResultItem[]>(() => {
+    const categorySuggestions: ResultItem[] = (categories ?? [])
       .filter((category) => category.isActive)
       .map((category) => ({
         type: 'category',
@@ -48,7 +58,7 @@ export function TopbarSearch(): JSX.Element {
         categoryId: category.id,
       }));
 
-    const citySuggestions: LocationSuggestion[] = (locations ?? []).map((location) => ({
+    const citySuggestions: ResultItem[] = (locations ?? []).map((location) => ({
       type: 'city',
       key: `city-${location.city}-${location.state}`,
       label: `${location.city}, ${location.state}`,
@@ -57,7 +67,7 @@ export function TopbarSearch(): JSX.Element {
     }));
 
     const states = new Set((locations ?? []).map((location) => location.state));
-    const stateSuggestions: LocationSuggestion[] = Array.from(states).map((state) => ({
+    const stateSuggestions: ResultItem[] = Array.from(states).map((state) => ({
       type: 'state',
       key: `state-${state}`,
       label: state,
@@ -80,11 +90,34 @@ export function TopbarSearch(): JSX.Element {
     { enabled: expanded && canSearch },
   );
   const demandResults = useDemands(undefined, { enabled: expanded && canSearch });
-  const demandMatches = canSearch
-    ? (demandResults.data?.items ?? [])
-        .filter((demand) => demand.title.toLowerCase().includes(debouncedQuery.trim().toLowerCase()))
-        .slice(0, MAX_ITEMS_PER_SECTION)
-    : [];
+
+  const professionalItems = useMemo<ResultItem[]>(
+    () =>
+      (professionalResults.data?.items ?? []).slice(0, MAX_ITEMS_PER_SECTION).map((professional) => ({
+        type: 'professional',
+        key: `professional-${professional.id}`,
+        label: professional.headline,
+        professionalId: professional.id,
+      })),
+    [professionalResults.data],
+  );
+
+  const demandItems = useMemo<ResultItem[]>(() => {
+    const term = debouncedQuery.trim().toLowerCase();
+    return (demandResults.data?.items ?? [])
+      .filter((demand) => demand.title.toLowerCase().includes(term))
+      .slice(0, MAX_ITEMS_PER_SECTION)
+      .map((demand) => ({
+        type: 'demand',
+        key: `demand-${demand.id}`,
+        label: demand.title,
+        demandId: demand.id,
+      }));
+  }, [demandResults.data, debouncedQuery]);
+
+  const allResults: ResultItem[] = canSearch
+    ? [...matchedLocationSuggestions, ...professionalItems, ...demandItems]
+    : matchedLocationSuggestions;
 
   function collapse() {
     setExpanded(false);
@@ -118,16 +151,24 @@ export function TopbarSearch(): JSX.Element {
     navigate(path);
   }
 
-  function handleSelectLocationSuggestion(suggestion: LocationSuggestion) {
-    if (suggestion.type === 'category') {
-      goTo(`/search?categoryId=${suggestion.categoryId}`);
-      return;
+  function handleSelectResult(item: ResultItem) {
+    switch (item.type) {
+      case 'category':
+        goTo(`/search?categoryId=${item.categoryId}`);
+        return;
+      case 'city':
+        goTo(`/search?city=${encodeURIComponent(item.city)}&state=${item.state}`);
+        return;
+      case 'state':
+        goTo(`/search?state=${item.state}`);
+        return;
+      case 'professional':
+        goTo(`/professionals/${item.professionalId}`);
+        return;
+      case 'demand':
+        goTo(`/demands/${item.demandId}`);
+        return;
     }
-    if (suggestion.type === 'city') {
-      goTo(`/search?city=${encodeURIComponent(suggestion.city)}&state=${suggestion.state}`);
-      return;
-    }
-    goTo(`/search?state=${suggestion.state}`);
   }
 
   function handleSubmit(event: FormEvent) {
@@ -136,7 +177,7 @@ export function TopbarSearch(): JSX.Element {
     goTo(`/search?q=${encodeURIComponent(query.trim())}`);
   }
 
-  const showResults = expanded && (matchedLocationSuggestions.length > 0 || canSearch);
+  const showResults = expanded && allResults.length > 0;
 
   return (
     <div ref={containerRef} className="relative">
@@ -168,77 +209,28 @@ export function TopbarSearch(): JSX.Element {
         )}
       </motion.form>
 
+      {expanded && canSearch && professionalResults.isFetching && allResults.length === 0 && (
+        <div className="absolute right-0 top-full z-dropdown mt-2 w-80 rounded-md border border-border bg-bg py-2 shadow-md">
+          <p className="px-3 py-2 text-sm text-muted">Buscando...</p>
+        </div>
+      )}
+
       {showResults && (
         <div className="absolute right-0 top-full z-dropdown mt-2 max-h-96 w-80 overflow-y-auto rounded-md border border-border bg-bg py-2 shadow-md">
-          {matchedLocationSuggestions.length > 0 && (
-            <div className="mb-2">
-              <p className="mb-1 px-3 text-xs font-semibold uppercase text-muted">Categorias e locais</p>
-              <ul>
-                {matchedLocationSuggestions.map((suggestion) => (
-                  <li key={suggestion.key}>
-                    <button
-                      type="button"
-                      onClick={() => handleSelectLocationSuggestion(suggestion)}
-                      className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-ink hover:bg-surface"
-                    >
-                      <span>{suggestion.label}</span>
-                      <span className="text-xs text-muted">
-                        {suggestion.type === 'category' ? 'Categoria' : suggestion.type === 'city' ? 'Cidade' : 'Estado'}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {canSearch && (
-            <div className="mb-2">
-              <p className="mb-1 px-3 text-xs font-semibold uppercase text-muted">Profissionais</p>
-              {professionalResults.isFetching ? (
-                <p className="px-3 py-2 text-sm text-muted">Buscando...</p>
-              ) : professionalResults.data && professionalResults.data.items.length > 0 ? (
-                <ul>
-                  {professionalResults.data.items.slice(0, MAX_ITEMS_PER_SECTION).map((professional) => (
-                    <li key={professional.id}>
-                      <button
-                        type="button"
-                        onClick={() => goTo(`/professionals/${professional.id}`)}
-                        className="flex w-full items-center gap-3 rounded-sm px-3 py-2 text-left text-sm text-ink hover:bg-surface"
-                      >
-                        {professional.headline}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="px-3 py-2 text-sm text-muted">Nenhum profissional encontrado.</p>
-              )}
-            </div>
-          )}
-
-          {canSearch && (
-            <div>
-              <p className="mb-1 px-3 text-xs font-semibold uppercase text-muted">Demandas</p>
-              {demandMatches.length > 0 ? (
-                <ul>
-                  {demandMatches.map((demand) => (
-                    <li key={demand.id}>
-                      <button
-                        type="button"
-                        onClick={() => goTo(`/demands/${demand.id}`)}
-                        className="flex w-full items-center gap-3 rounded-sm px-3 py-2 text-left text-sm text-ink hover:bg-surface"
-                      >
-                        {demand.title}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="px-3 py-2 text-sm text-muted">Nenhuma demanda encontrada.</p>
-              )}
-            </div>
-          )}
+          <ul>
+            {allResults.map((item) => (
+              <li key={item.key}>
+                <button
+                  type="button"
+                  onClick={() => handleSelectResult(item)}
+                  className="flex w-full items-center justify-between px-3 py-2 text-left text-sm text-ink hover:bg-surface"
+                >
+                  <span>{item.label}</span>
+                  <span className="text-xs text-muted">{TYPE_LABELS[item.type]}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
