@@ -91,7 +91,7 @@ export function CategoryGrid(): JSX.Element {
           interactive
           className="relative flex h-36 flex-col items-center justify-center gap-2 overflow-hidden bg-primary p-4 text-center text-bg"
         >
-          <Link to="/search" className="absolute inset-0" aria-label="Ver mais categorias" />
+          <Link to="/search?view=categories" className="absolute inset-0" aria-label="Ver mais categorias" />
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-bg/20 text-bg">
             <ArrowRight size={20} aria-hidden="true" />
           </span>

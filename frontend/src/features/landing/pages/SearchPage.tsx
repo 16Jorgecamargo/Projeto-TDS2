@@ -4,6 +4,7 @@ import { PageHeader } from '../components/PageHeader';
 import { SearchToolbar, type SortOption } from '../components/SearchToolbar';
 import { FilterBar } from '../components/FilterBar';
 import { ProfessionalResults } from '../components/ProfessionalResults';
+import { AllCategoriesGrid } from '../components/AllCategoriesGrid';
 import { Drawer } from '../../../components/ui/Drawer';
 import { useSearchProfessionals } from '../queries';
 import type { SearchForm } from '../schemas';
@@ -25,6 +26,7 @@ export default function SearchPage(): JSX.Element {
   const sort = (searchParams.get('sort') as SortOption | null) ?? 'rating';
   const onlyAvailable = searchParams.get('onlyAvailable') === 'true';
   const page = Number(searchParams.get('page') ?? '1');
+  const showAllCategories = searchParams.get('view') === 'categories' && !filters.categoryId;
 
   function updateParams(next: Partial<Record<UrlKey, string | undefined>>, resetPage = true) {
     const params = new URLSearchParams(searchParams);
@@ -47,6 +49,15 @@ export default function SearchPage(): JSX.Element {
 
   const params = { ...filters, page, limit: DEFAULT_LIMIT };
   const { data } = useSearchProfessionals(params);
+
+  if (showAllCategories) {
+    return (
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 p-6">
+        <PageHeader title="Todas as categorias" />
+        <AllCategoriesGrid />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 p-6">
