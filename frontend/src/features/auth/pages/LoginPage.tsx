@@ -42,7 +42,12 @@ export default function LoginPage(): JSX.Element {
           {...register('email')}
           error={errors.email?.message}
         />
-        <div className="relative">
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-end">
+            <Link to="/forgot-password" className="text-sm text-primary underline">
+              Esqueci a senha
+            </Link>
+          </div>
           <AuthField
             label="Senha"
             type={showPassword ? 'text' : 'password'}
@@ -60,9 +65,6 @@ export default function LoginPage(): JSX.Element {
             {...register('password')}
             error={errors.password?.message}
           />
-          <Link to="/forgot-password" className="absolute right-0 top-0 text-sm text-primary underline">
-            Esqueci a senha
-          </Link>
         </div>
         <Button type="submit" disabled={login.isPending} className="w-full">
           {login.isPending ? 'Entrando...' : 'Entrar'}
