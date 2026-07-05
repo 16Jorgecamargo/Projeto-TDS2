@@ -20,10 +20,12 @@ export function AuthLayout({ title, description, children }: AuthLayoutProps): J
         <ArrowLeft size={16} aria-hidden="true" />
         Voltar
       </Link>
-      <div className="hidden flex-col justify-center gap-2 bg-primary px-8 py-6 text-bg md:flex lg:w-1/2 lg:gap-4 lg:px-16 lg:py-10">
-        <span className="text-h4 font-semibold lg:text-h3">Projeto TDS</span>
-        <h1 className="text-h4 font-semibold lg:text-h2">{title}</h1>
-        {description ? <p className="hidden text-body-md text-bg/80 lg:block">{description}</p> : null}
+      <div className="hidden flex-col justify-center bg-primary px-8 py-6 text-bg md:flex lg:w-1/2 lg:px-16 lg:py-10">
+        <div className="flex max-w-md flex-col gap-2 lg:gap-4">
+          <span className="text-h4 font-semibold lg:text-h3">Projeto TDS</span>
+          <h1 className="text-h4 font-semibold lg:text-h2">{title}</h1>
+          {description ? <p className="hidden text-body-md text-bg/80 lg:block">{description}</p> : null}
+        </div>
       </div>
       <div className="flex flex-1 items-center justify-center px-6 py-10">
         <motion.div
