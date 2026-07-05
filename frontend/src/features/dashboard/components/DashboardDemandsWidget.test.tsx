@@ -31,7 +31,7 @@ describe('DashboardDemandsWidget', () => {
     expect(screen.queryByText('Concluída')).not.toBeInTheDocument();
   });
 
-  it('mostra estado vazio com CTA quando nao ha demandas abertas', () => {
+  it('mostra estado vazio quando nao ha demandas abertas', () => {
     vi.mocked(useDemands).mockReturnValue({
       data: { items: [], page: 1, limit: 20, total: 0 },
       isPending: false,
@@ -40,6 +40,6 @@ describe('DashboardDemandsWidget', () => {
     renderWithProviders(<DashboardDemandsWidget />);
 
     expect(screen.getByText('Nenhuma demanda aberta')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Publicar demanda' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Publicar demanda' })).not.toBeInTheDocument();
   });
 });

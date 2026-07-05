@@ -8,9 +8,6 @@ vi.mock('../components/DashboardDemandsWidget', () => ({ DashboardDemandsWidget:
 vi.mock('../components/DashboardContractsWidget', () => ({ DashboardContractsWidget: () => <div>contracts-widget</div> }));
 vi.mock('../components/DashboardScheduleWidget', () => ({ DashboardScheduleWidget: () => <div>schedule-widget</div> }));
 vi.mock('../components/DashboardFavoritesWidget', () => ({ DashboardFavoritesWidget: () => <div>favorites-widget</div> }));
-vi.mock('../components/DashboardNotificationsWidget', () => ({
-  DashboardNotificationsWidget: () => <div>notifications-widget</div>,
-}));
 vi.mock('../../chat/components/FloatingChatWidget', () => ({ FloatingChatWidget: () => <div>floating-chat</div> }));
 
 describe('ClientDashboardPage', () => {
@@ -23,7 +20,6 @@ describe('ClientDashboardPage', () => {
     expect(screen.getByText('contracts-widget')).toBeInTheDocument();
     expect(screen.getByText('schedule-widget')).toBeInTheDocument();
     expect(screen.getByText('favorites-widget')).toBeInTheDocument();
-    expect(screen.getByText('notifications-widget')).toBeInTheDocument();
     expect(screen.getByText('floating-chat')).toBeInTheDocument();
   });
 });

@@ -4,7 +4,6 @@ import { DashboardDemandsWidget } from '../components/DashboardDemandsWidget';
 import { DashboardContractsWidget } from '../components/DashboardContractsWidget';
 import { DashboardScheduleWidget } from '../components/DashboardScheduleWidget';
 import { DashboardFavoritesWidget } from '../components/DashboardFavoritesWidget';
-import { DashboardNotificationsWidget } from '../components/DashboardNotificationsWidget';
 import { FloatingChatWidget } from '../../chat/components/FloatingChatWidget';
 
 export function ClientDashboardPage(): JSX.Element {
@@ -19,7 +18,6 @@ export function ClientDashboardPage(): JSX.Element {
         <DashboardContractsWidget />
         <DashboardScheduleWidget />
         <DashboardFavoritesWidget />
-        <DashboardNotificationsWidget />
       </div>
       <FloatingChatWidget />
     </div>
