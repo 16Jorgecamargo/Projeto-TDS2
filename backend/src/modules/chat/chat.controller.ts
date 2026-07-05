@@ -10,6 +10,11 @@ export class ChatController {
     return reply.status(201).send(result);
   };
 
+  listRooms = async (req: FastifyRequest, reply: FastifyReply) => {
+    const result = await this.service.listRoomsForUser(req.user.id);
+    return reply.send(result);
+  };
+
   listMessages = async (
     req: FastifyRequest<{ Params: { id: string }; Querystring: { page: number; limit: number } }>,
     reply: FastifyReply,

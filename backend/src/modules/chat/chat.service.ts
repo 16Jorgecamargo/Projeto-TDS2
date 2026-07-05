@@ -1,10 +1,10 @@
-import type { Repository } from 'typeorm';
+import { type Repository } from 'typeorm';
 import type { ChatRoom } from '../../infra/database/entities/chat-room.entity.js';
 import type { Message } from '../../infra/database/entities/message.entity.js';
 import { ForbiddenError, NotFoundError } from '../../shared/errors.js';
 import type { SocialService } from '../social/social.service.js';
 import type { EnqueueNotification } from '../notification/notification.service.js';
-import type { ChatRoomResponse, MessageResponse } from './chat.schemas.js';
+import type { ChatRoomListItem, ChatRoomResponse, MessageResponse } from './chat.schemas.js';
 
 interface ChatServiceDeps {
   rooms: Repository<ChatRoom>;
@@ -39,6 +39,26 @@ export class ChatService {
     if (room.client_id !== userId && room.professional_id !== userId) {
       throw new ForbiddenError('Usuario nao participa da sala');
     }
+  }
+
+  async listRoomsForUser(userId: string): Promise<ChatRoomListItem[]> {
+    const rows = await this.deps.rooms.find({
+      where: [{ client_id: userId }, { professional_id: userId }],
+      relations: ['client', 'professional'],
+      order: { last_message_at: 'DESC' },
+    });
+
+    return rows.map((room) => {
+      const isClient = room.client_id === userId;
+      const otherUser = isClient ? room.professional : room.client;
+      return {
+        id: room.id,
+        contractId: room.contract_id,
+        otherUserId: otherUser.id,
+        otherUserName: otherUser.full_name,
+        lastMessageAt: room.last_message_at ? room.last_message_at.toISOString() : null,
+      };
+    });
   }
 
   async getOrCreateRoom(userA: string, userB: string, contractId?: string | null): Promise<ChatRoomResponse> {

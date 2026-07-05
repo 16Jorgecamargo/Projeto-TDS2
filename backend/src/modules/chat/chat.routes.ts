@@ -10,7 +10,12 @@ import { SocialService, type RecordAudit } from '../social/social.service.js';
 import { buildEnqueueNotification } from '../notification/notification.service.js';
 import { notificationQueue } from '../notification/notification.queue.js';
 import { idParamSchema, paginationQuerySchema } from '../../shared/schemas.js';
-import { createRoomBodySchema, chatRoomResponseSchema, messageListResponseSchema } from './chat.schemas.js';
+import {
+  createRoomBodySchema,
+  chatRoomResponseSchema,
+  chatRoomListSchema,
+  messageListResponseSchema,
+} from './chat.schemas.js';
 
 const recordAudit: RecordAudit = async () => undefined;
 
@@ -42,6 +47,16 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
       response: { 201: chatRoomResponseSchema },
     },
     handler: controller.createRoom,
+  });
+
+  app.get('/chat/rooms', {
+    onRequest: [app.authenticate],
+    schema: {
+      tags: ['chat'],
+      summary: 'Listar salas de chat do usuario autenticado',
+      response: { 200: chatRoomListSchema },
+    },
+    handler: controller.listRooms,
   });
 
   app.get('/chat/rooms/:id/messages', {

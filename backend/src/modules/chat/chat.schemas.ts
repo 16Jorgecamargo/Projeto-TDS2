@@ -32,6 +32,25 @@ export const chatRoomResponseSchema = z.object({
   contractId: z.string().uuid().nullable().describe('Contrato').openapi({ example: null }),
 });
 
+export const chatRoomListItemSchema = z.object({
+  id: z.string().uuid().describe('ID da sala').openapi({ example: 'r1b2c3d4-0000-4000-8000-000000000020' }),
+  contractId: z.string().uuid().nullable().describe('Contrato').openapi({ example: null }),
+  otherUserId: z
+    .string()
+    .uuid()
+    .describe('ID do outro participante')
+    .openapi({ example: 'c1b2c3d4-0000-4000-8000-000000000003' }),
+  otherUserName: z.string().describe('Nome do outro participante').openapi({ example: 'Ana Souza' }),
+  lastMessageAt: z
+    .string()
+    .datetime()
+    .nullable()
+    .describe('Ultima mensagem')
+    .openapi({ example: '2026-07-01T12:00:00.000Z' }),
+});
+
+export const chatRoomListSchema = z.array(chatRoomListItemSchema);
+
 export const messageResponseSchema = z.object({
   id: z.string().uuid().describe('ID da mensagem').openapi({ example: 'm1b2c3d4-0000-4000-8000-000000000021' }),
   roomId: z.string().uuid().describe('Sala').openapi({ example: 'r1b2c3d4-0000-4000-8000-000000000020' }),
@@ -47,5 +66,6 @@ export const sendMessageSocketSchema = z.object({
 
 export type CreateRoomBody = z.infer<typeof createRoomBodySchema>;
 export type ChatRoomResponse = z.infer<typeof chatRoomResponseSchema>;
+export type ChatRoomListItem = z.infer<typeof chatRoomListItemSchema>;
 export type MessageResponse = z.infer<typeof messageResponseSchema>;
 export const messageListResponseSchema = paginatedResponse(messageResponseSchema);

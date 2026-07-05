@@ -54,6 +54,39 @@ describe('ChatService', () => {
     });
   });
 
+  describe('listRoomsForUser', () => {
+    it('retorna salas do usuario com nome do outro participante e ordenadas por ultima mensagem', async () => {
+      deps.rooms.find.mockResolvedValueOnce([
+        {
+          id: 'room-1',
+          client_id: 'aaa',
+          professional_id: 'zzz',
+          contract_id: null,
+          last_message_at: new Date('2026-07-01T12:00:00.000Z'),
+          client: { id: 'aaa', full_name: 'Ana Cliente' },
+          professional: { id: 'zzz', full_name: 'Zeca Profissional' },
+        },
+      ]);
+
+      const rooms = await deps.service.listRoomsForUser('aaa');
+
+      expect(rooms).toEqual([
+        {
+          id: 'room-1',
+          contractId: null,
+          otherUserId: 'zzz',
+          otherUserName: 'Zeca Profissional',
+          lastMessageAt: '2026-07-01T12:00:00.000Z',
+        },
+      ]);
+      expect(deps.rooms.find).toHaveBeenCalledWith({
+        where: [{ client_id: 'aaa' }, { professional_id: 'aaa' }],
+        relations: ['client', 'professional'],
+        order: { last_message_at: 'DESC' },
+      });
+    });
+  });
+
   describe('listMessages', () => {
     it('lanca NotFound para sala inexistente', async () => {
       await expect(deps.service.listMessages('nope', 'aaa', 1, 20)).rejects.toBeInstanceOf(NotFoundError);
