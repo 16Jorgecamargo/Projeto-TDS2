@@ -8,6 +8,8 @@ import type { DemandImage } from '../../infra/database/entities/demand-image.ent
 import type { DemandTag } from '../../infra/database/entities/demand-tag.entity.js';
 import type { DemandInvitation } from '../../infra/database/entities/demand-invitation.entity.js';
 import type { Contract } from '../../infra/database/entities/contract.entity.js';
+import type { Quote } from '../../infra/database/entities/quote.entity.js';
+import type { QuoteItem } from '../../infra/database/entities/quote-item.entity.js';
 
 describe('DemandService', () => {
   let demands: ReturnType<typeof mockRepo<ServiceDemand>>;
@@ -15,6 +17,8 @@ describe('DemandService', () => {
   let tags: ReturnType<typeof mockRepo<DemandTag>>;
   let invitations: ReturnType<typeof mockRepo<DemandInvitation>>;
   let contracts: ReturnType<typeof mockRepo<Contract>>;
+  let quotes: ReturnType<typeof mockRepo<Quote>>;
+  let quoteItems: ReturnType<typeof mockRepo<QuoteItem>>;
   let service: DemandService;
 
   beforeEach(() => {
@@ -23,12 +27,16 @@ describe('DemandService', () => {
     tags = mockRepo<DemandTag>();
     invitations = mockRepo<DemandInvitation>();
     contracts = mockRepo<Contract>();
+    quotes = mockRepo<Quote>();
+    quoteItems = mockRepo<QuoteItem>();
     service = new DemandService({
       demands: demands as unknown as Repository<ServiceDemand>,
       images: images as unknown as Repository<DemandImage>,
       tags: tags as unknown as Repository<DemandTag>,
       invitations: invitations as unknown as Repository<DemandInvitation>,
       contracts: contracts as unknown as Repository<Contract>,
+      quotes: quotes as unknown as Repository<Quote>,
+      quoteItems: quoteItems as unknown as Repository<QuoteItem>,
     });
   });
 
@@ -102,6 +110,7 @@ describe('DemandService', () => {
         ],
         1,
       ]);
+      quotes.createQueryBuilder().getRawMany.mockResolvedValueOnce([{ demandId: 'demand-1', count: '3' }]);
 
       const result = await service.list(
         { status: 'open', categoryId: 'cat-1', mine: true, page: 1, limit: 10 },
@@ -110,6 +119,7 @@ describe('DemandService', () => {
 
       expect(result.total).toBe(1);
       expect(result.items).toHaveLength(1);
+      expect(result.items[0]?.quotesCount).toBe(3);
       expect(demands.findAndCount).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { status: 'open', category_id: 'cat-1', client_id: 'client-1' },
@@ -433,6 +443,41 @@ describe('DemandService', () => {
       expect(result).toHaveLength(2);
       expect(result[0]?.professionalId).toBe('pro-1');
       expect(result[1]?.status).toBe('accepted');
+    });
+  });
+
+  describe('remove', () => {
+    it('lanca NotFoundError quando demanda nao existe', async () => {
+      demands.findOne.mockResolvedValueOnce(null);
+      await expect(service.remove('demand-x', 'client-1')).rejects.toBeInstanceOf(NotFoundError);
+    });
+
+    it('lanca ForbiddenError quando nao e o autor', async () => {
+      demands.findOne.mockResolvedValueOnce({ id: 'demand-1', client_id: 'client-1' } as ServiceDemand);
+      await expect(service.remove('demand-1', 'client-2')).rejects.toBeInstanceOf(ForbiddenError);
+      expect(demands.delete).not.toHaveBeenCalled();
+    });
+
+    it('lanca ConflictError quando ha contrato para a demanda', async () => {
+      demands.findOne.mockResolvedValueOnce({ id: 'demand-1', client_id: 'client-1' } as ServiceDemand);
+      contracts.findOne.mockResolvedValueOnce({ id: 'contract-1' } as Contract);
+      await expect(service.remove('demand-1', 'client-1')).rejects.toBeInstanceOf(ConflictError);
+      expect(demands.delete).not.toHaveBeenCalled();
+    });
+
+    it('remove demanda e associacoes quando sem contrato', async () => {
+      demands.findOne.mockResolvedValueOnce({ id: 'demand-1', client_id: 'client-1' } as ServiceDemand);
+      contracts.findOne.mockResolvedValueOnce(null);
+      quotes.find.mockResolvedValueOnce([{ id: 'quote-1' } as Quote]);
+
+      await service.remove('demand-1', 'client-1');
+
+      expect(quoteItems.delete).toHaveBeenCalledWith({ quote_id: expect.anything() });
+      expect(quotes.delete).toHaveBeenCalledWith({ id: expect.anything() });
+      expect(invitations.delete).toHaveBeenCalledWith({ demand_id: 'demand-1' });
+      expect(images.delete).toHaveBeenCalledWith({ demand_id: 'demand-1' });
+      expect(tags.delete).toHaveBeenCalledWith({ demand_id: 'demand-1' });
+      expect(demands.delete).toHaveBeenCalledWith({ id: 'demand-1' });
     });
   });
 });

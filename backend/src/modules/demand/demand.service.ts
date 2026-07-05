@@ -4,6 +4,8 @@ import type { DemandImage } from '../../infra/database/entities/demand-image.ent
 import type { DemandTag } from '../../infra/database/entities/demand-tag.entity.js';
 import type { DemandInvitation } from '../../infra/database/entities/demand-invitation.entity.js';
 import type { Contract } from '../../infra/database/entities/contract.entity.js';
+import type { Quote } from '../../infra/database/entities/quote.entity.js';
+import type { QuoteItem } from '../../infra/database/entities/quote-item.entity.js';
 import { NotFoundError, ForbiddenError, ConflictError } from '../../shared/errors.js';
 import { businessMetrics } from '../../observability/metrics.js';
 import type {
@@ -25,6 +27,8 @@ interface DemandServiceDeps {
   tags: Repository<DemandTag>;
   invitations: Repository<DemandInvitation>;
   contracts: Repository<Contract>;
+  quotes: Repository<Quote>;
+  quoteItems: Repository<QuoteItem>;
 }
 
 export class DemandService {
@@ -44,6 +48,7 @@ export class DemandService {
     demand: ServiceDemand,
     images: DemandImage[],
     tagIds: string[],
+    quotesCount: number,
     actor?: DemandActor,
   ): Promise<DemandResponse> {
     const revealAddress = await this.canRevealFullAddress(demand, actor);
@@ -67,8 +72,25 @@ export class DemandService {
         .sort((a, b) => a.position - b.position)
         .map((i) => ({ url: i.image_url, position: i.position })),
       tagIds,
+      quotesCount,
       createdAt: demand.created_at.toISOString(),
     };
+  }
+
+  private async countQuotes(demandId: string): Promise<number> {
+    return this.deps.quotes.count({ where: { demand_id: demandId } });
+  }
+
+  private async countQuotesByDemand(demandIds: string[]): Promise<Map<string, number>> {
+    if (demandIds.length === 0) return new Map();
+    const rows = await this.deps.quotes
+      .createQueryBuilder('quote')
+      .select('quote.demand_id', 'demandId')
+      .addSelect('COUNT(*)', 'count')
+      .where('quote.demand_id IN (:...demandIds)', { demandIds })
+      .groupBy('quote.demand_id')
+      .getRawMany<{ demandId: string; count: string }>();
+    return new Map(rows.map((row) => [row.demandId, Number(row.count)]));
   }
 
   private async loadAssociations(demandId: string): Promise<{ images: DemandImage[]; tagIds: string[] }> {
@@ -109,7 +131,7 @@ export class DemandService {
       ),
     );
     businessMetrics.demandsCreated.inc();
-    return this.toResponse(demand, images, input.tagIds, { userId: clientId, professionalId: null });
+    return this.toResponse(demand, images, input.tagIds, 0, { userId: clientId, professionalId: null });
   }
 
   async list(query: DemandListQuery, actor: DemandActor): Promise<{ items: DemandResponse[]; total: number }> {
@@ -123,10 +145,11 @@ export class DemandService {
       skip: (query.page - 1) * query.limit,
       take: query.limit,
     });
+    const quotesByDemand = await this.countQuotesByDemand(rows.map((d) => d.id));
     const items = await Promise.all(
       rows.map(async (d) => {
         const { images, tagIds } = await this.loadAssociations(d.id);
-        return this.toResponse(d, images, tagIds, actor);
+        return this.toResponse(d, images, tagIds, quotesByDemand.get(d.id) ?? 0, actor);
       }),
     );
     return { items, total };
@@ -136,7 +159,8 @@ export class DemandService {
     const demand = await this.deps.demands.findOne({ where: { id } });
     if (!demand) throw new NotFoundError('Demanda nao encontrada');
     const { images, tagIds } = await this.loadAssociations(id);
-    return this.toResponse(demand, images, tagIds, actor);
+    const quotesCount = await this.countQuotes(id);
+    return this.toResponse(demand, images, tagIds, quotesCount, actor);
   }
 
   async update(id: string, clientId: string, input: UpdateDemandInput): Promise<DemandResponse> {
@@ -157,7 +181,8 @@ export class DemandService {
     if (input.zipCode !== undefined) demand.zip_code = input.zipCode;
     const saved = await this.deps.demands.save(demand);
     const { images, tagIds } = await this.loadAssociations(id);
-    return this.toResponse(saved, images, tagIds, { userId: clientId, professionalId: null });
+    const quotesCount = await this.countQuotes(id);
+    return this.toResponse(saved, images, tagIds, quotesCount, { userId: clientId, professionalId: null });
   }
 
   async cancel(id: string, clientId: string): Promise<DemandResponse> {
@@ -167,7 +192,25 @@ export class DemandService {
     demand.status = 'cancelled';
     const saved = await this.deps.demands.save(demand);
     const { images, tagIds } = await this.loadAssociations(id);
-    return this.toResponse(saved, images, tagIds, { userId: clientId, professionalId: null });
+    const quotesCount = await this.countQuotes(id);
+    return this.toResponse(saved, images, tagIds, quotesCount, { userId: clientId, professionalId: null });
+  }
+
+  async remove(id: string, clientId: string): Promise<void> {
+    const demand = await this.deps.demands.findOne({ where: { id } });
+    if (!demand) throw new NotFoundError('Demanda nao encontrada');
+    if (demand.client_id !== clientId) throw new ForbiddenError('Nao e o autor da demanda');
+    const contract = await this.deps.contracts.findOne({ where: { demand_id: id } });
+    if (contract) throw new ConflictError('Demanda possui contrato e nao pode ser excluida');
+    const quotes = await this.deps.quotes.find({ where: { demand_id: id } });
+    if (quotes.length > 0) {
+      await this.deps.quoteItems.delete({ quote_id: In(quotes.map((q) => q.id)) });
+      await this.deps.quotes.delete({ id: In(quotes.map((q) => q.id)) });
+    }
+    await this.deps.invitations.delete({ demand_id: id });
+    await this.deps.images.delete({ demand_id: id });
+    await this.deps.tags.delete({ demand_id: id });
+    await this.deps.demands.delete({ id });
   }
 
   private invitationToResponse(inv: DemandInvitation): DemandInvitationResponse {

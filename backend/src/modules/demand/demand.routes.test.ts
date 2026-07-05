@@ -233,4 +233,38 @@ describe('demand routes', () => {
     expect(view.json().state).toBe('RS');
     expect(view.json().street).toBeNull();
   });
+
+  it('autor exclui a propria demanda', async () => {
+    const categoryId = await createCategory(app);
+    const { headers } = await registerUser(app, 'client');
+    const create = await app.inject({
+      method: 'POST',
+      url: '/api/demands',
+      headers,
+      payload: demandPayload(categoryId),
+    });
+    const demandId = create.json().id;
+
+    const remove = await app.inject({ method: 'DELETE', url: `/api/demands/${demandId}`, headers });
+    expect(remove.statusCode).toBe(204);
+
+    const detail = await app.inject({ method: 'GET', url: `/api/demands/${demandId}`, headers });
+    expect(detail.statusCode).toBe(404);
+  });
+
+  it('nao autor nao pode excluir demanda de outro cliente', async () => {
+    const categoryId = await createCategory(app);
+    const { headers } = await registerUser(app, 'client');
+    const create = await app.inject({
+      method: 'POST',
+      url: '/api/demands',
+      headers,
+      payload: demandPayload(categoryId),
+    });
+    const demandId = create.json().id;
+
+    const { headers: otherHeaders } = await registerUser(app, 'client');
+    const remove = await app.inject({ method: 'DELETE', url: `/api/demands/${demandId}`, headers: otherHeaders });
+    expect(remove.statusCode).toBe(403);
+  });
 });

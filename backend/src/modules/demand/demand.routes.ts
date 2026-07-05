@@ -8,6 +8,8 @@ import { DemandImage } from '../../infra/database/entities/demand-image.entity.j
 import { DemandTag } from '../../infra/database/entities/demand-tag.entity.js';
 import { DemandInvitation } from '../../infra/database/entities/demand-invitation.entity.js';
 import { Contract } from '../../infra/database/entities/contract.entity.js';
+import { Quote } from '../../infra/database/entities/quote.entity.js';
+import { QuoteItem } from '../../infra/database/entities/quote-item.entity.js';
 import { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
 import { emptyBodySchema, idParamSchema } from '../../shared/schemas.js';
 import { requireRole } from '../../plugins/auth.js';
@@ -28,6 +30,8 @@ export async function demandRoutes(app: FastifyInstance): Promise<void> {
     tags: app.dataSource.getRepository(DemandTag),
     invitations: app.dataSource.getRepository(DemandInvitation),
     contracts: app.dataSource.getRepository(Contract),
+    quotes: app.dataSource.getRepository(Quote),
+    quoteItems: app.dataSource.getRepository(QuoteItem),
   });
   const controller = new DemandController(service, app.dataSource.getRepository(ProfessionalProfile));
 
@@ -86,6 +90,17 @@ export async function demandRoutes(app: FastifyInstance): Promise<void> {
       response: { 200: demandResponseSchema },
     },
     handler: controller.cancel,
+  });
+
+  app.delete('/demands/:id', {
+    onRequest: [app.authenticate, requireRole('client')],
+    schema: {
+      tags: ['demands'],
+      summary: 'Excluir demanda',
+      params: idParamSchema,
+      response: { 204: z.void() },
+    },
+    handler: controller.remove,
   });
 
   app.post('/demands/:id/invitations', {

@@ -154,6 +154,12 @@ export const demandResponseSchema = z.object({
   zipCode: z.string().nullable().describe('CEP').openapi({ example: null }),
   images: z.array(demandImageSchema).describe('Imagens').openapi({ example: [] }),
   tagIds: z.array(z.string().uuid()).describe('Tags').openapi({ example: [] }),
+  quotesCount: z
+    .number()
+    .int()
+    .nonnegative()
+    .describe('Quantidade de orçamentos recebidos')
+    .openapi({ example: 2 }),
   createdAt: z
     .string()
     .datetime()

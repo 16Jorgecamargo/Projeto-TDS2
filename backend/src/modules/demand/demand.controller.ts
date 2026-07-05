@@ -36,6 +36,11 @@ export class DemandController {
   cancel = async (req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) =>
     reply.send(await this.service.cancel(req.params.id, req.user!.id));
 
+  remove = async (req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    await this.service.remove(req.params.id, req.user!.id);
+    return reply.status(204).send();
+  };
+
   invite = async (req: FastifyRequest<{ Params: { id: string }; Body: InviteProfessionalInput }>, reply: FastifyReply) =>
     reply.status(201).send(await this.service.invite(req.params.id, req.user!.id, req.body.professionalId));
 

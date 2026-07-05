@@ -4,7 +4,8 @@ import { renderWithProviders } from '../../../test/renderWithProviders';
 import DemandListPage from './DemandListPage';
 import { useDemands } from '../queries';
 
-vi.mock('../queries', () => ({ useDemands: vi.fn() }));
+vi.mock('../queries', () => ({ useDemands: vi.fn(), useDeleteDemand: vi.fn(() => ({ mutate: vi.fn(), isPending: false })) }));
+vi.mock('../../professional/queries', () => ({ useCategories: vi.fn(() => ({ data: [] })) }));
 
 describe('DemandListPage', () => {
   it('mostra estado vazio com CTA quando nao ha demandas', () => {
@@ -19,7 +20,7 @@ describe('DemandListPage', () => {
   it('lista as demandas retornadas', () => {
     vi.mocked(useDemands).mockReturnValue({
       data: {
-        items: [{ id: 'd1', title: 'Pintar sala', budgetMin: 100, budgetMax: 200, status: 'open', clientId: '', categoryId: '', description: '', addressId: null, images: [], tagIds: [], createdAt: '' }],
+        items: [{ id: 'd1', title: 'Pintar sala', budgetMin: 100, budgetMax: 200, status: 'open', clientId: '', categoryId: '', description: '', images: [], tagIds: [], quotesCount: 0, createdAt: new Date().toISOString() }],
         page: 1,
         limit: 20,
         total: 1,

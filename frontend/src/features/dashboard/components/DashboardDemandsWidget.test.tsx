@@ -4,7 +4,20 @@ import { renderWithProviders } from '../../../test/renderWithProviders';
 import { DashboardDemandsWidget } from './DashboardDemandsWidget';
 import { useDemands } from '../../demands/queries';
 
-vi.mock('../../demands/queries', () => ({ useDemands: vi.fn() }));
+vi.mock('../../demands/queries', () => ({ useDemands: vi.fn(), useDeleteDemand: vi.fn(() => ({ mutate: vi.fn(), isPending: false })) }));
+vi.mock('../../professional/queries', () => ({ useCategories: vi.fn(() => ({ data: [] })) }));
+
+const baseDemand = {
+  clientId: '',
+  categoryId: '',
+  description: '',
+  budgetMin: null,
+  budgetMax: null,
+  images: [],
+  tagIds: [],
+  quotesCount: 0,
+  createdAt: new Date().toISOString(),
+};
 
 describe('DashboardDemandsWidget', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -13,9 +26,9 @@ describe('DashboardDemandsWidget', () => {
     vi.mocked(useDemands).mockReturnValue({
       data: {
         items: [
-          { id: 'd1', title: 'Pintar sala', status: 'open' },
-          { id: 'd2', title: 'Trocar torneira', status: 'in_progress' },
-          { id: 'd3', title: 'Concluída', status: 'closed' },
+          { ...baseDemand, id: 'd1', title: 'Pintar sala', status: 'open' },
+          { ...baseDemand, id: 'd2', title: 'Trocar torneira', status: 'in_progress' },
+          { ...baseDemand, id: 'd3', title: 'Concluída', status: 'closed' },
         ],
         page: 1,
         limit: 20,

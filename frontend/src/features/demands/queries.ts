@@ -3,6 +3,7 @@ import {
   fetchDemands,
   fetchDemand,
   publishDemand,
+  deleteDemand,
   fetchDemandQuotes,
   acceptQuote,
   inviteProfessional,
@@ -33,6 +34,14 @@ export function usePublishDemand() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (input: { values: DemandFormValues; images: string[] }) => publishDemand(input.values, input.images),
+    onSuccess: () => client.invalidateQueries({ queryKey: demandKeys.all }),
+  });
+}
+
+export function useDeleteDemand() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteDemand(id),
     onSuccess: () => client.invalidateQueries({ queryKey: demandKeys.all }),
   });
 }

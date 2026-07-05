@@ -22,6 +22,15 @@ export function formatDate(value: string | Date): string {
   return dateFormatter.format(date);
 }
 
+export function formatRelativeDays(value: string | Date): string {
+  const date = value instanceof Date ? value : new Date(value);
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const diffDays = Math.round((startOfDay(new Date()) - startOfDay(date)) / (1000 * 60 * 60 * 24));
+  if (diffDays <= 0) return 'Hoje';
+  if (diffDays === 1) return 'Ontem';
+  return `${diffDays} dias`;
+}
+
 export function formatShortName(fullName: string): string {
   const [firstName, ...rest] = fullName.trim().split(/\s+/);
   const lastName = rest[rest.length - 1];

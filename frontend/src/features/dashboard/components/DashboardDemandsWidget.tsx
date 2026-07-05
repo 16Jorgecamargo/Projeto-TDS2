@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDemands } from '../../demands/queries';
+import { DemandCard } from '../../demands/components/DemandCard';
 import { Card } from '../../../components/ui/Card';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
@@ -8,6 +9,7 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 const OPEN_STATUSES = new Set(['open', 'in_progress']);
 
 export function DashboardDemandsWidget(): JSX.Element {
+  const navigate = useNavigate();
   const { data, isPending } = useDemands(true);
   const items = (data?.items ?? []).filter((demand) => OPEN_STATUSES.has(demand.status)).slice(0, 3);
 
@@ -21,15 +23,11 @@ export function DashboardDemandsWidget(): JSX.Element {
           <EmptyState title="Nenhuma demanda aberta" />
         </div>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2">
           {items.map((demand) => (
-            <li key={demand.id}>
-              <Link to={`/demands/${demand.id}`} className="text-sm font-medium text-ink hover:text-primary">
-                {demand.title}
-              </Link>
-            </li>
+            <DemandCard key={demand.id} demand={demand} onOpen={(id) => navigate(`/demands/${id}`)} />
           ))}
-        </ul>
+        </div>
       )}
       <Link to="/demands" className="mt-3 inline-block text-sm font-semibold text-primary">
         Ver todas demandas

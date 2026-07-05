@@ -26,6 +26,7 @@ export interface Demand {
   zipCode: string | null;
   images: DemandImage[];
   tagIds: string[];
+  quotesCount: number;
   createdAt: string;
 }
 
@@ -103,6 +104,10 @@ export async function publishDemand(values: DemandFormValues, images: string[] =
     images: images.map((url, position) => ({ url, position })),
   });
   return data;
+}
+
+export async function deleteDemand(id: string): Promise<void> {
+  await http.delete(`/demands/${id}`);
 }
 
 export async function fetchDemandQuotes(demandId: string): Promise<Quote[]> {
