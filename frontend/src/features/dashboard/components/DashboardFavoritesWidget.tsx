@@ -16,10 +16,13 @@ function FavoriteProfessionalPreview({ professionalId }: { professionalId: strin
   const serviceArea = data.serviceAreas[0];
 
   return (
-    <Link to={`/professionals/${professionalId}`} className="flex items-center gap-3">
-      <Avatar name={data.headline} size="sm" />
-      <div className="flex min-w-0 flex-col">
-        <span className="truncate text-sm font-medium text-ink">{data.headline}</span>
+    <Link
+      to={`/professionals/${professionalId}`}
+      className="flex items-center gap-3 rounded-lg bg-surface p-4 hover:shadow-hover"
+    >
+      <Avatar name={data.headline} size="md" />
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="truncate text-sm font-semibold text-ink">{data.headline}</span>
         <span className="truncate text-xs text-muted">
           {[category, serviceArea && `${serviceArea.city}, ${serviceArea.state}`].filter(Boolean).join(' · ')}
         </span>
