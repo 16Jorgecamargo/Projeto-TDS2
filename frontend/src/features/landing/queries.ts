@@ -11,7 +11,7 @@ export function useSearchProfessionals(params: SearchParams, options?: { enabled
 
 export function useFeaturedProfessionals(limit = 3) {
   return useQuery({
-    queryKey: ['landing', 'search', { limit: 12 }],
+    queryKey: ['landing', 'featured', limit],
     queryFn: () => landingApi.searchProfessionals({ limit: 12 }),
     select: (data): SearchResultItem[] =>
       [...data.items].sort((a, b) => b.ratingAverage - a.ratingAverage).slice(0, limit),
@@ -20,7 +20,7 @@ export function useFeaturedProfessionals(limit = 3) {
 
 export function useTotalProfessionalsCount() {
   return useQuery({
-    queryKey: ['landing', 'search', { limit: 1 }],
+    queryKey: ['landing', 'total-count'],
     queryFn: () => landingApi.searchProfessionals({ limit: 1 }),
     select: (data): number => data.total,
   });
