@@ -1,16 +1,21 @@
 import type { JSX } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { loginSchema, type LoginForm } from '../schemas';
 import { useLogin } from '../queries';
 import { AuthField } from '../components/AuthField';
-import { Card } from '../../../components/ui/Card';
+import { AuthLayout } from '../components/AuthLayout';
 import { Button } from '../../../components/ui/Button';
+import { useToast } from '../../../components/ui/Toast';
 
 export default function LoginPage(): JSX.Element {
   const navigate = useNavigate();
   const login = useLogin();
+  const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -18,27 +23,57 @@ export default function LoginPage(): JSX.Element {
   } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
 
   const onSubmit = handleSubmit(async (values) => {
-    await login.mutateAsync(values);
-    navigate('/');
+    try {
+      await login.mutateAsync(values);
+      navigate('/');
+    } catch {
+      toast('Credenciais invalidas', { tone: 'error' });
+    }
   });
 
   return (
-    <div className="mx-auto max-w-sm p-6">
-      <Card>
-        <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
-          <h1 className="text-xl font-semibold text-ink">Entrar</h1>
-          <AuthField label="E-mail" type="email" {...register('email')} error={errors.email?.message} />
-          <AuthField label="Senha" type="password" {...register('password')} error={errors.password?.message} />
-          {login.isError ? <p className="text-sm text-accent">Credenciais invalidas</p> : null}
-          <Button type="submit" disabled={login.isPending}>
-            {login.isPending ? 'Entrando...' : 'Entrar'}
-          </Button>
-          <div className="flex justify-between text-sm">
-            <Link to="/register" className="text-primary underline">Criar conta</Link>
-            <Link to="/forgot-password" className="text-primary underline">Esqueci a senha</Link>
-          </div>
-        </form>
-      </Card>
-    </div>
+    <AuthLayout title="Bem-vindo de volta" description="Entre com sua conta para continuar.">
+      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+        <h2 className="text-h4 font-semibold text-ink">Entrar</h2>
+        <AuthField
+          label="E-mail"
+          type="email"
+          icon={<Mail size={16} />}
+          {...register('email')}
+          error={errors.email?.message}
+        />
+        <div className="relative">
+          <AuthField
+            label="Senha"
+            type={showPassword ? 'text' : 'password'}
+            icon={<Lock size={16} />}
+            endAdornment={
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                className="text-muted hover:text-ink"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            }
+            {...register('password')}
+            error={errors.password?.message}
+          />
+          <Link to="/forgot-password" className="absolute right-0 top-0 text-sm text-primary underline">
+            Esqueci a senha
+          </Link>
+        </div>
+        <Button type="submit" disabled={login.isPending} className="w-full">
+          {login.isPending ? 'Entrando...' : 'Entrar'}
+        </Button>
+        <p className="text-center text-sm text-muted">
+          Não tem conta?{' '}
+          <Link to="/register" className="text-primary underline">
+            Criar conta
+          </Link>
+        </p>
+      </form>
+    </AuthLayout>
   );
 }
