@@ -124,9 +124,6 @@ export function SearchBar(): JSX.Element {
                   }}
                 >
                   <span>{suggestion.label}</span>
-                  <span className="text-xs text-muted">
-                    {suggestion.type === 'category' ? 'Categoria' : suggestion.type === 'city' ? 'Cidade' : 'Estado'}
-                  </span>
                 </button>
               </li>
             ))}
