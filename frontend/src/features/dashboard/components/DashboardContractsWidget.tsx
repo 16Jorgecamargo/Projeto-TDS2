@@ -37,15 +37,18 @@ export function DashboardContractsWidget(): JSX.Element {
               <p className="text-xs text-muted">Concluídos</p>
             </div>
           </div>
-          <div ref={listRef} className="flex flex-1 flex-col gap-2 overflow-hidden">
-            {contracts.slice(0, visibleCount).map((contract) => (
-              <ContractCard
-                key={contract.id}
-                contract={contract}
-                otherPartyName={role === 'professional' ? contract.clientName : contract.professionalHeadline}
-                onOpen={(id) => navigate(`/contracts/${id}`)}
-              />
-            ))}
+          <div className="min-h-0 flex-1 rounded-lg bg-surface p-2">
+            <div ref={listRef} className="flex h-full flex-col gap-2 overflow-hidden">
+              {contracts.slice(0, visibleCount).map((contract) => (
+                <ContractCard
+                  key={contract.id}
+                  contract={contract}
+                  otherPartyName={role === 'professional' ? contract.clientName : contract.professionalHeadline}
+                  onOpen={(id) => navigate(`/contracts/${id}`)}
+                  className="bg-bg"
+                />
+              ))}
+            </div>
           </div>
         </>
       )}

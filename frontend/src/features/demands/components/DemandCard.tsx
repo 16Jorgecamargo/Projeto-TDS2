@@ -4,7 +4,7 @@ import { Trash2, Wallet, CalendarDays } from 'lucide-react';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
-import { formatRelativeDays } from '../../../lib/utils';
+import { cn, formatRelativeDays } from '../../../lib/utils';
 import { useCategories } from '../../professional/queries';
 import { useDeleteDemand } from '../queries';
 import type { Demand } from '../api';
@@ -19,9 +19,10 @@ const STATUS_LABELS: Record<Demand['status'], string> = {
 interface DemandCardProps {
   demand: Demand;
   onOpen: (id: string) => void;
+  className?: string;
 }
 
-export function DemandCard({ demand, onOpen }: DemandCardProps): JSX.Element {
+export function DemandCard({ demand, onOpen, className }: DemandCardProps): JSX.Element {
   const { data: categories } = useCategories();
   const deleteDemand = useDeleteDemand();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -37,7 +38,10 @@ export function DemandCard({ demand, onOpen }: DemandCardProps): JSX.Element {
       onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === ' ') onOpen(demand.id);
       }}
-      className="group relative flex w-full flex-col gap-2 rounded-lg bg-surface p-4 text-left hover:shadow-hover"
+      className={cn(
+        'group relative flex w-full flex-col gap-2 rounded-lg bg-surface p-4 text-left hover:shadow-hover',
+        className,
+      )}
     >
       <button
         type="button"

@@ -1,7 +1,7 @@
 import type { JSX } from 'react';
 import { XCircleIcon } from '@heroicons/react/24/solid';
 import { Badge } from '../../../components/ui/Badge';
-import { formatCurrency } from '../../../lib/utils';
+import { cn, formatCurrency } from '../../../lib/utils';
 import type { Contract, ContractStatus } from '../api';
 
 const STATUS_LABELS: Record<ContractStatus, string> = {
@@ -15,14 +15,15 @@ interface ContractCardProps {
   contract: Contract;
   otherPartyName: string;
   onOpen: (id: string) => void;
+  className?: string;
 }
 
-export function ContractCard({ contract, otherPartyName, onOpen }: ContractCardProps): JSX.Element {
+export function ContractCard({ contract, otherPartyName, onOpen, className }: ContractCardProps): JSX.Element {
   return (
     <button
       type="button"
       onClick={() => onOpen(contract.id)}
-      className="flex w-full flex-col gap-2 rounded-lg bg-surface p-4 text-left hover:shadow-hover"
+      className={cn('flex w-full flex-col gap-2 rounded-lg bg-surface p-4 text-left hover:shadow-hover', className)}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-base font-semibold text-ink">{otherPartyName}</span>

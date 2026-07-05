@@ -24,10 +24,17 @@ export function DashboardDemandsWidget(): JSX.Element {
       ) : items.length === 0 ? (
         <EmptyState title="Nenhuma demanda aberta" className="h-full w-full flex-1 justify-center" />
       ) : (
-        <div ref={listRef} className="flex flex-1 flex-col gap-2 overflow-hidden">
-          {items.slice(0, visibleCount).map((demand) => (
-            <DemandCard key={demand.id} demand={demand} onOpen={(id) => navigate(`/demands/${id}`)} />
-          ))}
+        <div className="min-h-0 flex-1 rounded-lg bg-surface p-2">
+          <div ref={listRef} className="flex h-full flex-col gap-2 overflow-hidden">
+            {items.slice(0, visibleCount).map((demand) => (
+              <DemandCard
+                key={demand.id}
+                demand={demand}
+                onOpen={(id) => navigate(`/demands/${id}`)}
+                className="bg-bg"
+              />
+            ))}
+          </div>
         </div>
       )}
       <Link to="/demands" className="mt-3 inline-block text-sm font-semibold text-primary">
