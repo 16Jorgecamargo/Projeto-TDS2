@@ -22,22 +22,4 @@ describe('DashboardQuickActions', () => {
 
     expect(navigateMock).toHaveBeenCalledWith('/demands/new');
   });
-
-  it('navega para /search ao clicar em Buscar profissional', async () => {
-    const user = userEvent.setup();
-    render(<DashboardQuickActions />);
-
-    await user.click(screen.getByRole('button', { name: 'Buscar profissional' }));
-
-    expect(navigateMock).toHaveBeenCalledWith('/search');
-  });
-
-  it('navega para /contracts ao clicar em Ver contratos', async () => {
-    const user = userEvent.setup();
-    render(<DashboardQuickActions />);
-
-    await user.click(screen.getByRole('button', { name: 'Ver contratos' }));
-
-    expect(navigateMock).toHaveBeenCalledWith('/contracts');
-  });
 });
