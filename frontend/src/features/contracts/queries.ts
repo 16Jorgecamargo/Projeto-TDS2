@@ -19,8 +19,8 @@ export const contractKeys = {
   payment: (id: string) => ['contracts', id, 'payment'] as const,
 };
 
-export function useContracts() {
-  return useQuery({ queryKey: contractKeys.all, queryFn: fetchContracts });
+export function useContracts(options?: { enabled?: boolean }) {
+  return useQuery({ queryKey: contractKeys.all, queryFn: fetchContracts, enabled: options?.enabled });
 }
 
 export function useContract(id: string) {

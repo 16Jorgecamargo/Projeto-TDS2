@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useSearchProfessionals, useLocations } from '../../features/landing/queries';
 import { useDemands } from '../../features/demands/queries';
+import { useContracts } from '../../features/contracts/queries';
 import { useCategories } from '../../features/professional/queries';
 import { useAuthStore } from '../../stores/auth';
 
@@ -18,7 +19,8 @@ type ResultItem =
   | { type: 'city'; key: string; label: string; city: string; state: string }
   | { type: 'state'; key: string; label: string; state: string }
   | { type: 'professional'; key: string; label: string; professionalId: string }
-  | { type: 'demand'; key: string; label: string; demandId: string };
+  | { type: 'demand'; key: string; label: string; demandId: string }
+  | { type: 'contract'; key: string; label: string; contractId: string };
 
 const TYPE_LABELS: Record<ResultItem['type'], string> = {
   category: 'Categoria',
@@ -26,6 +28,7 @@ const TYPE_LABELS: Record<ResultItem['type'], string> = {
   state: 'Estado',
   professional: 'Profissional',
   demand: 'Demanda',
+  contract: 'Contrato',
 };
 
 function useDebouncedValue(value: string, delay: number): string {
@@ -92,6 +95,7 @@ export function TopbarSearch(): JSX.Element {
     { enabled: expanded && canSearch },
   );
   const demandResults = useDemands(isClient ? true : undefined, { enabled: expanded && canSearch });
+  const contractResults = useContracts({ enabled: expanded && canSearch && isClient });
 
   const professionalItems = useMemo<ResultItem[]>(
     () =>
@@ -117,8 +121,24 @@ export function TopbarSearch(): JSX.Element {
       }));
   }, [demandResults.data, debouncedQuery]);
 
+  const contractItems = useMemo<ResultItem[]>(() => {
+    const term = debouncedQuery.trim().toLowerCase();
+    if (!term) return [];
+    const demandTitleById = new Map((demandResults.data?.items ?? []).map((demand) => [demand.id, demand.title]));
+    return (contractResults.data ?? [])
+      .map((contract) => ({ contract, title: demandTitleById.get(contract.demandId) }))
+      .filter((entry) => entry.title?.toLowerCase().includes(term))
+      .slice(0, MAX_ITEMS_PER_SECTION)
+      .map((entry) => ({
+        type: 'contract' as const,
+        key: `contract-${entry.contract.id}`,
+        label: entry.title as string,
+        contractId: entry.contract.id,
+      }));
+  }, [contractResults.data, demandResults.data, debouncedQuery]);
+
   const allResults: ResultItem[] = canSearch
-    ? [...matchedLocationSuggestions, ...professionalItems, ...demandItems]
+    ? [...matchedLocationSuggestions, ...professionalItems, ...demandItems, ...contractItems]
     : matchedLocationSuggestions;
 
   function collapse() {
@@ -169,6 +189,9 @@ export function TopbarSearch(): JSX.Element {
         return;
       case 'demand':
         goTo(`/demands/${item.demandId}`);
+        return;
+      case 'contract':
+        goTo(`/contracts/${item.contractId}`);
         return;
     }
   }
