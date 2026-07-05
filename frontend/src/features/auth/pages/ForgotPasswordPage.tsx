@@ -10,17 +10,25 @@ import { AuthField } from '../components/AuthField';
 import { AuthLayout } from '../components/AuthLayout';
 import { Button } from '../../../components/ui/Button';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { useToast } from '../../../components/ui/Toast';
 import { fadeVariants } from '../../../lib/motion';
 
 export default function ForgotPasswordPage(): JSX.Element {
   const forgot = useForgotPassword();
+  const { toast } = useToast();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ForgotPasswordForm>({ resolver: zodResolver(forgotPasswordSchema) });
 
-  const onSubmit = handleSubmit((values) => forgot.mutate(values.email));
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      await forgot.mutateAsync(values.email);
+    } catch {
+      toast('Nao foi possivel enviar o e-mail', { tone: 'error' });
+    }
+  });
 
   return (
     <AuthLayout title="Esqueceu sua senha?" description="Enviamos um link de redefinição para seu e-mail.">
