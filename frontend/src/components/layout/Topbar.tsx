@@ -34,7 +34,10 @@ export function Topbar(): JSX.Element {
         Services Marketplace
       </Link>
       {!user && isLanding ? (
-        <a href="#como-funciona" className="text-sm font-semibold text-ink hover:text-primary">
+        <a
+          href="#como-funciona"
+          className="hidden text-sm font-semibold text-ink hover:text-primary sm:inline-flex"
+        >
           Como funciona
         </a>
       ) : null}
@@ -49,7 +52,7 @@ export function Topbar(): JSX.Element {
             Entrar
           </Link>
           <Button asChild variant="accent" size="sm">
-            <Link to="/register">Anunciar meus serviços</Link>
+            <Link to="/register">Registrar</Link>
           </Button>
         </>
       )}
