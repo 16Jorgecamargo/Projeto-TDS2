@@ -16,7 +16,7 @@ export function DashboardContractsWidget(): JSX.Element {
       {isPending ? (
         <Skeleton className="h-16 w-full" aria-label="Carregando contratos" />
       ) : active.length === 0 && completed.length === 0 ? (
-        <div className="flex min-h-24 items-center justify-center">
+        <div className="flex min-h-32 items-center justify-center">
           <EmptyState title="Nenhum contrato ainda" />
         </div>
       ) : (
