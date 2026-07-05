@@ -9,6 +9,14 @@ Object.assign(globalThis, {
   AbortSignal: NativeAbortSignal,
 });
 
+if (!window.ResizeObserver) {
+  window.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver;
+}
+
 if (!window.matchMedia) {
   window.matchMedia = (query: string) =>
     ({

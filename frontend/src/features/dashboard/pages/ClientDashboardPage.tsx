@@ -8,16 +8,20 @@ import { FloatingChatWidget } from '../../chat/components/FloatingChatWidget';
 
 export function ClientDashboardPage(): JSX.Element {
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex h-[calc(100vh-4rem)] flex-col gap-6 p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-3xl font-bold text-ink">Painel</h1>
         <DashboardQuickActions />
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid min-h-0 flex-1 auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <DashboardDemandsWidget />
         <DashboardContractsWidget />
-        <DashboardScheduleWidget />
-        <DashboardFavoritesWidget />
+        <div className="flex min-h-0 flex-col gap-4">
+          <DashboardScheduleWidget />
+          <div className="min-h-0 flex-1">
+            <DashboardFavoritesWidget />
+          </div>
+        </div>
       </div>
       <FloatingChatWidget />
     </div>
