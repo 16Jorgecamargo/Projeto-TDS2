@@ -39,8 +39,8 @@ export function DemandCard({ demand, onOpen, className }: DemandCardProps): JSX.
         if (event.key === 'Enter' || event.key === ' ') onOpen(demand.id);
       }}
       className={cn(
-        'group relative flex w-full flex-col gap-2 rounded-lg bg-surface p-4 text-left hover:shadow-hover',
-        className,
+        'group relative flex w-full flex-col gap-2 rounded-lg p-4 text-left hover:shadow-hover',
+        className ?? 'bg-surface',
       )}
     >
       <button

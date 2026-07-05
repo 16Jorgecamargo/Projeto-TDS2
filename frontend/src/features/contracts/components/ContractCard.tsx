@@ -23,7 +23,7 @@ export function ContractCard({ contract, otherPartyName, onOpen, className }: Co
     <button
       type="button"
       onClick={() => onOpen(contract.id)}
-      className={cn('flex w-full flex-col gap-2 rounded-lg bg-surface p-4 text-left hover:shadow-hover', className)}
+      className={cn('flex w-full flex-col gap-2 rounded-lg p-4 text-left hover:shadow-hover', className ?? 'bg-surface')}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="text-base font-semibold text-ink">{otherPartyName}</span>
