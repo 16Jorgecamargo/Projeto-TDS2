@@ -1,5 +1,6 @@
 import { useRef, type JSX } from 'react';
 import { Link } from 'react-router-dom';
+import { StarIcon } from '@heroicons/react/24/solid';
 import { useFavorites } from '../../favorites/queries';
 import { usePublicProfile } from '../../professional/queries';
 import { Card } from '../../../components/ui/Card';
@@ -11,10 +12,22 @@ import { useFitCount } from '../../../lib/hooks/useFitCount';
 function FavoriteProfessionalPreview({ professionalId }: { professionalId: string }): JSX.Element | null {
   const { data } = usePublicProfile(professionalId);
   if (!data) return null;
+  const category = data.categories[0]?.name;
+  const serviceArea = data.serviceAreas[0];
+
   return (
-    <Link to={`/professionals/${professionalId}`} className="flex items-center gap-2">
+    <Link to={`/professionals/${professionalId}`} className="flex items-center gap-3">
       <Avatar name={data.headline} size="sm" />
-      <span className="text-sm font-medium text-ink">{data.headline}</span>
+      <div className="flex min-w-0 flex-col">
+        <span className="truncate text-sm font-medium text-ink">{data.headline}</span>
+        <span className="truncate text-xs text-muted">
+          {[category, serviceArea && `${serviceArea.city}, ${serviceArea.state}`].filter(Boolean).join(' · ')}
+        </span>
+      </div>
+      <span className="ml-auto flex shrink-0 items-center gap-1 text-xs text-muted">
+        <StarIcon className="h-3.5 w-3.5 text-accent" />
+        {data.ratingAverage.toFixed(1)}
+      </span>
     </Link>
   );
 }

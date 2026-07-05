@@ -17,12 +17,20 @@ describe('DashboardFavoritesWidget', () => {
       isPending: false,
     } as never);
     vi.mocked(usePublicProfile).mockReturnValue({
-      data: { headline: 'Eletricista João', ratingAverage: 4.5, ratingCount: 10 },
+      data: {
+        headline: 'Eletricista João',
+        ratingAverage: 4.5,
+        ratingCount: 10,
+        categories: [{ id: 'cat1', name: 'Elétrica', slug: 'eletrica' }],
+        serviceAreas: [{ id: 'area1', city: 'Porto Alegre', state: 'RS', radiusKm: 10 }],
+      },
     } as never);
 
     renderWithProviders(<DashboardFavoritesWidget />);
 
     expect(screen.getByText('Eletricista João')).toBeInTheDocument();
+    expect(screen.getByText('Elétrica · Porto Alegre, RS')).toBeInTheDocument();
+    expect(screen.getByText('4.5')).toBeInTheDocument();
   });
 
   it('mostra estado vazio quando nao ha favoritos', () => {
