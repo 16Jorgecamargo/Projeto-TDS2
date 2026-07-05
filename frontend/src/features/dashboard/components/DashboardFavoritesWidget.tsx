@@ -18,7 +18,7 @@ function FavoriteProfessionalPreview({ professionalId }: { professionalId: strin
   return (
     <Link
       to={`/professionals/${professionalId}`}
-      className="flex items-center gap-3 rounded-lg bg-surface p-4 hover:shadow-hover"
+      className="flex items-center gap-3 rounded-lg bg-bg p-4 hover:shadow-hover"
     >
       <Avatar name={data.headline} size="md" />
       <div className="flex min-w-0 flex-col gap-1">
@@ -53,13 +53,15 @@ export function DashboardFavoritesWidget(): JSX.Element {
           className="h-full w-full flex-1 justify-center"
         />
       ) : (
-        <ul ref={listRef} className="flex flex-1 flex-col gap-2 overflow-hidden">
-          {items.slice(0, visibleCount).map((favorite) => (
-            <li key={favorite.id}>
-              <FavoriteProfessionalPreview professionalId={favorite.professionalId} />
-            </li>
-          ))}
-        </ul>
+        <div className="min-h-0 flex-1 rounded-lg bg-surface p-2">
+          <ul ref={listRef} className="flex h-full flex-col gap-2 overflow-hidden">
+            {items.slice(0, visibleCount).map((favorite) => (
+              <li key={favorite.id}>
+                <FavoriteProfessionalPreview professionalId={favorite.professionalId} />
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </Card>
   );
