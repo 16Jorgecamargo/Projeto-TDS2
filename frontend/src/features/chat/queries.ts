@@ -1,12 +1,17 @@
 import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchMessages, createRoom } from './api';
+import { fetchMessages, fetchRooms, createRoom } from './api';
 import { getChatSocket } from './socket';
 import { messageSchema, type Message, type MessagesPage } from './schemas';
 
 export const chatKeys = {
   messages: (roomId: string) => ['chat', 'messages', roomId] as const,
+  rooms: ['chat', 'rooms'] as const,
 };
+
+export function useRooms() {
+  return useQuery({ queryKey: chatKeys.rooms, queryFn: fetchRooms });
+}
 
 export function useMessages(roomId: string) {
   return useQuery({

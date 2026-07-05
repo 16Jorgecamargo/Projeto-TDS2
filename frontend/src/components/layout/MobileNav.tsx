@@ -38,7 +38,7 @@ function NavTab({ item, isPrimaryOccurrence }: { item: NavItem; isPrimaryOccurre
 export function MobileNav(): JSX.Element | null {
   const role = useAuthStore((state) => state.user?.role);
 
-  if (!role) return null;
+  if (!role || role === 'client') return null;
 
   const dashboardItem = getDashboardItem(role);
   const primaryItems = getMobilePrimaryItems(role);

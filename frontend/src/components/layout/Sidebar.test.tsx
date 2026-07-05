@@ -42,35 +42,41 @@ describe('Sidebar', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renderiza dashboard, chat, demandas e contratos pro cliente', () => {
+  it('não renderiza nada para o cliente (navbar removido)', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
+    const { container } = renderWithProviders(<Sidebar />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renderiza dashboard, chat, demandas e contratos pro profissional', () => {
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 'token');
     renderWithProviders(<Sidebar />);
     expect(screen.getByRole('link', { name: /Dashboard/ })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Chat/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Minhas demandas/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Contratos/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Demandas disponíveis/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Meus contratos/ })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Carteira/ })).not.toBeInTheDocument();
   });
 
   it('esconde os rótulos de texto quando colapsada', () => {
     restoreMatchMedia();
     restoreMatchMedia = mockNarrowViewport(true);
-    useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 'token');
     renderWithProviders(<Sidebar />);
-    expect(screen.queryByText('Minhas demandas')).not.toBeInTheDocument();
+    expect(screen.queryByText('Demandas disponíveis')).not.toBeInTheDocument();
   });
 
   it('colapsa automaticamente quando a tela e estreita (menos de 1024px)', () => {
     restoreMatchMedia();
     restoreMatchMedia = mockNarrowViewport(true);
-    useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 'token');
     renderWithProviders(<Sidebar />);
     expect(useSidebarStore.getState().collapsed).toBe(true);
-    expect(screen.queryByText('Minhas demandas')).not.toBeInTheDocument();
+    expect(screen.queryByText('Demandas disponíveis')).not.toBeInTheDocument();
   });
 
   it('alterna o estado ao clicar no botão de colapsar', async () => {
-    useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 'token');
     const user = userEvent.setup();
     renderWithProviders(<Sidebar />);
 

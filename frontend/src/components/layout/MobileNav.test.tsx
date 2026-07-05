@@ -14,15 +14,21 @@ describe('MobileNav', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renderiza as abas do cliente na ordem dashboard, demanda, contratos, chat', () => {
+  it('não renderiza nada para o cliente (navbar removido)', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
+    const { container } = renderWithProviders(<MobileNav />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renderiza as abas do profissional na ordem dashboard, demandas, contratos, chat', () => {
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 'token');
     renderWithProviders(<MobileNav />);
 
     const nav = screen.getByRole('navigation', { name: 'Navegação principal' });
     const tabs = Array.from(nav.querySelectorAll('a, button'));
     const names = tabs.map((tab) => tab.getAttribute('aria-label'));
 
-    expect(names).toEqual(['Dashboard', 'Minhas demandas', 'Contratos', 'Chat']);
+    expect(names).toEqual(['Dashboard', 'Demandas disponíveis', 'Meus contratos', 'Chat']);
   });
 
   it('não renderiza aba de chat pro admin, que não tem essa rota', () => {

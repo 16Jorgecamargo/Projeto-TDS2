@@ -11,6 +11,7 @@ vi.mock('../components/DashboardFavoritesWidget', () => ({ DashboardFavoritesWid
 vi.mock('../components/DashboardNotificationsWidget', () => ({
   DashboardNotificationsWidget: () => <div>notifications-widget</div>,
 }));
+vi.mock('../../chat/components/FloatingChatWidget', () => ({ FloatingChatWidget: () => <div>floating-chat</div> }));
 
 describe('ClientDashboardPage', () => {
   it('renderiza o titulo e todos os widgets', () => {
@@ -23,5 +24,6 @@ describe('ClientDashboardPage', () => {
     expect(screen.getByText('schedule-widget')).toBeInTheDocument();
     expect(screen.getByText('favorites-widget')).toBeInTheDocument();
     expect(screen.getByText('notifications-widget')).toBeInTheDocument();
+    expect(screen.getByText('floating-chat')).toBeInTheDocument();
   });
 });

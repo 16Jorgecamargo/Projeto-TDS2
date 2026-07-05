@@ -23,7 +23,7 @@ export function ChatWindow({ roomId }: ChatWindowProps): JSX.Element {
 
   return (
     <Card className="flex h-full flex-col p-0">
-      <ul className="flex flex-1 flex-col-reverse gap-2 overflow-y-auto p-4">
+      <ul className="flex flex-1 flex-col-reverse gap-1.5 overflow-y-auto p-3">
         {data.items.length === 0 ? (
           <li>
             <EmptyState title="Nenhuma mensagem ainda" />
@@ -35,12 +35,12 @@ export function ChatWindow({ roomId }: ChatWindowProps): JSX.Element {
               <li key={message.id} className={cn('flex', isOwn ? 'justify-end' : 'justify-start')}>
                 <div
                   className={cn(
-                    'max-w-xs rounded-lg px-4 py-2 text-sm',
-                    isOwn ? 'bg-accent text-bg' : 'bg-surface text-ink',
+                    'max-w-[80%] break-words rounded-lg px-3 py-1.5 text-sm',
+                    isOwn ? 'bg-primary text-bg' : 'bg-surface text-ink',
                   )}
                 >
-                  <p>{message.content}</p>
-                  <p className={cn('mt-1 text-xs', isOwn ? 'text-bg/70' : 'text-muted')}>
+                  <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                  <p className={cn('mt-0.5 text-xs', isOwn ? 'text-bg/70' : 'text-muted')}>
                     {new Date(message.createdAt).toLocaleString('pt-BR')}
                   </p>
                 </div>
@@ -50,7 +50,7 @@ export function ChatWindow({ roomId }: ChatWindowProps): JSX.Element {
         )}
       </ul>
       <form
-        className="flex gap-2 border-t border-surface p-3"
+        className="flex shrink-0 gap-1.5 border-t border-surface p-2"
         onSubmit={(event) => {
           event.preventDefault();
           if (draft.trim()) {
@@ -60,12 +60,12 @@ export function ChatWindow({ roomId }: ChatWindowProps): JSX.Element {
         }}
       >
         <input
-          className="flex-1 rounded-sm border border-surface px-3 py-2 text-sm text-ink"
+          className="min-w-0 flex-1 rounded-sm border border-surface px-2.5 py-1.5 text-sm text-ink"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="Mensagem"
         />
-        <Button type="submit" size="sm" disabled={!draft.trim()}>
+        <Button type="submit" size="sm" className="shrink-0" disabled={!draft.trim()}>
           Enviar
         </Button>
       </form>
