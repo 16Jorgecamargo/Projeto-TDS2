@@ -1,8 +1,6 @@
 import type { JSX } from 'react';
 import { NavLink } from 'react-router-dom';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../stores/auth';
-import { useCommandPaletteStore } from '../../stores/commandPalette';
 import { getMobilePrimaryItems, getDashboardItem, getChatItem, type NavItem } from '../../lib/navConfig';
 import { cn } from '../../lib/utils';
 
@@ -39,7 +37,6 @@ function NavTab({ item, isPrimaryOccurrence }: { item: NavItem; isPrimaryOccurre
 
 export function MobileNav(): JSX.Element | null {
   const role = useAuthStore((state) => state.user?.role);
-  const openPalette = useCommandPaletteStore((state) => state.openPalette);
 
   if (!role) return null;
 
@@ -60,14 +57,6 @@ export function MobileNav(): JSX.Element | null {
         const index = offset + 1;
         return <NavTab key={item.to + item.label} item={item} isPrimaryOccurrence={primaryRouteIndexes.has(index)} />;
       })}
-      <button
-        type="button"
-        onClick={openPalette}
-        aria-label="Buscar"
-        className="flex flex-1 items-center justify-center py-3 text-muted"
-      >
-        <MagnifyingGlassIcon className="h-7 w-7" strokeWidth={1.75} />
-      </button>
       {chatItem && (
         <NavTab item={chatItem} isPrimaryOccurrence={primaryRouteIndexes.has(linkItems.length - 1)} />
       )}

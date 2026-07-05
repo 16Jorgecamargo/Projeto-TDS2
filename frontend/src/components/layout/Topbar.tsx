@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useScroll, useMotionValueEvent } from 'framer-motion';
 import { NotificationBell } from '../../features/notifications/components/NotificationBell';
 import { ProfileMenu } from './ProfileMenu';
+import { TopbarSearch } from './TopbarSearch';
 import { Button } from '../ui/Button';
 import { useAuthStore } from '../../stores/auth';
 import { cn } from '../../lib/utils';
@@ -43,6 +44,7 @@ export function Topbar(): JSX.Element {
       ) : null}
       {user ? (
         <>
+          <TopbarSearch />
           <NotificationBell />
           <ProfileMenu />
         </>

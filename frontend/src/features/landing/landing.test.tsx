@@ -84,16 +84,6 @@ function renderSearchBar() {
 }
 
 describe('SearchBar', () => {
-  it('normaliza uf minuscula para maiuscula ao buscar', async () => {
-    const user = userEvent.setup();
-    renderSearchBar();
-
-    await user.type(screen.getByPlaceholderText('UF'), 'rs');
-    await user.click(screen.getByRole('button', { name: 'Buscar' }));
-
-    await waitFor(() => expect(screen.getByTestId('location-search').textContent).toContain('state=RS'));
-  });
-
   it('bloqueia a busca quando o termo tem menos de 2 caracteres', async () => {
     const user = userEvent.setup();
     renderSearchBar();

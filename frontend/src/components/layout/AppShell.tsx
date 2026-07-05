@@ -2,7 +2,6 @@ import type { JSX, ReactNode } from 'react';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
 import { MobileNav } from './MobileNav';
-import { CommandPalette } from './CommandPalette';
 import { ToastProvider } from '../ui/Toast';
 
 export interface AppShellProps {
@@ -18,7 +17,6 @@ export function AppShell({ children }: AppShellProps): JSX.Element {
         <main className="min-w-0 flex-1 px-4 py-6 pb-20 nav:pb-6">{children}</main>
       </div>
       <MobileNav />
-      <CommandPalette />
       <ToastProvider />
     </div>
   );
