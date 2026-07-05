@@ -41,6 +41,7 @@ export function ImageUpload({ onUploaded, label = 'Enviar imagem', className }: 
     try {
       const result = await uploadImage(file);
       onUploaded(result);
+      setPreview(null);
     } catch {
       toast('Falha ao enviar imagem', { tone: 'error' });
       setPreview(null);
