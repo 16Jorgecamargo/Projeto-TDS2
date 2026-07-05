@@ -29,14 +29,13 @@ describe('AuthLayout', () => {
     expect(screen.getByText('form aqui')).toBeInTheDocument();
   });
 
-  it('logo Projeto TDS e um link de volta para a landing page', () => {
+  it('mostra botao Voltar que leva para a landing page', () => {
     renderLayout(
       <AuthLayout title="Entrar">
         <p>form aqui</p>
       </AuthLayout>,
     );
-    const logos = screen.getAllByRole('link', { name: 'Projeto TDS' });
-    expect(logos.length).toBeGreaterThan(0);
-    logos.forEach((logo) => expect(logo).toHaveAttribute('href', '/'));
+    const backLink = screen.getByRole('link', { name: /voltar/i });
+    expect(backLink).toHaveAttribute('href', '/');
   });
 });
