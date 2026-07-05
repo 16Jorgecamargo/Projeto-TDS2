@@ -5,6 +5,7 @@ import { Badge } from '../../../components/ui/Badge';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Button } from '../../../components/ui/Button';
+import { BackLink } from '../../../components/ui/BackLink';
 
 export function NotificationsPage(): JSX.Element {
   const notifications = useNotifications();
@@ -13,6 +14,7 @@ export function NotificationsPage(): JSX.Element {
   if (notifications.isLoading || !notifications.data) {
     return (
       <div className="flex flex-col gap-4 p-6">
+        <BackLink />
         <h1 className="text-2xl font-semibold text-ink">Notificações</h1>
         <Skeleton className="h-16 w-full" aria-label="Carregando notificações" />
       </div>
@@ -23,6 +25,7 @@ export function NotificationsPage(): JSX.Element {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
+      <BackLink />
       <h1 className="text-2xl font-semibold text-ink">Notificações</h1>
       {items.length === 0 ? (
         <EmptyState title="Nenhuma notificação ainda" />

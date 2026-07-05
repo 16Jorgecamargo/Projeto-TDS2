@@ -5,6 +5,7 @@ import { useDemands } from '../queries';
 import { Button } from '../../../components/ui/Button';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { BackLink } from '../../../components/ui/BackLink';
 
 export default function DemandListPage(): JSX.Element {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function DemandListPage(): JSX.Element {
 
   return (
     <section className="mx-auto flex max-w-3xl flex-col gap-3 p-6">
+      <BackLink />
       <h1 className="text-2xl font-bold text-ink">Demandas</h1>
       {isPending ? (
         <Skeleton className="h-24 w-full" aria-label="Carregando demandas" />

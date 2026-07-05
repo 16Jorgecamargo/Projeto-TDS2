@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import { NotificationsPage } from './pages/NotificationsPage';
 
 vi.mock('./queries', () => ({
@@ -29,9 +30,11 @@ vi.mock('./queries', () => ({
 function renderPage() {
   const client = new QueryClient();
   return render(
-    <QueryClientProvider client={client}>
-      <NotificationsPage />
-    </QueryClientProvider>,
+    <MemoryRouter>
+      <QueryClientProvider client={client}>
+        <NotificationsPage />
+      </QueryClientProvider>
+    </MemoryRouter>,
   );
 }
 

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { NotificationsPage } from './NotificationsPage';
 import { useNotifications, useMarkNotificationRead } from '../queries';
 
@@ -13,7 +14,11 @@ describe('NotificationsPage', () => {
     vi.mocked(useNotifications).mockReturnValue({ data: undefined, isLoading: true } as never);
     vi.mocked(useMarkNotificationRead).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
 
-    render(<NotificationsPage />);
+    render(
+      <MemoryRouter>
+        <NotificationsPage />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByLabelText('Carregando notificações')).toBeInTheDocument();
   });
@@ -25,7 +30,11 @@ describe('NotificationsPage', () => {
     } as never);
     vi.mocked(useMarkNotificationRead).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
 
-    render(<NotificationsPage />);
+    render(
+      <MemoryRouter>
+        <NotificationsPage />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('Nenhuma notificação ainda')).toBeInTheDocument();
   });
@@ -47,7 +56,11 @@ describe('NotificationsPage', () => {
     vi.mocked(useMarkNotificationRead).mockReturnValue({ mutate, isPending: false } as never);
     const user = userEvent.setup();
 
-    render(<NotificationsPage />);
+    render(
+      <MemoryRouter>
+        <NotificationsPage />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('Contrato iniciado')).toBeInTheDocument();
     expect(screen.getByText('Não lida')).toBeInTheDocument();

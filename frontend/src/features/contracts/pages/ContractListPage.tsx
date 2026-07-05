@@ -6,6 +6,7 @@ import { useAuthStore } from '../../../stores/auth';
 import { Badge } from '../../../components/ui/Badge';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { BackLink } from '../../../components/ui/BackLink';
 import { formatCurrency } from '../../../lib/utils';
 import type { Contract, ContractStatus } from '../api';
 
@@ -54,6 +55,7 @@ export default function ContractListPage(): JSX.Element {
 
   return (
     <div className="flex flex-col gap-4 p-6">
+      <BackLink />
       <h1 className="text-3xl font-bold text-ink">Contratos</h1>
       {isPending ? (
         <Skeleton className="h-16 w-full" aria-label="Carregando contratos" />
