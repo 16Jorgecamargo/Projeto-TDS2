@@ -7,6 +7,7 @@ import { ServiceDemand } from '../../infra/database/entities/service-demand.enti
 import { DemandImage } from '../../infra/database/entities/demand-image.entity.js';
 import { DemandTag } from '../../infra/database/entities/demand-tag.entity.js';
 import { DemandInvitation } from '../../infra/database/entities/demand-invitation.entity.js';
+import { Contract } from '../../infra/database/entities/contract.entity.js';
 import { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
 import { emptyBodySchema, idParamSchema } from '../../shared/schemas.js';
 import { requireRole } from '../../plugins/auth.js';
@@ -26,6 +27,7 @@ export async function demandRoutes(app: FastifyInstance): Promise<void> {
     images: app.dataSource.getRepository(DemandImage),
     tags: app.dataSource.getRepository(DemandTag),
     invitations: app.dataSource.getRepository(DemandInvitation),
+    contracts: app.dataSource.getRepository(Contract),
   });
   const controller = new DemandController(service, app.dataSource.getRepository(ProfessionalProfile));
 

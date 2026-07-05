@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { Repository } from 'typeorm';
-import type { DemandService } from './demand.service.js';
+import type { DemandService, DemandActor } from './demand.service.js';
 import type { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
 import { ForbiddenError, NotFoundError } from '../../shared/errors.js';
 import type { CreateDemandInput, UpdateDemandInput, DemandListQuery, InviteProfessionalInput } from './demand.schemas.js';
@@ -11,16 +11,24 @@ export class DemandController {
     private readonly professionalProfiles: Repository<ProfessionalProfile>,
   ) {}
 
+  private async resolveActor(userId: string): Promise<DemandActor> {
+    const profile = await this.professionalProfiles.findOne({ where: { user_id: userId } });
+    return { userId, professionalId: profile ? profile.id : null };
+  }
+
   create = async (req: FastifyRequest<{ Body: CreateDemandInput }>, reply: FastifyReply) =>
     reply.status(201).send(await this.service.create(req.user!.id, req.body));
 
   list = async (req: FastifyRequest<{ Querystring: DemandListQuery }>, reply: FastifyReply) => {
-    const { items, total } = await this.service.list(req.query, req.user!.id);
+    const actor = await this.resolveActor(req.user!.id);
+    const { items, total } = await this.service.list(req.query, actor);
     return reply.send({ items, page: req.query.page, limit: req.query.limit, total });
   };
 
-  getById = async (req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) =>
-    reply.send(await this.service.getById(req.params.id));
+  getById = async (req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const actor = await this.resolveActor(req.user!.id);
+    return reply.send(await this.service.getById(req.params.id, actor));
+  };
 
   update = async (req: FastifyRequest<{ Params: { id: string }; Body: UpdateDemandInput }>, reply: FastifyReply) =>
     reply.send(await this.service.update(req.params.id, req.user!.id, req.body));

@@ -71,7 +71,13 @@ function demandPayload(categoryId: string) {
     description: 'x'.repeat(25),
     budgetMin: 100,
     budgetMax: 500,
-    addressId: null,
+    street: 'Rua das Flores',
+    number: '123',
+    complement: null,
+    district: 'Centro',
+    city: 'Porto Alegre',
+    state: 'RS',
+    zipCode: '90000-000',
     tagIds: [],
     images: [],
   };
@@ -203,5 +209,28 @@ describe('demand routes', () => {
     });
     expect(respond.statusCode).toBe(200);
     expect(respond.json().status).toBe('accepted');
+  });
+
+  it('profissional sem contrato ve cidade/UF mas nao rua/numero', async () => {
+    const categoryId = await createCategory(app);
+    const { headers } = await registerUser(app, 'client');
+    const create = await app.inject({
+      method: 'POST',
+      url: '/api/demands',
+      headers,
+      payload: demandPayload(categoryId),
+    });
+    const demandId = create.json().id;
+
+    const { headers: professionalHeaders } = await registerUser(app, 'professional');
+    const view = await app.inject({
+      method: 'GET',
+      url: `/api/demands/${demandId}`,
+      headers: professionalHeaders,
+    });
+
+    expect(view.json().city).toBe('Porto Alegre');
+    expect(view.json().state).toBe('RS');
+    expect(view.json().street).toBeNull();
   });
 });
