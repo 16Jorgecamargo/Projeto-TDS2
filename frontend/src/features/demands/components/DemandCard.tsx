@@ -55,21 +55,13 @@ export function DemandCard({ demand, onOpen, className }: DemandCardProps): JSX.
         <Trash2 className="h-4 w-4" />
       </button>
 
-      <div className="flex items-center justify-between gap-2 pr-8">
+      <div className="pr-8">
         <span className="text-base font-semibold text-ink">{demand.title}</span>
-        <Badge tone={demand.status === 'open' ? 'accent' : 'neutral'}>
-          <span className="flex items-center gap-1">
-            {demand.status === 'cancelled' && (
-              <XCircleIcon className="h-3.5 w-3.5 text-muted" data-testid="demand-cancelled-icon" />
-            )}
-            {STATUS_LABELS[demand.status]}
-          </span>
-        </Badge>
       </div>
 
       {categoryName && <span className="text-sm text-muted">{categoryName}</span>}
 
-      <div className="flex items-center gap-4 text-xs text-muted">
+      <div className="flex items-center gap-4 pb-6 text-xs text-muted">
         <span className="flex items-center gap-1">
           <Wallet className="h-3.5 w-3.5" />
           {demand.quotesCount} {demand.quotesCount === 1 ? 'orçamento' : 'orçamentos'}
@@ -79,6 +71,15 @@ export function DemandCard({ demand, onOpen, className }: DemandCardProps): JSX.
           {formatRelativeDays(demand.createdAt)}
         </span>
       </div>
+
+      <Badge tone="primary" className="absolute bottom-3 right-3">
+        <span className="flex items-center gap-1">
+          {demand.status === 'cancelled' && (
+            <XCircleIcon className="h-3.5 w-3.5" data-testid="demand-cancelled-icon" />
+          )}
+          {STATUS_LABELS[demand.status]}
+        </span>
+      </Badge>
 
       {confirmingDelete && (
         <Modal

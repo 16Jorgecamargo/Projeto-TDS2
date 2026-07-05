@@ -8,6 +8,7 @@ const badgeVariants = cva('inline-flex items-center gap-1 rounded-full font-semi
   variants: {
     tone: {
       neutral: 'bg-surface text-ink',
+      primary: 'bg-primary text-bg',
       accent: 'bg-accent text-bg',
       success: 'bg-success/15 text-success',
       warning: 'bg-warning/15 text-warning',
