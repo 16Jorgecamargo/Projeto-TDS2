@@ -1,699 +1,288 @@
+# PROMPT — Redesign de uma Tela (Template Reutilizável)
+
 Você é uma equipe composta por:
 
-- Product Designer Sênior
-- UX Researcher
-- UX Writer
-- Front-end Architect
-- Staff React Engineer
-- Especialista em Design Systems
-- Especialista em Gamificação de UX
-- Especialista em Produtos Marketplace (Airbnb, GetNinjas, Uber, Fiverr)
+* Principal Product Designer
+* Principal UX Designer
+* UX Researcher
+* UX Writer
+* Principal UI Designer
+* Staff Front-end Engineer
+* React Architect
+* Design System Architect
+* Accessibility Specialist (WCAG AA/AAA)
+* Motion Designer
+* Especialista em Produtos Marketplace (Airbnb, Stripe, Uber, GetNinjas, Linear, Notion)
 
-Sua missão é realizar um redesign completo do frontend do projeto.
+Sua missão é reconstruir completamente a seguinte tela:
 
-IMPORTANTE
+# Tela
 
-NÃO altere absolutamente nenhuma regra de negócio.
+buscar (tela que aparece depois de logar)
 
-NÃO altere o backend.
+---
 
-NÃO altere endpoints.
+# Contexto
 
-NÃO altere contratos da API.
+O projeto já possui:
 
-NÃO altere DTOs.
+* Backend completo
+* APIs prontas
+* Regras de negócio definidas
+* Design Tokens definidos
+* Biblioteca `components/ui` pronta
+* Biblioteca de Componentes Compartilhados pronta
 
-NÃO altere autenticação.
+Portanto:
 
-NÃO altere sockets.
+**NÃO crie novos componentes primitivos (`components/ui`).**
 
-NÃO altere banco de dados.
+**NÃO altere componentes existentes.**
 
-Toda melhoria deve acontecer EXCLUSIVAMENTE na camada React.
+**NÃO altere regras de negócio.**
 
-Considere que o backend já está pronto.
+**NÃO altere APIs.**
 
-Sempre reutilize os endpoints existentes.
+**NÃO altere contratos.**
 
-Caso alguma funcionalidade esteja difícil de utilizar, reorganize a interface.
+**NÃO altere DTOs.**
 
-Caso seja necessário criar novas páginas ou componentes apenas para melhorar UX, faça isso sem medo.
+**NÃO altere autenticação.**
 
-Caso alguma informação já exista na API mas hoje não seja exibida de maneira eficiente, utilize-a.
+**NÃO altere Socket.IO.**
 
-Sempre priorize experiência do usuário.
+**NÃO altere estados globais.**
 
-━━━━━━━━━━━━━━━━━━━━━━
+Toda melhoria deve acontecer apenas através da composição dos componentes existentes.
 
-## Stack
+---
 
-React 19
+# Fontes obrigatórias
 
-Vite
+Antes de iniciar:
 
-TypeScript
+1. Consulte o relatório da auditoria do frontend.
+2. Consulte o documento do Design System.
+3. Consulte a documentação dos componentes de `components/ui`.
+4. Consulte a documentação dos componentes compartilhados.
+5. Analise a implementação atual da tela.
 
-Tailwind
+Baseie TODAS as decisões nesses documentos.
 
-TanStack Query
+---
 
-React Hook Form
+# Objetivo
 
-Zod
+Reconstruir completamente a experiência da tela.
 
-Socket.io
+Não quero apenas melhorar o visual.
 
-React Router
+Quero melhorar:
 
-Zustand
+* UX
+* UI
+* Hierarquia visual
+* Organização das informações
+* Escaneabilidade
+* Performance percebida
+* Acessibilidade
+* Clareza
+* Fluxo do usuário
+* Produtividade
 
-━━━━━━━━━━━━━━━━━━━━━━
+O resultado deve parecer um produto de empresas como:
 
-## Contexto do Produto
+* Airbnb
+* Stripe
+* Linear
+* Notion
+* Vercel
+* Figma
+* Apple
 
-O sistema é um Marketplace de Prestação de Serviços semelhante ao GetNinjas.
+---
 
-Existem três tipos de usuários.
+# Processo obrigatório
 
-Cliente.
+## 1. Entender a tela atual
 
-Profissional.
+Documente:
 
-Administrador.
+* objetivo
+* público
+* funcionalidades
+* fluxo
+* problemas encontrados
+* pontos fortes
+* oportunidades
 
-Fluxo principal:
+---
 
-Cliente publica demanda.
+## 2. Identificar oportunidades
 
-↓
+Avalie:
 
-Profissionais enviam orçamentos.
+* excesso de informação
+* componentes desnecessários
+* problemas de navegação
+* baixa prioridade visual
+* dificuldade de uso
+* inconsistências
+* responsividade
+* acessibilidade
 
-↓
+---
 
-Cliente aceita um orçamento.
+## 3. Redesenhar completamente
 
-↓
+Reorganize toda a interface.
 
-Contrato é criado.
+Pode alterar:
 
-↓
+* ordem das seções
+* layout
+* grid
+* navegação interna
+* agrupamentos
+* espaçamentos
+* hierarquia
 
-Execução do serviço.
+Desde que mantenha exatamente as mesmas funcionalidades.
 
-↓
+---
 
-Atualizações de progresso.
+# Componentes
 
-↓
+Utilize EXCLUSIVAMENTE componentes existentes.
 
-Pagamento.
+Sempre prefira reutilizar componentes compartilhados.
 
-↓
+Exemplo:
 
-Avaliações.
+* DashboardCard
+* StatsCard
+* SectionHeader
+* HeroBanner
+* Timeline
+* SearchToolbar
+* FilterBar
+* PageHeader
+* ProfessionalCard
+* DemandCard
+* WalletCard
+* QuoteCard
+* ReviewCard
+* NotificationCard
+* EmptyState
+* ErrorState
+* LoadingCard
+* Skeleton
+* Toast
+* Dialog
+* Drawer
+* Tabs
+* Accordion
+* Badge
+* Avatar
+* Table
+* Button
+* Input
 
-↓
+Caso perceba que falta algum componente compartilhado, apenas documente essa necessidade.
 
-Carteira do profissional.
+Não implemente um componente novo.
 
-↓
+---
 
-Saque.
+# Layout
 
-Além disso existem:
+Repense completamente a estrutura.
 
-Chat
+Considere:
 
-Carteira
+Hero
 
-Notificações
+Resumo
 
-Disputas
-
-Administração
-
-LGPD
-
-Configurações
-
-Convites
-
-Portfólio
-
-Disponibilidade
-
-Áreas de atendimento
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Documento base
-
-Analise completamente o documento contendo todas as telas atuais do sistema.
-
-Antes de sugerir qualquer alteração, compreenda como cada tela funciona hoje.
-
-Identifique:
-
-- problemas de UX
-
-- problemas de UI
-
-- inconsistências
-
-- duplicações
-
-- telas pobres
-
-- formulários cansativos
-
-- fluxos quebrados
-
-- navegação ruim
-
-- oportunidades de melhoria
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Objetivo
-
-Transformar o sistema em um produto moderno.
-
-O resultado deve parecer um SaaS Premium.
-
-Referências:
-
-Airbnb
-
-Stripe
-
-Linear
-
-Notion
-
-Figma
-
-Framer
-
-Uber
-
-GetNinjas
-
-Discord
-
-Apple
-
-Vercel
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Estilo
-
-Quero um visual extremamente moderno.
-
-Não quero aparência administrativa.
-
-Não quero CRUD tradicional.
-
-Não quero formulários enormes.
-
-Não quero tabelas gigantes.
-
-Quero:
+KPIs
 
 Cards
-
-Dashboard
 
 Timeline
 
 Quick Actions
 
+Filtros
+
+Busca
+
+Listagens
+
+Detalhes
+
+Painéis laterais
+
+Sticky Actions
+
+Floating Actions
+
 Widgets
 
-Resumo
+Insights
 
-Indicadores
+Gráficos
 
-Hero Cards
+Histórico
 
-Animações
+---
 
-Hover
+# UX
 
-Glassmorphism leve
+A tela deve ser:
 
-Sombras suaves
+Intuitiva.
 
-Muito espaçamento
+Escaneável.
 
-Ícones consistentes
+Poucos cliques.
 
-Empty States
+Boa hierarquia.
 
-Skeleton Loading
+Excelente legibilidade.
 
-Motion Design
+Feedback imediato.
 
-Microinterações
+Pouca carga cognitiva.
 
-━━━━━━━━━━━━━━━━━━━━━━
+---
 
-## Navegação
+# Motion
 
-Repense completamente.
+Utilizar animações discretas.
 
-Hoje praticamente não existe navegação.
+Framer Motion.
 
-Crie uma arquitetura moderna.
+Fade.
 
-Sugestão:
+Slide.
 
-Sidebar recolhível
+Scale.
 
-Topbar
+Hover.
 
-Breadcrumb
+Animated Counters.
 
-Pesquisa global
+Skeleton.
 
-Quick Search
+Shared Layout Transition.
 
-Notification Center
+Nada exagerado.
 
-Command Palette (Ctrl + K)
+---
 
-Perfil do usuário
+# Responsividade
 
-Switcher de perfil
-
-Menu contextual
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Dashboard Cliente
-
-Não quero uma simples lista.
-
-Quero um verdadeiro painel.
-
-Mostrar:
-
-Demandas abertas
-
-Demandas em andamento
-
-Últimos orçamentos
-
-Contratos ativos
-
-Serviços concluídos
-
-Profissionais favoritos
-
-Notificações
-
-Últimas avaliações
-
-Próximos pagamentos
-
-Ações rápidas
-
-Publicar demanda
-
-Buscar profissional
-
-Ver contratos
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Dashboard Profissional
-
-Hoje é apenas um formulário.
-
-Transforme em um painel profissional.
-
-Mostrar:
-
-Receita do mês
-
-Novos convites
-
-Demandas próximas
-
-Agenda
-
-Serviços em andamento
-
-Avaliações recentes
-
-Performance
-
-Perfil
-
-Portfólio
-
-Disponibilidade
-
-Resumo financeiro
-
-Carteira
-
-Ranking
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Dashboard Admin
-
-Criar um dashboard completo.
-
-Indicadores.
-
-Usuários.
-
-Novos cadastros.
-
-Disputas.
-
-Denúncias.
-
-Contratos.
-
-Pagamentos.
-
-Carteira.
-
-Saques.
-
-Gráficos.
-
-KPIs.
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Landing
-
-Refazer completamente.
-
-Hero.
-
-Categorias.
-
-Como funciona.
-
-Depoimentos.
-
-Vídeos.
-
-CTA.
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Busca
-
-Transformar em experiência semelhante ao Airbnb.
-
-Filtros laterais.
-
-Mapa opcional.
-
-Cards ricos.
-
-Ordenação.
-
-Favoritos.
-
-Badges.
-
-Avaliações.
-
-Preço.
-
-Disponibilidade.
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Perfil Público
-
-Transformar em um perfil premium.
-
-Banner.
-
-Avatar.
-
-Galeria.
-
-Portfólio.
-
-Serviços.
-
-Especialidades.
-
-Avaliações.
-
-Linha do tempo.
-
-Disponibilidade.
-
-Botão contratar.
-
-Botão chat.
-
-Botão favorito.
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Demandas
-
-Melhorar completamente.
-
-Timeline.
-
-Status.
-
-Arquivos.
-
-Fotos.
-
-Comentários.
-
-Histórico.
-
-Orçamentos.
-
-Indicadores.
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Contratos
-
-Criar experiência semelhante ao Trello.
-
-Progresso.
-
-Checklist.
-
-Timeline.
-
-Fotos.
-
-Atualizações.
-
-Chat lateral.
-
-Pagamento.
-
-Disputa.
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Carteira
-
-Dashboard financeiro.
-
-Saldo.
-
-Saldo pendente.
-
-Receitas.
-
-Gráficos.
-
-Extrato.
-
-Filtros.
-
-Saques.
-
-Indicadores.
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Chat
-
-Inspirado no Discord.
-
-Lista lateral.
-
-Conversas.
-
-Busca.
-
-Indicador online.
-
-Digitando.
-
-Upload.
-
-Emoji.
-
-Anexos.
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Notificações
-
-Central completa.
-
-Agrupar por data.
-
-Categorias.
-
-Filtros.
-
-Pesquisar.
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Configurações
-
-Separar em abas.
-
-Conta.
-
-Perfil.
-
-Segurança.
-
-LGPD.
-
-Notificações.
-
-Tema.
-
-Idioma.
-
-Privacidade.
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Componentes
-
-Caso necessário criar:
-
-HeroCard
-
-DashboardCard
-
-StatsCard
-
-QuickActionCard
-
-Timeline
-
-ActivityFeed
-
-ProfileCard
-
-ReviewCard
-
-QuoteCard
-
-DemandCard
-
-ContractCard
-
-WalletCard
-
-NotificationCard
-
-ChatSidebar
-
-SearchBar Premium
-
-Command Palette
-
-Context Menu
-
-Floating Button
-
-Drawer
-
-Bottom Sheet
-
-Wizard
-
-Stepper
-
-Toast
-
-Popover
-
-Tooltip
-
-Progress Ring
-
-Charts
-
-Calendar
-
-Availability Calendar
-
-Portfolio Gallery
-
-Photo Viewer
-
-Image Upload
-
-Review Modal
-
-Loading Skeleton
-
-Error State
-
-Empty State
-
-Success State
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Motion Design
-
-Utilizar:
-
-Framer Motion
-
-Hover
-
-Fade
-
-Scale
-
-Slide
-
-Parallax leve
-
-Page Transition
-
-Animated Counters
-
-Animated Progress
-
-Ripple
-
-━━━━━━━━━━━━━━━━━━━━━━
-
-## Responsividade
+Projetar para:
 
 Desktop
 
@@ -701,82 +290,141 @@ Notebook
 
 Tablet
 
-Celular
+Mobile
 
-Tudo deve funcionar perfeitamente.
+Não apenas adaptar.
 
-━━━━━━━━━━━━━━━━━━━━━━
+Repensar a disposição dos elementos para cada breakpoint.
 
-## Acessibilidade
+---
+
+# Acessibilidade
+
+Garantir:
 
 ARIA
 
 Contraste AA
 
-Navegação por teclado
+Teclado
 
 Screen Reader
 
-Foco visível
+Focus Ring
 
-━━━━━━━━━━━━━━━━━━━━━━
+Reduced Motion
 
-## Organização
+---
 
-Proponha uma nova arquitetura de pastas.
+# Performance
 
-Organize por Feature.
+Priorizar:
 
-Componentes compartilhados.
+Lazy Loading
 
-Layouts.
+Skeleton
 
-Providers.
+Virtualização quando necessário
 
-Hooks.
+Memoização
 
-UI.
+Renderização mínima
 
-Domain.
+---
 
-━━━━━━━━━━━━━━━━━━━━━━
+# Resultado esperado
 
-## Resultado esperado
+Entregue um documento extremamente detalhado contendo:
 
-Quero um documento extremamente detalhado.
+## 1. Objetivo da tela
 
-Para CADA tela existente:
+## 2. Problemas encontrados
 
-- analisar
-- criticar
-- apontar problemas
-- explicar melhorias
-- redesenhar completamente
+## 3. Estratégia de redesign
 
-Caso seja necessário criar novas telas, crie.
+## 4. Nova arquitetura da tela
 
-Caso seja necessário dividir telas existentes em várias menores, faça.
+## 5. Wireframe textual
 
-Caso seja necessário criar dashboards novos, faça.
+Descreva toda a tela de cima para baixo.
 
-Caso seja necessário criar novos componentes, faça.
+Cada seção.
 
-Caso seja necessário alterar completamente a navegação, faça.
+Cada componente.
 
-No final entregue:
+Cada agrupamento.
 
-- Novo Sitemap
-- Fluxo completo dos usuários
-- Wireframe textual de todas as telas
-- Componentes novos
-- Componentes removidos
-- Design System
-- Guia de UX
-- Guia de UI
-- Arquitetura React
-- Estrutura de pastas
-- Responsividade
-- Plano de migração incremental (sem quebrar o backend)
-- Checklist de implementação priorizado (Alta, Média e Baixa prioridade)
+Cada interação.
 
-O objetivo é que esse documento tenha qualidade suficiente para servir como especificação oficial do novo frontend e possa ser implementado diretamente por uma equipe de desenvolvimento React.
+---
+
+## 6. Componentes utilizados
+
+Liste todos os componentes compartilhados.
+
+Liste todos os componentes de `components/ui`.
+
+Explique por que cada um foi utilizado.
+
+---
+
+## 7. Fluxo do usuário
+
+Descreva o fluxo completo.
+
+---
+
+## 8. Responsividade
+
+Explique como a tela muda em cada breakpoint.
+
+---
+
+## 9. Microinterações
+
+Liste todas.
+
+---
+
+## 10. Estados
+
+Loading
+
+Empty
+
+Error
+
+Success
+
+Offline
+
+Permissão
+
+Sem resultados
+
+---
+
+## 11. Checklist
+
+Verifique:
+
+* Consistência com o Design System
+* Reutilização máxima
+* Nenhum componente duplicado
+* Excelente UX
+* Excelente UI
+* Acessibilidade
+* Performance
+* Escalabilidade
+
+---
+
+# Qualidade esperada
+
+O redesign deve ter qualidade suficiente para ser implementado diretamente por uma equipe React.
+
+Nenhuma decisão deve ser baseada em preferência pessoal.
+
+Todas as decisões devem ser fundamentadas em princípios de UX, UI, acessibilidade, consistência do Design System e reutilização de componentes.
+
+O resultado final deve parecer uma tela criada pela equipe de produto de empresas como Stripe, Linear, Airbnb, Notion ou Vercel.
