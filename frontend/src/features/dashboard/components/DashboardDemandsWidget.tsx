@@ -5,7 +5,6 @@ import { Card } from '../../../components/ui/Card';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 
-
 const OPEN_STATUSES = new Set(['open', 'in_progress']);
 
 export function DashboardDemandsWidget(): JSX.Element {
@@ -14,11 +13,13 @@ export function DashboardDemandsWidget(): JSX.Element {
 
   return (
     <Card>
-      <h2 className="mb-3 text-lg font-semibold text-ink">Demandas abertas</h2>
+      <h2 className="mb-3 text-lg font-semibold text-ink">Demandas</h2>
       {isPending ? (
         <Skeleton className="h-16 w-full" aria-label="Carregando demandas" />
       ) : items.length === 0 ? (
-        <EmptyState title="Nenhuma demanda aberta" />
+        <div className="flex min-h-24 items-center justify-center">
+          <EmptyState title="Nenhuma demanda aberta" />
+        </div>
       ) : (
         <ul className="flex flex-col gap-2">
           {items.map((demand) => (
@@ -31,7 +32,7 @@ export function DashboardDemandsWidget(): JSX.Element {
         </ul>
       )}
       <Link to="/demands" className="mt-3 inline-block text-sm font-semibold text-primary">
-        Ver todas
+        Ver todas demandas
       </Link>
     </Card>
   );

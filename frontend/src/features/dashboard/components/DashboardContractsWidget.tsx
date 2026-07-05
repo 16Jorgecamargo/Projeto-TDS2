@@ -16,7 +16,9 @@ export function DashboardContractsWidget(): JSX.Element {
       {isPending ? (
         <Skeleton className="h-16 w-full" aria-label="Carregando contratos" />
       ) : active.length === 0 && completed.length === 0 ? (
-        <EmptyState title="Nenhum contrato ainda" />
+        <div className="flex min-h-24 items-center justify-center">
+          <EmptyState title="Nenhum contrato ainda" />
+        </div>
       ) : (
         <div className="flex gap-6">
           <div>
@@ -30,7 +32,7 @@ export function DashboardContractsWidget(): JSX.Element {
         </div>
       )}
       <Link to="/contracts" className="mt-3 inline-block text-sm font-semibold text-primary">
-        Ver contratos
+        Ver todos contratos
       </Link>
     </Card>
   );
