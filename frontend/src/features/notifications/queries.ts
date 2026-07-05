@@ -5,10 +5,11 @@ export const notificationKeys = {
   list: (page: number) => ['notifications', page] as const,
 };
 
-export function useNotifications(page = 1) {
+export function useNotifications(page = 1, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: notificationKeys.list(page),
     queryFn: () => fetchNotifications(page),
+    enabled: options?.enabled ?? true,
   });
 }
 
