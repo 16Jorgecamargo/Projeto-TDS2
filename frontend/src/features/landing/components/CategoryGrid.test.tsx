@@ -25,4 +25,23 @@ describe('CategoryGrid', () => {
     expect(screen.queryByText('Inativa')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Eletrica' })).toHaveAttribute('href', '/search?categoryId=c1');
   });
+
+  it('usa icone especifico por categoria em vez de um icone generico unico', () => {
+    vi.mocked(useCategories).mockReturnValue({
+      data: [
+        { id: 'c1', parentId: null, name: 'Elétrica residencial', slug: 'eletrica', icon: null, description: null, isActive: true },
+        { id: 'c2', parentId: null, name: 'Encanador', slug: 'encanador', icon: null, description: null, isActive: true },
+      ],
+    } as never);
+
+    const { container } = render(
+      <MemoryRouter>
+        <CategoryGrid />
+      </MemoryRouter>,
+    );
+
+    const icons = container.querySelectorAll('svg[aria-hidden="true"]');
+    expect(icons).toHaveLength(2);
+    expect(icons[0].outerHTML).not.toEqual(icons[1].outerHTML);
+  });
 });
