@@ -10,5 +10,6 @@ import { Social1782926888239 } from './1782926888239-Social.js';
 import { Communication1782927016069 } from './1782927016069-Communication.js';
 import { AuditLogs1782927168897 } from './1782927168897-AuditLogs.js';
 import { UserPreferenceLocation1782927300000 } from './1782927300000-UserPreferenceLocation.js';
+import { DemandAddress1782927500000 } from './1782927500000-DemandAddress.js';
 
-export const migrations = [AuthAccount1782924908822, Addresses1782925472617, ProfessionalProfile1782925602537, Catalog1782925794169, Demands1782926186125, Quotes1782926462764, Contracts1782926606932, WalletPayment1782926766952, Social1782926888239, Communication1782927016069, AuditLogs1782927168897, UserPreferenceLocation1782927300000];
+export const migrations = [AuthAccount1782924908822, Addresses1782925472617, ProfessionalProfile1782925602537, Catalog1782925794169, Demands1782926186125, Quotes1782926462764, Contracts1782926606932, WalletPayment1782926766952, Social1782926888239, Communication1782927016069, AuditLogs1782927168897, UserPreferenceLocation1782927300000, DemandAddress1782927500000];
