@@ -133,19 +133,6 @@ export function SearchBar(): JSX.Element {
           </ul>
         )}
       </div>
-      <div className="flex gap-2 sm:contents">
-        <input
-          className="w-full min-w-0 flex-1 rounded-md bg-transparent px-4 py-2.5 text-ink placeholder:text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:w-40 sm:flex-none"
-          placeholder="Cidade"
-          {...register('city')}
-        />
-        <input
-          className="w-16 shrink-0 rounded-md bg-transparent px-3 py-2.5 text-ink uppercase placeholder:text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-          placeholder="UF"
-          maxLength={2}
-          {...register('state', { setValueAs: (value: string) => value.toUpperCase() })}
-        />
-      </div>
       <Button type="submit" className="mt-1 w-full sm:mt-0 sm:ml-2 sm:w-auto">
         Buscar
       </Button>

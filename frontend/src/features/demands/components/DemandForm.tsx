@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { demandFormSchema, type DemandFormValues } from '../schemas';
 import { ImageUpload } from '../../../components/ui/ImageUpload';
+import { useCategories } from '../../professional/queries';
 
 interface DemandFormProps {
   onSubmit: (values: DemandFormValues, images: string[]) => void;
@@ -11,6 +12,7 @@ interface DemandFormProps {
 
 export function DemandForm({ onSubmit, submitting }: DemandFormProps): JSX.Element {
   const [images, setImages] = useState<string[]>([]);
+  const { data: categories } = useCategories();
   const {
     register,
     handleSubmit,
@@ -24,7 +26,23 @@ export function DemandForm({ onSubmit, submitting }: DemandFormProps): JSX.Eleme
     <form onSubmit={handleSubmit((values) => onSubmit(values, images))} className="flex flex-col gap-3">
       <label htmlFor="demand-category" className="flex flex-col gap-1">
         <span className="text-sm text-slate-600">Categoria</span>
-        <input id="demand-category" {...register('categoryId')} className="rounded-lg border border-slate-300 px-3 py-2" />
+        <select
+          id="demand-category"
+          {...register('categoryId')}
+          defaultValue=""
+          className="rounded-lg border border-slate-300 px-3 py-2"
+        >
+          <option value="" disabled>
+            Selecione uma categoria
+          </option>
+          {categories
+            ?.filter((category) => category.isActive)
+            .map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+        </select>
         {errors.categoryId && <span className="text-xs text-red-600">{errors.categoryId.message}</span>}
       </label>
       <label htmlFor="demand-title" className="flex flex-col gap-1">
