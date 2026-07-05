@@ -3,9 +3,10 @@ import { motion, useSpring, useTransform } from 'framer-motion';
 import { useCategories } from '../../professional/queries';
 import { useTotalProfessionalsCount } from '../queries';
 import { Skeleton } from '../../../components/ui/Skeleton';
+import { springOptions } from '../../../lib/motion';
 
 function AnimatedCounter({ value }: { value: number }): JSX.Element {
-  const spring = useSpring(0, { stiffness: 120, damping: 20 });
+  const spring = useSpring(0, springOptions.counter);
   const display = useTransform(spring, (current) => Math.round(current).toLocaleString('pt-BR'));
   const [text, setText] = useState('0');
 

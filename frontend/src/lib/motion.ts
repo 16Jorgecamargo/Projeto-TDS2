@@ -17,6 +17,10 @@ export const spring = {
   gentle: { type: 'spring', stiffness: 260, damping: 26 },
 } as const;
 
+export const springOptions = {
+  counter: { stiffness: 120, damping: 20 },
+} as const;
+
 export const fadeVariants: Variants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
