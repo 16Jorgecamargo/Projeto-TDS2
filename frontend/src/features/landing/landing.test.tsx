@@ -8,12 +8,18 @@ import { SearchBar } from './components/SearchBar';
 import { landingApi } from './api';
 import { searchFormSchema } from './schemas';
 
-vi.mock('./api', () => ({ landingApi: { searchProfessionals: vi.fn() } }));
+vi.mock('./api', () => ({
+  landingApi: { searchProfessionals: vi.fn(), listLocations: vi.fn().mockResolvedValue([]) },
+}));
 vi.mock('../favorites/queries', () => ({
   useFavoriteIds: () => new Set<string>(),
   useAddFavorite: () => ({ mutate: vi.fn(), isPending: false }),
   useRemoveFavorite: () => ({ mutate: vi.fn(), isPending: false }),
 }));
+vi.mock('../professional/queries', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../professional/queries')>();
+  return { ...actual, useCategories: () => ({ data: [], isLoading: false }) };
+});
 
 function renderResults() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -32,7 +38,7 @@ describe('ProfessionalResults', () => {
   it('mostra profissionais retornados pela busca', async () => {
     vi.mocked(landingApi.searchProfessionals).mockResolvedValue({
       items: [
-        { id: 'p1', headline: 'Eletricista residencial', bio: null, hourlyRate: 100, ratingAverage: 4.5, ratingCount: 10, isAvailable: true },
+        { id: 'p1', headline: 'Eletricista residencial', bio: null, hourlyRate: 100, ratingAverage: 4.5, ratingCount: 10, isAvailable: true, categories: ['Eletricista'] },
       ],
       page: 1,
       limit: 20,
@@ -56,21 +62,24 @@ function LocationDisplay() {
 }
 
 function renderSearchBar() {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <MemoryRouter initialEntries={['/']}>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <SearchBar />
-              <LocationDisplay />
-            </>
-          }
-        />
-        <Route path="/search" element={<LocationDisplay />} />
-      </Routes>
-    </MemoryRouter>,
+    <QueryClientProvider client={client}>
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <SearchBar />
+                <LocationDisplay />
+              </>
+            }
+          />
+          <Route path="/search" element={<LocationDisplay />} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 

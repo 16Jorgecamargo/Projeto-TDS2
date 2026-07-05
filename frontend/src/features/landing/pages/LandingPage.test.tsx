@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import LandingPage from './LandingPage';
 
 vi.mock('../components/SearchBar', () => ({ SearchBar: () => <div>search-bar</div> }));
@@ -10,10 +11,19 @@ vi.mock('../components/HowItWorks', () => ({ HowItWorks: () => <div>how-it-works
 vi.mock('../components/Testimonials', () => ({ Testimonials: () => <div>testimonials</div> }));
 vi.mock('../components/Faq', () => ({ Faq: () => <div>faq</div> }));
 vi.mock('../components/ClosingCta', () => ({ ClosingCta: () => <div>closing-cta</div> }));
+vi.mock('../../../components/layout/Footer', () => ({ Footer: () => <div>footer</div> }));
+
+function renderLandingPage() {
+  return render(
+    <MemoryRouter>
+      <LandingPage />
+    </MemoryRouter>,
+  );
+}
 
 describe('LandingPage', () => {
   it('mostra titulo, busca e todas as secoes na ordem esperada', () => {
-    render(<LandingPage />);
+    renderLandingPage();
 
     expect(screen.getByRole('heading', { name: 'Encontre o profissional certo' })).toBeInTheDocument();
     expect(screen.getByText('search-bar')).toBeInTheDocument();
@@ -26,6 +36,7 @@ describe('LandingPage', () => {
       'testimonials',
       'faq',
       'closing-cta',
+      'footer',
     ];
     const positions = sectionLabels.map((label) => {
       const element = screen.getByText(label);
@@ -37,7 +48,7 @@ describe('LandingPage', () => {
   });
 
   it('mantem os badges de confianca do hero', () => {
-    render(<LandingPage />);
+    renderLandingPage();
     expect(screen.getByText('Pagamento protegido')).toBeInTheDocument();
     expect(screen.getByText('Profissionais avaliados')).toBeInTheDocument();
     expect(screen.getByText('Resposta rápida')).toBeInTheDocument();

@@ -7,4 +7,7 @@ export class SearchController {
 
   searchProfessionals = async (req: FastifyRequest<{ Querystring: SearchQuery }>, reply: FastifyReply) =>
     reply.send(await this.service.searchProfessionals(req.query));
+
+  listLocations = async (_req: FastifyRequest, reply: FastifyReply) =>
+    reply.send(await this.service.listLocations());
 }

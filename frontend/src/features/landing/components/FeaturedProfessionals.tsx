@@ -1,12 +1,10 @@
 import type { JSX } from 'react';
 import { ProfessionalCard } from '../../professional/components/ProfessionalCard';
 import { useFeaturedProfessionals } from '../queries';
-import { useFavoriteIds } from '../../favorites/queries';
 import { Skeleton } from '../../../components/ui/Skeleton';
 
 export function FeaturedProfessionals(): JSX.Element | null {
   const { data, isLoading } = useFeaturedProfessionals(3);
-  const favoriteIds = useFavoriteIds();
 
   if (isLoading) {
     return (
@@ -38,8 +36,7 @@ export function FeaturedProfessionals(): JSX.Element | null {
             hourlyRate={item.hourlyRate}
             ratingAverage={item.ratingAverage}
             ratingCount={item.ratingCount}
-            isAvailable={item.isAvailable}
-            isFavorite={favoriteIds.has(item.id)}
+            categories={item.categories}
           />
         ))}
       </div>

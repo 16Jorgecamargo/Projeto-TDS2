@@ -23,7 +23,19 @@ export const searchResultItemSchema = z.object({
   ratingAverage: z.number().describe('Media de avaliacoes').openapi({ example: 4.8 }),
   ratingCount: z.number().int().describe('Total de avaliacoes').openapi({ example: 42 }),
   isAvailable: z.boolean().describe('Disponivel').openapi({ example: true }),
+  categories: z
+    .array(z.string())
+    .describe('Categorias do profissional')
+    .openapi({ example: ['Eletricista'] }),
 });
+
+export const locationSchema = z.object({
+  city: z.string().describe('Cidade').openapi({ example: 'Porto Alegre' }),
+  state: z.string().describe('UF').openapi({ example: 'RS' }),
+});
+
+export const locationListSchema = z.array(locationSchema);
 
 export type SearchQuery = z.infer<typeof searchQuerySchema>;
 export type SearchResultItem = z.infer<typeof searchResultItemSchema>;
+export type Location = z.infer<typeof locationSchema>;

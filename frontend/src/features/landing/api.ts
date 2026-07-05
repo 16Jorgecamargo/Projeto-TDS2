@@ -8,6 +8,12 @@ export interface SearchResultItem {
   ratingAverage: number;
   ratingCount: number;
   isAvailable: boolean;
+  categories: string[];
+}
+
+export interface Location {
+  city: string;
+  state: string;
 }
 
 export interface SearchResponse {
@@ -29,6 +35,10 @@ export interface SearchParams {
 export const landingApi = {
   async searchProfessionals(params: SearchParams): Promise<SearchResponse> {
     const { data } = await http.get<SearchResponse>('/search/professionals', { params });
+    return data;
+  },
+  async listLocations(): Promise<Location[]> {
+    const { data } = await http.get<Location[]>('/search/locations');
     return data;
   },
 };

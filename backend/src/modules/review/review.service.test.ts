@@ -57,6 +57,17 @@ describe('ReviewService', () => {
         id: 'r-1',
         created_at: new Date('2026-07-01T12:00:00Z'),
       }));
+      reviews.findOne.mockResolvedValueOnce(null);
+      reviews.findOne.mockResolvedValueOnce({
+        id: 'r-1',
+        contract_id: 'c-1',
+        reviewer_id: 'client-1',
+        reviewee_id: 'pro-1',
+        reviewer: { full_name: 'Ana Souza' },
+        rating: 5,
+        comment: 'Otimo',
+        created_at: new Date('2026-07-01T12:00:00Z'),
+      } as Review);
 
       const result = await service.create({
         contractId: 'c-1',
@@ -115,6 +126,7 @@ describe('ReviewService', () => {
             contract_id: 'c-1',
             reviewer_id: 'client-1',
             reviewee_id: 'pro-1',
+            reviewer: { full_name: 'Ana Souza' },
             rating: 5,
             comment: 'Otimo',
             response: null,
@@ -129,6 +141,7 @@ describe('ReviewService', () => {
 
       expect(reviews.findAndCount).toHaveBeenCalledWith({
         where: { reviewee_id: 'pro-1' },
+        relations: ['reviewer'],
         order: { created_at: 'DESC' },
         skip: 0,
         take: 20,

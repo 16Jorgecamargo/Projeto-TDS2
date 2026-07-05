@@ -32,3 +32,11 @@ export function useTotalProfessionalsCount() {
     select: (data): number => data.total,
   });
 }
+
+export function useLocations() {
+  return useQuery({
+    queryKey: ['landing', 'locations'],
+    queryFn: landingApi.listLocations,
+    staleTime: 5 * 60 * 1000,
+  });
+}

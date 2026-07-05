@@ -18,18 +18,17 @@ describe('ProfessionalCard', () => {
         hourlyRate={100}
         ratingAverage={4.5}
         ratingCount={20}
-        isAvailable
-        isFavorite={false}
+        categories={['Eletricista']}
       />,
     );
 
     expect(screen.getByText('Eletricista João')).toBeInTheDocument();
     expect(screen.getByText('R$ 100/h')).toBeInTheDocument();
     expect(screen.getByText('4.5 (20)')).toBeInTheDocument();
-    expect(screen.getByText('Disponível agora')).toBeInTheDocument();
+    expect(screen.getByText('Eletricista')).toBeInTheDocument();
   });
 
-  it('mostra "Sob consulta" quando nao ha valor por hora e esconde o badge de disponibilidade', () => {
+  it('mostra "Sob consulta" quando nao ha valor por hora e esconde o badge de categoria quando nao ha categorias', () => {
     renderWithProviders(
       <ProfessionalCard
         id="p1"
@@ -38,8 +37,7 @@ describe('ProfessionalCard', () => {
         hourlyRate={null}
         ratingAverage={0}
         ratingCount={0}
-        isAvailable={false}
-        isFavorite={false}
+        categories={[]}
       />,
     );
 
@@ -49,6 +47,14 @@ describe('ProfessionalCard', () => {
 
   it('linka para o perfil publico', () => {
     renderWithProviders(
+      <ProfessionalCard id="p1" headline="Eletricista" bio={null} hourlyRate={null} ratingAverage={0} ratingCount={0} />,
+    );
+
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/professionals/p1');
+  });
+
+  it('mostra badge de disponibilidade e botao de favoritar quando fornecidos (uso na pagina de busca)', () => {
+    renderWithProviders(
       <ProfessionalCard
         id="p1"
         headline="Eletricista"
@@ -56,11 +62,12 @@ describe('ProfessionalCard', () => {
         hourlyRate={null}
         ratingAverage={0}
         ratingCount={0}
-        isAvailable={false}
+        isAvailable
         isFavorite={false}
       />,
     );
 
-    expect(screen.getByRole('link')).toHaveAttribute('href', '/professionals/p1');
+    expect(screen.getByText('Disponível agora')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /favoritos/ })).toBeInTheDocument();
   });
 });

@@ -21,3 +21,9 @@ export function formatDate(value: string | Date): string {
   const date = value instanceof Date ? value : new Date(value);
   return dateFormatter.format(date);
 }
+
+export function formatShortName(fullName: string): string {
+  const [firstName, ...rest] = fullName.trim().split(/\s+/);
+  const lastName = rest[rest.length - 1];
+  return lastName ? `${firstName} ${lastName.charAt(0)}.` : firstName;
+}

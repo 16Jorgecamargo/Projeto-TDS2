@@ -4,6 +4,7 @@ export interface Review {
   id: string;
   contractId: string;
   authorId: string;
+  authorName: string;
   targetId: string;
   rating: number;
   comment: string | null;

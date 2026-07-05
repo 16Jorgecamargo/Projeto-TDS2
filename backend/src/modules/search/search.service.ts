@@ -1,8 +1,8 @@
-import type { Repository } from 'typeorm';
+import { In, type Repository } from 'typeorm';
 import { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
 import { ProfessionalCategory } from '../../infra/database/entities/professional-category.entity.js';
 import { ProfessionalServiceArea } from '../../infra/database/entities/professional-service-area.entity.js';
-import type { SearchQuery, SearchResultItem } from './search.schemas.js';
+import type { Location, SearchQuery, SearchResultItem } from './search.schemas.js';
 
 interface SearchServiceDeps {
   profiles: Repository<ProfessionalProfile>;
@@ -52,16 +52,49 @@ export class SearchService {
       .take(query.limit);
 
     const [rows, total] = await qb.getManyAndCount();
+    const categoriesByProfileId = await this.loadCategoryNames(rows.map((row) => row.id));
 
     return {
-      items: rows.map((row) => this.toResultItem(row)),
+      items: rows.map((row) => this.toResultItem(row, categoriesByProfileId.get(row.id) ?? [])),
       page: query.page,
       limit: query.limit,
       total,
     };
   }
 
-  private toResultItem(profile: ProfessionalProfile): SearchResultItem {
+  async listLocations(): Promise<Location[]> {
+    const rows = await this.deps.serviceAreas
+      .createQueryBuilder('area')
+      .select('DISTINCT area.city', 'city')
+      .addSelect('area.state', 'state')
+      .orderBy('area.state', 'ASC')
+      .addOrderBy('area.city', 'ASC')
+      .getRawMany<{ city: string; state: string }>();
+
+    return rows.map((row) => ({ city: row.city, state: row.state }));
+  }
+
+  private async loadCategoryNames(profileIds: string[]): Promise<Map<string, string[]>> {
+    const map = new Map<string, string[]>();
+    if (profileIds.length === 0) {
+      return map;
+    }
+
+    const links = await this.deps.categoryLinks.find({
+      where: { professional_id: In(profileIds) },
+      relations: ['category'],
+    });
+
+    for (const link of links) {
+      const names = map.get(link.professional_id) ?? [];
+      names.push(link.category.name);
+      map.set(link.professional_id, names);
+    }
+
+    return map;
+  }
+
+  private toResultItem(profile: ProfessionalProfile, categories: string[]): SearchResultItem {
     return {
       id: profile.id,
       headline: profile.headline,
@@ -70,6 +103,7 @@ export class SearchService {
       ratingAverage: Number(profile.rating_average),
       ratingCount: profile.rating_count,
       isAvailable: profile.is_available,
+      categories,
     };
   }
 }

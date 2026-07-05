@@ -53,4 +53,30 @@ describe('SearchService', () => {
 
     expect(qb.andWhere).toHaveBeenCalled();
   });
+
+  it('anexa nomes de categorias dos profissionais retornados', async () => {
+    const qb = mockQueryBuilder();
+    qb.getManyAndCount.mockResolvedValue([
+      [{ id: 'prof-1', headline: 'Eletricista', bio: null, hourly_rate: null, rating_average: '0', rating_count: 0, is_available: true }],
+      1,
+    ]);
+    profiles.createQueryBuilder.mockReturnValue(qb);
+    categoryLinks.find.mockResolvedValue([
+      { professional_id: 'prof-1', category: { name: 'Eletricista' } },
+    ]);
+
+    const result = await service.searchProfessionals({ page: 1, limit: 20 });
+
+    expect(result.items[0]?.categories).toEqual(['Eletricista']);
+  });
+
+  it('lista cidades e estados distintos das areas de atendimento', async () => {
+    const qb = mockQueryBuilder();
+    qb.getRawMany.mockResolvedValue([{ city: 'Porto Alegre', state: 'RS' }]);
+    serviceAreas.createQueryBuilder.mockReturnValue(qb);
+
+    const result = await service.listLocations();
+
+    expect(result).toEqual([{ city: 'Porto Alegre', state: 'RS' }]);
+  });
 });

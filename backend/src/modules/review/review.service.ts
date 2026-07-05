@@ -46,6 +46,7 @@ export class ReviewService {
       id: review.id,
       contractId: review.contract_id,
       authorId: review.reviewer_id,
+      authorName: review.reviewer.full_name,
       targetId: review.reviewee_id,
       rating: review.rating,
       comment: review.comment,
@@ -95,6 +96,10 @@ export class ReviewService {
     });
 
     const saved = await this.deps.reviews.save(entity);
+    const savedWithReviewer = (await this.deps.reviews.findOne({
+      where: { id: saved.id },
+      relations: ['reviewer'],
+    }))!;
 
     await this.deps.enqueueNotification({
       userId: targetId,
@@ -112,7 +117,7 @@ export class ReviewService {
     });
 
     businessMetrics.reviewsCreated.inc();
-    return this.toResponse(saved);
+    return this.toResponse(savedWithReviewer);
   }
 
   async listForProfessional(
@@ -127,6 +132,7 @@ export class ReviewService {
 
     const [rows, total] = await this.deps.reviews.findAndCount({
       where: { reviewee_id: profile.user_id },
+      relations: ['reviewer'],
       order: { created_at: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,

@@ -51,7 +51,7 @@ export function Topbar(): JSX.Element {
           <Link to="/login" className="text-sm font-semibold text-ink hover:text-primary">
             Entrar
           </Link>
-          <Button asChild variant="accent" size="sm">
+          <Button asChild variant="primary" size="sm">
             <Link to="/register">Registrar</Link>
           </Button>
         </>

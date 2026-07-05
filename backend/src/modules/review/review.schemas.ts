@@ -39,6 +39,10 @@ export const reviewResponseSchema = z.object({
     .uuid()
     .describe('Autor da avaliacao')
     .openapi({ example: 'b1b2c3d4-0000-4000-8000-000000000002' }),
+  authorName: z
+    .string()
+    .describe('Nome do autor da avaliacao')
+    .openapi({ example: 'Ana Souza' }),
   targetId: z
     .string()
     .uuid()

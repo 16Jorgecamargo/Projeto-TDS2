@@ -3,11 +3,10 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { FeaturedProfessionals } from './FeaturedProfessionals';
 import { useFeaturedProfessionals } from '../queries';
-import { useFavoriteIds, useAddFavorite, useRemoveFavorite } from '../../favorites/queries';
+import { useAddFavorite, useRemoveFavorite } from '../../favorites/queries';
 
 vi.mock('../queries', () => ({ useFeaturedProfessionals: vi.fn() }));
 vi.mock('../../favorites/queries', () => ({
-  useFavoriteIds: vi.fn(),
   useAddFavorite: vi.fn(),
   useRemoveFavorite: vi.fn(),
 }));
@@ -27,22 +26,32 @@ describe('FeaturedProfessionals', () => {
     vi.mocked(useRemoveFavorite).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
   });
 
-  it('renderiza os profissionais em destaque retornados pela query', () => {
-    vi.mocked(useFavoriteIds).mockReturnValue(new Set());
+  it('renderiza os profissionais em destaque retornados pela query, com a categoria em vez de disponibilidade', () => {
     vi.mocked(useFeaturedProfessionals).mockReturnValue({
       isLoading: false,
       data: [
-        { id: '1', headline: 'Maria Eletricista', bio: null, hourlyRate: 80, ratingAverage: 4.9, ratingCount: 20, isAvailable: true },
+        {
+          id: '1',
+          headline: 'Maria Eletricista',
+          bio: null,
+          hourlyRate: 80,
+          ratingAverage: 4.9,
+          ratingCount: 20,
+          isAvailable: true,
+          categories: ['Eletricista'],
+        },
       ],
     } as never);
 
     renderComponent();
 
     expect(screen.getByText('Maria Eletricista')).toBeInTheDocument();
+    expect(screen.getByText('Eletricista')).toBeInTheDocument();
+    expect(screen.queryByText('Disponível agora')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /favoritos/ })).not.toBeInTheDocument();
   });
 
   it('nao renderiza nada quando nao ha profissionais em destaque', () => {
-    vi.mocked(useFavoriteIds).mockReturnValue(new Set());
     vi.mocked(useFeaturedProfessionals).mockReturnValue({ isLoading: false, data: [] } as never);
 
     const { container } = renderComponent();
@@ -51,7 +60,6 @@ describe('FeaturedProfessionals', () => {
   });
 
   it('mostra skeletons enquanto carrega', () => {
-    vi.mocked(useFavoriteIds).mockReturnValue(new Set());
     vi.mocked(useFeaturedProfessionals).mockReturnValue({ isLoading: true, data: undefined } as never);
 
     const { container } = renderComponent();

@@ -9,6 +9,7 @@ import { HowItWorks } from '../components/HowItWorks';
 import { Testimonials } from '../components/Testimonials';
 import { Faq } from '../components/Faq';
 import { ClosingCta } from '../components/ClosingCta';
+import { Footer } from '../../../components/layout/Footer';
 import { spring } from '../../../lib/motion';
 
 const trustPoints = [
@@ -62,6 +63,7 @@ export default function LandingPage(): JSX.Element {
       <Testimonials />
       <Faq />
       <ClosingCta />
+      <Footer />
     </div>
   );
 }

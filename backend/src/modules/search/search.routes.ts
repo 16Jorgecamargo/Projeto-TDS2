@@ -5,7 +5,7 @@ import { ProfessionalProfile } from '../../infra/database/entities/professional-
 import { ProfessionalCategory } from '../../infra/database/entities/professional-category.entity.js';
 import { ProfessionalServiceArea } from '../../infra/database/entities/professional-service-area.entity.js';
 import { paginatedResponse } from '../../shared/schemas.js';
-import { searchQuerySchema, searchResultItemSchema } from './search.schemas.js';
+import { locationListSchema, searchQuerySchema, searchResultItemSchema } from './search.schemas.js';
 
 export async function searchRoutes(app: FastifyInstance): Promise<void> {
   const service = new SearchService({
@@ -23,5 +23,14 @@ export async function searchRoutes(app: FastifyInstance): Promise<void> {
       response: { 200: paginatedResponse(searchResultItemSchema) },
     },
     handler: controller.searchProfessionals,
+  });
+
+  app.get('/search/locations', {
+    schema: {
+      tags: ['search'],
+      summary: 'Lista cidades e estados cadastrados nas areas de atendimento',
+      response: { 200: locationListSchema },
+    },
+    handler: controller.listLocations,
   });
 }
