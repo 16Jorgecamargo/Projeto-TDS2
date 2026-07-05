@@ -9,10 +9,17 @@ export function useSearchProfessionals(params: SearchParams, options?: { enabled
   });
 }
 
+const PROFESSIONALS_BASE_LIMIT = 12;
+const professionalsBaseQueryKey = ['landing', 'professionals-base', PROFESSIONALS_BASE_LIMIT] as const;
+
+function professionalsBaseQueryFn() {
+  return landingApi.searchProfessionals({ limit: PROFESSIONALS_BASE_LIMIT });
+}
+
 export function useFeaturedProfessionals(limit = 3) {
   return useQuery({
-    queryKey: ['landing', 'featured', limit],
-    queryFn: () => landingApi.searchProfessionals({ limit: 12 }),
+    queryKey: professionalsBaseQueryKey,
+    queryFn: professionalsBaseQueryFn,
     select: (data): SearchResultItem[] =>
       [...data.items].sort((a, b) => b.ratingAverage - a.ratingAverage).slice(0, limit),
   });
@@ -20,8 +27,8 @@ export function useFeaturedProfessionals(limit = 3) {
 
 export function useTotalProfessionalsCount() {
   return useQuery({
-    queryKey: ['landing', 'total-count'],
-    queryFn: () => landingApi.searchProfessionals({ limit: 1 }),
+    queryKey: professionalsBaseQueryKey,
+    queryFn: professionalsBaseQueryFn,
     select: (data): number => data.total,
   });
 }
