@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX } from 'react';
+import { useEffect, useRef, useState, type JSX } from 'react';
 import { useCategories } from '../../professional/queries';
 import { searchFormSchema, type SearchForm } from '../schemas';
 
@@ -21,23 +21,35 @@ export function FilterBar({
   const [city, setCity] = useState(value.city ?? '');
   const [state, setState] = useState(value.state ?? '');
   const [errors, setErrors] = useState<{ city?: string; state?: string }>({});
+  const valueRef = useRef(value);
+  const onChangeRef = useRef(onChange);
+  const hasMountedRef = useRef(false);
 
   useEffect(() => setCity(value.city ?? ''), [value.city]);
   useEffect(() => setState(value.state ?? ''), [value.state]);
 
   useEffect(() => {
+    valueRef.current = value;
+    onChangeRef.current = onChange;
+  }, [value, onChange]);
+
+  useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return undefined;
+    }
+
     const timer = setTimeout(() => {
-      const result = searchFormSchema.safeParse({ ...value, city, state });
+      const result = searchFormSchema.safeParse({ ...valueRef.current, city, state });
       if (result.success) {
         setErrors({});
-        onChange({ ...value, city: result.data.city, state: result.data.state });
+        onChangeRef.current({ ...valueRef.current, city: result.data.city, state: result.data.state });
       } else {
         const fieldErrors = result.error.flatten().fieldErrors;
         setErrors({ city: fieldErrors.city?.[0], state: fieldErrors.state?.[0] });
       }
     }, DEBOUNCE_MS);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city, state]);
 
   function handleCategoryChange(categoryId: string) {
