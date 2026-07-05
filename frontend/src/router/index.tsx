@@ -3,6 +3,7 @@ import { App } from '../App';
 import { NotFound } from '../pages/NotFound';
 import { Forbidden } from '../pages/Forbidden';
 import { ProtectedRoute } from './ProtectedRoute';
+import { RequireGuest } from './RequireGuest';
 import LoginPage from '../features/auth/pages/LoginPage';
 import RegisterPage from '../features/auth/pages/RegisterPage';
 import VerifyEmailPage from '../features/auth/pages/VerifyEmailPage';
@@ -31,11 +32,6 @@ export const router = createBrowserRouter([
     children: [
       { path: '/', element: <HomeRoute /> },
       { path: '/search', element: <SearchPage /> },
-      { path: '/login', element: <LoginPage /> },
-      { path: '/register', element: <RegisterPage /> },
-      { path: '/verify-email', element: <VerifyEmailPage /> },
-      { path: '/forgot-password', element: <ForgotPasswordPage /> },
-      { path: '/reset-password', element: <ResetPasswordPage /> },
       { path: '/forbidden', element: <Forbidden /> },
       { path: '/professionals/:id', element: <PublicProfilePage /> },
       {
@@ -63,6 +59,16 @@ export const router = createBrowserRouter([
         children: [{ path: '/admin', element: <AdminDashboardPage /> }],
       },
       { path: '*', element: <NotFound /> },
+    ],
+  },
+  {
+    element: <RequireGuest />,
+    children: [
+      { path: '/login', element: <LoginPage /> },
+      { path: '/register', element: <RegisterPage /> },
+      { path: '/verify-email', element: <VerifyEmailPage /> },
+      { path: '/forgot-password', element: <ForgotPasswordPage /> },
+      { path: '/reset-password', element: <ResetPasswordPage /> },
     ],
   },
 ]);
