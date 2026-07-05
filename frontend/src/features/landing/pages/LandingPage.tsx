@@ -1,7 +1,15 @@
 import type { JSX } from 'react';
+import { motion } from 'framer-motion';
 import { ShieldCheckIcon, CheckBadgeIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { SearchBar } from '../components/SearchBar';
+import { TrustStats } from '../components/TrustStats';
 import { CategoryGrid } from '../components/CategoryGrid';
+import { FeaturedProfessionals } from '../components/FeaturedProfessionals';
+import { HowItWorks } from '../components/HowItWorks';
+import { Testimonials } from '../components/Testimonials';
+import { Faq } from '../components/Faq';
+import { ClosingCta } from '../components/ClosingCta';
+import { spring } from '../../../lib/motion';
 
 const trustPoints = [
   { icon: ShieldCheckIcon, label: 'Pagamento protegido' },
@@ -13,7 +21,12 @@ export default function LandingPage(): JSX.Element {
   return (
     <div className="flex flex-col">
       <section className="bg-surface px-6 py-16 sm:py-24">
-        <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={spring.gentle}
+          className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center"
+        >
           <h1 className="text-4xl font-bold tracking-tight text-ink text-balance sm:text-5xl">
             Encontre o profissional certo
           </h1>
@@ -34,13 +47,21 @@ export default function LandingPage(): JSX.Element {
               </li>
             ))}
           </ul>
-        </div>
+        </motion.div>
       </section>
 
+      <TrustStats />
+
       <section className="mx-auto w-full max-w-6xl px-6 py-16">
-        <h2 className="mb-6 text-2xl font-bold text-ink">Categorias em destaque</h2>
+        <h2 className="mb-6 text-h2 font-bold text-ink">Categorias em destaque</h2>
         <CategoryGrid />
       </section>
+
+      <FeaturedProfessionals />
+      <HowItWorks />
+      <Testimonials />
+      <Faq />
+      <ClosingCta />
     </div>
   );
 }
