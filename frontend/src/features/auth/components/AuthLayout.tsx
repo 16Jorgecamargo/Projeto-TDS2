@@ -1,4 +1,5 @@
 import type { JSX, ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { fadeVariants, spring } from '../../../lib/motion';
 
@@ -12,7 +13,9 @@ export function AuthLayout({ title, description, children }: AuthLayoutProps): J
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
       <div className="hidden flex-col justify-center gap-2 bg-primary px-8 py-6 text-bg md:flex lg:w-1/2 lg:gap-4 lg:px-16 lg:py-10">
-        <span className="text-h4 font-semibold lg:text-h3">Projeto TDS</span>
+        <Link to="/" className="text-h4 font-semibold lg:text-h3">
+          Projeto TDS
+        </Link>
         <h1 className="text-h4 font-semibold lg:text-h2">{title}</h1>
         {description ? <p className="hidden text-body-md text-bg/80 lg:block">{description}</p> : null}
       </div>
@@ -24,9 +27,9 @@ export function AuthLayout({ title, description, children }: AuthLayoutProps): J
           transition={spring.gentle}
           className="w-full max-w-sm"
         >
-          <span className="mb-6 flex justify-center text-h4 font-semibold text-primary md:hidden">
+          <Link to="/" className="mb-6 flex justify-center text-h4 font-semibold text-primary md:hidden">
             Projeto TDS
-          </span>
+          </Link>
           {children}
         </motion.div>
       </div>

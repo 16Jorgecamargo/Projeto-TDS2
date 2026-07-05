@@ -1,10 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { AuthLayout } from './AuthLayout';
+
+function renderLayout(ui: React.ReactElement) {
+  return render(<MemoryRouter>{ui}</MemoryRouter>);
+}
 
 describe('AuthLayout', () => {
   it('renderiza titulo, descricao e conteudo filho', () => {
-    render(
+    renderLayout(
       <AuthLayout title="Bem-vindo de volta" description="Entre com sua conta para continuar.">
         <p>form aqui</p>
       </AuthLayout>,
@@ -15,12 +20,23 @@ describe('AuthLayout', () => {
   });
 
   it('renderiza sem descricao quando ela nao e passada', () => {
-    render(
+    renderLayout(
       <AuthLayout title="Redefinir senha">
         <p>form aqui</p>
       </AuthLayout>,
     );
     expect(screen.getAllByText('Redefinir senha').length).toBeGreaterThan(0);
     expect(screen.getByText('form aqui')).toBeInTheDocument();
+  });
+
+  it('logo Projeto TDS e um link de volta para a landing page', () => {
+    renderLayout(
+      <AuthLayout title="Entrar">
+        <p>form aqui</p>
+      </AuthLayout>,
+    );
+    const logos = screen.getAllByRole('link', { name: 'Projeto TDS' });
+    expect(logos.length).toBeGreaterThan(0);
+    logos.forEach((logo) => expect(logo).toHaveAttribute('href', '/'));
   });
 });
