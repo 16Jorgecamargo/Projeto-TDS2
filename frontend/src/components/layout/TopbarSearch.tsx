@@ -5,6 +5,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useSearchProfessionals, useLocations } from '../../features/landing/queries';
 import { useDemands } from '../../features/demands/queries';
 import { useCategories } from '../../features/professional/queries';
+import { useAuthStore } from '../../stores/auth';
 
 const MIN_SEARCH_LENGTH = 2;
 const DEBOUNCE_MS = 300;
@@ -38,6 +39,7 @@ function useDebouncedValue(value: string, delay: number): string {
 
 export function TopbarSearch(): JSX.Element {
   const navigate = useNavigate();
+  const isClient = useAuthStore((state) => state.user?.role === 'client');
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [expanded, setExpanded] = useState(false);
@@ -89,7 +91,7 @@ export function TopbarSearch(): JSX.Element {
     { q: debouncedQuery.trim() || undefined },
     { enabled: expanded && canSearch },
   );
-  const demandResults = useDemands(undefined, { enabled: expanded && canSearch });
+  const demandResults = useDemands(isClient ? true : undefined, { enabled: expanded && canSearch });
 
   const professionalItems = useMemo<ResultItem[]>(
     () =>
