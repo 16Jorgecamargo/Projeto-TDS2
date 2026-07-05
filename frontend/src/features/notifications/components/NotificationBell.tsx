@@ -2,10 +2,16 @@ import type { JSX } from 'react';
 import { BellIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import { useNotifications } from '../queries';
+import { useAuthStore } from '../../../stores/auth';
 
-export function NotificationBell(): JSX.Element {
-  const notifications = useNotifications();
+export function NotificationBell(): JSX.Element | null {
+  const user = useAuthStore((state) => state.user);
+  const notifications = useNotifications(1, { enabled: Boolean(user) });
   const unread = notifications.data?.items.filter((notification) => !notification.readAt).length ?? 0;
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <Link to="/notifications" className="relative inline-flex items-center text-ink" aria-label="Notificações">
