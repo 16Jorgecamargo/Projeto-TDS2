@@ -36,7 +36,9 @@ export function DemandCard({ demand, onOpen }: DemandCardProps): JSX.Element {
         </Badge>
       </div>
       <span className="text-sm text-muted">
-        {currency(demand.budgetMin)} — {currency(demand.budgetMax)}
+        {demand.budgetMin !== null && demand.budgetMax !== null
+          ? `${currency(demand.budgetMin)} — ${currency(demand.budgetMax)}`
+          : 'Orçamento a definir'}
       </span>
     </button>
   );

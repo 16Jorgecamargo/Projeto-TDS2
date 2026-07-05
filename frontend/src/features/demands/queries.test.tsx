@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -13,21 +13,30 @@ function wrapper({ children }: { children: ReactNode }) {
 }
 
 describe('usePublishDemand', () => {
-  beforeEach(() => vi.clearAllMocks());
-
   it('chama publishDemand com os valores e as imagens', async () => {
     vi.mocked(publishDemand).mockResolvedValue({ id: 'd1' } as never);
 
     const { result } = renderHook(() => usePublishDemand(), { wrapper });
+    const formValues = {
+      categoryId: 'c1',
+      title: 'Pintar sala',
+      description: 'Descricao com mais de vinte caracteres',
+      budgetMin: 100,
+      budgetMax: 200,
+      street: 'Rua A',
+      number: '123',
+      complement: null,
+      district: 'Bairro X',
+      city: 'São Paulo',
+      state: 'SP',
+      zipCode: '12345-678',
+    };
     result.current.mutate({
-      values: { categoryId: 'c1', title: 'Pintar sala', description: 'Descricao com mais de vinte caracteres', budgetMin: 100, budgetMax: 200 },
+      values: formValues,
       images: ['/uploads/foto1.jpg'],
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(publishDemand).toHaveBeenCalledWith(
-      { categoryId: 'c1', title: 'Pintar sala', description: 'Descricao com mais de vinte caracteres', budgetMin: 100, budgetMax: 200 },
-      ['/uploads/foto1.jpg'],
-    );
+    expect(publishDemand).toHaveBeenCalledWith(formValues, ['/uploads/foto1.jpg']);
   });
 });

@@ -14,10 +14,16 @@ export interface Demand {
   categoryId: string;
   title: string;
   description: string;
-  budgetMin: number;
-  budgetMax: number;
+  budgetMin: number | null;
+  budgetMax: number | null;
   status: DemandStatus;
-  addressId: string | null;
+  city: string;
+  state: string;
+  street: string | null;
+  number: string | null;
+  complement: string | null;
+  district: string | null;
+  zipCode: string | null;
   images: DemandImage[];
   tagIds: string[];
   createdAt: string;
@@ -93,7 +99,6 @@ export async function fetchDemand(id: string): Promise<Demand> {
 export async function publishDemand(values: DemandFormValues, images: string[] = []): Promise<Demand> {
   const { data } = await http.post<Demand>('/demands', {
     ...values,
-    addressId: null,
     tagIds: [],
     images: images.map((url, position) => ({ url, position })),
   });
