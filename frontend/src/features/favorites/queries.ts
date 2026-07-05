@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchFavorites, addFavorite, removeFavorite } from './api';
+import { useAuthStore } from '../../stores/auth';
 
 const FAVORITES_LIST_LIMIT = 20;
 const FAVORITE_IDS_LIMIT = 100;
@@ -17,9 +18,11 @@ export function useFavorites(page = 1) {
 }
 
 export function useFavoriteIds() {
+  const isAuthenticated = useAuthStore((state) => state.user !== null);
   const { data } = useQuery({
     queryKey: favoriteKeys.list(1, FAVORITE_IDS_LIMIT),
     queryFn: () => fetchFavorites(1, FAVORITE_IDS_LIMIT),
+    enabled: isAuthenticated,
   });
   return useMemo(() => new Set((data?.items ?? []).map((item) => item.professionalId)), [data]);
 }

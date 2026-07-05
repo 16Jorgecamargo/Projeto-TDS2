@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { fetchFavorites, addFavorite, removeFavorite } from './api';
 import { useFavorites, useFavoriteIds, useAddFavorite, useRemoveFavorite, favoriteKeys } from './queries';
+import { useAuthStore } from '../../stores/auth';
 
 vi.mock('./api', () => ({
   fetchFavorites: vi.fn(),
@@ -17,7 +18,10 @@ function wrapper({ children }: { children: ReactNode }) {
 }
 
 describe('favorites queries', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useAuthStore.setState({ user: null, accessToken: null, refreshToken: null });
+  });
 
   it('favoriteKeys.list gera chaves distintas para limites diferentes na mesma pagina', () => {
     expect(favoriteKeys.list(1, 20)).not.toEqual(favoriteKeys.list(1, 100));
@@ -32,7 +36,8 @@ describe('favorites queries', () => {
     expect(fetchFavorites).toHaveBeenCalledWith(1);
   });
 
-  it('useFavoriteIds retorna um Set com os ids favoritados', async () => {
+  it('useFavoriteIds retorna um Set com os ids favoritados quando autenticado', async () => {
+    useAuthStore.setState({ user: { id: 'u1', role: 'client' }, accessToken: 'token', refreshToken: null });
     vi.mocked(fetchFavorites).mockResolvedValue({
       items: [{ id: 'f1', professionalId: 'p1', createdAt: '' }, { id: 'f2', professionalId: 'p2', createdAt: '' }],
       page: 1,
@@ -45,6 +50,15 @@ describe('favorites queries', () => {
     await waitFor(() => expect(result.current.has('p1')).toBe(true));
     expect(result.current.has('p2')).toBe(true);
     expect(fetchFavorites).toHaveBeenCalledWith(1, 100);
+  });
+
+  it('useFavoriteIds nao busca favoritos quando o visitante nao esta autenticado', () => {
+    useAuthStore.setState({ user: null, accessToken: null, refreshToken: null });
+
+    const { result } = renderHook(() => useFavoriteIds(), { wrapper });
+
+    expect(result.current.size).toBe(0);
+    expect(fetchFavorites).not.toHaveBeenCalled();
   });
 
   it('useAddFavorite chama addFavorite', async () => {
