@@ -1,14 +1,17 @@
 import { z } from 'zod';
 
-export const demandFormSchema = z
-  .object({
-    categoryId: z.string().uuid('Categoria obrigatória'),
-    title: z.string().min(5, 'Mínimo 5 caracteres').max(120),
-    description: z.string().min(20, 'Mínimo 20 caracteres').max(4000),
-    budgetMin: z.coerce.number().nonnegative(),
-    budgetMax: z.coerce.number().nonnegative(),
-  })
-  .refine((v) => v.budgetMax >= v.budgetMin, { message: 'Máximo deve ser >= mínimo', path: ['budgetMax'] });
+export const demandFormSchema = z.object({
+  categoryId: z.string().uuid('Categoria obrigatória'),
+  title: z.string().min(5, 'Mínimo 5 caracteres').max(120),
+  description: z.string().min(20, 'Mínimo 20 caracteres').max(4000),
+  street: z.string().min(1, 'Informe a rua'),
+  number: z.string().min(1, 'Informe o número'),
+  complement: z.string().nullable(),
+  district: z.string().min(1, 'Informe o bairro'),
+  city: z.string().min(1, 'Informe a cidade'),
+  state: z.string().length(2, 'Selecione a UF'),
+  zipCode: z.string().min(8, 'CEP inválido').max(9, 'CEP inválido'),
+});
 
 export type DemandFormValues = z.infer<typeof demandFormSchema>;
 
