@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ForgotPasswordPage from './ForgotPasswordPage';
 import { authApi } from '../api';
@@ -10,7 +11,9 @@ function renderPage() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
-      <ForgotPasswordPage />
+      <MemoryRouter>
+        <ForgotPasswordPage />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -18,16 +21,20 @@ function renderPage() {
 describe('ForgotPasswordPage', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('envia o e-mail e mostra mensagem de confirmacao', async () => {
+  it('sempre mostra o link de volta ao login no estado de formulario', () => {
+    renderPage();
+    expect(screen.getByRole('link', { name: /voltar ao login/i })).toBeInTheDocument();
+  });
+
+  it('envia o e-mail e mostra o estado de sucesso com link de volta', async () => {
     vi.mocked(authApi.forgotPassword).mockResolvedValue(undefined);
     renderPage();
 
     fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: 'm@e.com' } });
     fireEvent.click(screen.getByRole('button', { name: /enviar/i }));
 
-    await waitFor(() =>
-      expect(screen.getByText('Se o e-mail existir, enviamos as instrucoes.')).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText('Verifique seu e-mail')).toBeInTheDocument());
     expect(authApi.forgotPassword).toHaveBeenCalledWith('m@e.com', expect.anything());
+    expect(screen.getByRole('link', { name: /voltar ao login/i })).toBeInTheDocument();
   });
 });
