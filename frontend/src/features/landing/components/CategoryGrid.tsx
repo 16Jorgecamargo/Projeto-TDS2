@@ -50,7 +50,7 @@ export function CategoryGrid(): JSX.Element {
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
         {Array.from({ length: 6 }).map((_, index) => (
-          <Skeleton key={index} className="h-28" />
+          <Skeleton key={index} className="h-36" />
         ))}
       </div>
     );
@@ -76,7 +76,7 @@ export function CategoryGrid(): JSX.Element {
           <Card
             key={category.id}
             interactive
-            className="relative flex h-28 flex-col items-center justify-center gap-3 bg-surface p-4 text-center"
+            className="relative flex h-36 flex-col items-center justify-center gap-2 overflow-hidden bg-surface p-4 text-center"
           >
             <Link to={`/search?categoryId=${category.id}`} className="absolute inset-0" aria-label={category.name} />
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-bg text-primary">
@@ -89,7 +89,7 @@ export function CategoryGrid(): JSX.Element {
       {hasMore ? (
         <Card
           interactive
-          className="relative flex h-28 flex-col items-center justify-center gap-3 bg-primary p-4 text-center text-bg"
+          className="relative flex h-36 flex-col items-center justify-center gap-2 overflow-hidden bg-primary p-4 text-center text-bg"
         >
           <Link to="/search" className="absolute inset-0" aria-label="Ver mais categorias" />
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-bg/20 text-bg">

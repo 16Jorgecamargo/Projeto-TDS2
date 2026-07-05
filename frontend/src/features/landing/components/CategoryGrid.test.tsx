@@ -182,7 +182,7 @@ describe('CategoryGrid', () => {
 
     const shortCard = screen.getByText('TI').closest('[class*="h-"]');
     const longCard = screen.getByText('Instalação e Manutenção de Ar-Condicionado').closest('[class*="h-"]');
-    expect(shortCard?.className).toContain('h-28');
-    expect(longCard?.className).toContain('h-28');
+    expect(shortCard?.className).toContain('h-36');
+    expect(longCard?.className).toContain('h-36');
   });
 });
