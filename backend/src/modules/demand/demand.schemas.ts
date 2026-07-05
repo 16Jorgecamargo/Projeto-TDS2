@@ -43,19 +43,28 @@ export const createDemandSchema = z
     budgetMin: z
       .number()
       .nonnegative()
+      .optional()
       .describe('Orçamento mínimo previsto')
       .openapi({ example: 100 }),
     budgetMax: z
       .number()
       .nonnegative()
+      .optional()
       .describe('Orçamento máximo previsto')
       .openapi({ example: 500 }),
-    addressId: z
+    street: z.string().min(1).max(255).describe('Logradouro').openapi({ example: 'Rua das Flores' }),
+    number: z.string().min(1).max(20).describe('Número').openapi({ example: '123' }),
+    complement: z
       .string()
-      .uuid()
+      .max(255)
       .nullable()
-      .describe('Endereço de execução')
+      .default(null)
+      .describe('Complemento')
       .openapi({ example: null }),
+    district: z.string().min(1).max(128).describe('Bairro').openapi({ example: 'Centro' }),
+    city: z.string().min(1).max(128).describe('Cidade').openapi({ example: 'Porto Alegre' }),
+    state: z.string().length(2).describe('UF').openapi({ example: 'RS' }),
+    zipCode: z.string().min(8).max(9).describe('CEP').openapi({ example: '90000-000' }),
     tagIds: z
       .array(z.string().uuid())
       .max(10)
@@ -67,7 +76,7 @@ export const createDemandSchema = z
       .describe('Imagens da demanda')
       .openapi({ example: [] }),
   })
-  .refine((v) => v.budgetMax >= v.budgetMin, {
+  .refine((v) => v.budgetMin === undefined || v.budgetMax === undefined || v.budgetMax >= v.budgetMin, {
     message: 'budgetMax deve ser >= budgetMin',
     path: ['budgetMax'],
   });
@@ -99,6 +108,13 @@ export const updateDemandSchema = z.object({
     .optional()
     .describe('Orçamento máximo previsto')
     .openapi({ example: 500 }),
+  street: z.string().min(1).max(255).optional().describe('Logradouro').openapi({ example: 'Rua das Flores' }),
+  number: z.string().min(1).max(20).optional().describe('Número').openapi({ example: '123' }),
+  complement: z.string().max(255).nullable().optional().describe('Complemento').openapi({ example: null }),
+  district: z.string().min(1).max(128).optional().describe('Bairro').openapi({ example: 'Centro' }),
+  city: z.string().min(1).max(128).optional().describe('Cidade').openapi({ example: 'Porto Alegre' }),
+  state: z.string().length(2).optional().describe('UF').openapi({ example: 'RS' }),
+  zipCode: z.string().min(8).max(9).optional().describe('CEP').openapi({ example: '90000-000' }),
 });
 
 export const demandResponseSchema = z.object({
@@ -122,15 +138,20 @@ export const demandResponseSchema = z.object({
     .string()
     .describe('Descrição')
     .openapi({ example: 'Preciso instalar 4 tomadas na sala e cozinha' }),
-  budgetMin: z.number().describe('Orçamento mínimo').openapi({ example: 100 }),
-  budgetMax: z.number().describe('Orçamento máximo').openapi({ example: 500 }),
+  budgetMin: z.number().nullable().describe('Orçamento mínimo').openapi({ example: 100 }),
+  budgetMax: z.number().nullable().describe('Orçamento máximo').openapi({ example: 500 }),
   status: demandStatusEnum,
-  addressId: z
+  city: z.string().describe('Cidade').openapi({ example: 'Porto Alegre' }),
+  state: z.string().length(2).describe('UF').openapi({ example: 'RS' }),
+  street: z
     .string()
-    .uuid()
     .nullable()
-    .describe('Endereço de execução')
+    .describe('Logradouro (somente dono ou profissional com contrato aceito)')
     .openapi({ example: null }),
+  number: z.string().nullable().describe('Número').openapi({ example: null }),
+  complement: z.string().nullable().describe('Complemento').openapi({ example: null }),
+  district: z.string().nullable().describe('Bairro').openapi({ example: null }),
+  zipCode: z.string().nullable().describe('CEP').openapi({ example: null }),
   images: z.array(demandImageSchema).describe('Imagens').openapi({ example: [] }),
   tagIds: z.array(z.string().uuid()).describe('Tags').openapi({ example: [] }),
   createdAt: z
