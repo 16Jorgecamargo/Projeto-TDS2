@@ -8,7 +8,7 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 
 export default function DemandListPage(): JSX.Element {
   const navigate = useNavigate();
-  const { data, isPending } = useDemands();
+  const { data, isPending } = useDemands(true);
 
   return (
     <section className="mx-auto flex max-w-3xl flex-col gap-3 p-6">
