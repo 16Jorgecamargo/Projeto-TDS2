@@ -4,6 +4,7 @@ import { DisputesTable } from '../components/DisputesTable';
 import { UsersTable } from '../components/UsersTable';
 import { AuditTable } from '../components/AuditTable';
 import { CatalogManager } from '../components/CatalogManager';
+import { FinanceManager } from '../components/FinanceManager';
 import { Card } from '../../../components/ui/Card';
 
 export function AdminDashboardPage(): JSX.Element {
@@ -29,6 +30,10 @@ export function AdminDashboardPage(): JSX.Element {
       <Card>
         <h2 className="mb-3 text-lg font-semibold text-ink">Catálogo</h2>
         <CatalogManager />
+      </Card>
+      <Card>
+        <h2 className="mb-3 text-lg font-semibold text-ink">Financeiro</h2>
+        <FinanceManager />
       </Card>
     </div>
   );

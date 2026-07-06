@@ -48,6 +48,26 @@ vi.mock('./queries', () => ({
   useUpdateCategory: () => ({ mutate: vi.fn(), isPending: false }),
   useTags: () => ({ data: [], isLoading: false }),
   useCreateTag: () => ({ mutate: vi.fn(), isPending: false }),
+  usePayments: () => ({
+    data: {
+      items: [],
+      page: 1,
+      limit: 20,
+      total: 0,
+    },
+    isLoading: false,
+  }),
+  useRefundPayment: () => ({ mutate: vi.fn(), isPending: false }),
+  useWithdrawals: () => ({
+    data: {
+      items: [],
+      page: 1,
+      limit: 20,
+      total: 0,
+    },
+    isLoading: false,
+  }),
+  useProcessWithdrawal: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
 function renderWithClient() {
