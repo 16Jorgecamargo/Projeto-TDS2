@@ -20,7 +20,12 @@ export function DashboardContractsWidget(): JSX.Element {
 
   return (
     <Card className="flex h-full flex-col">
-      <h2 className="mb-3 text-lg font-semibold text-ink">Contratos</h2>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h2 className="text-lg font-semibold text-ink">Contratos</h2>
+        <Link to="/contracts" className="text-sm font-semibold text-primary">
+          Ver mais
+        </Link>
+      </div>
       {isPending ? (
         <Skeleton className="h-16 w-full" aria-label="Carregando contratos" />
       ) : contracts.length === 0 ? (
@@ -52,9 +57,6 @@ export function DashboardContractsWidget(): JSX.Element {
           </div>
         </>
       )}
-      <Link to="/contracts" className="mt-3 inline-block text-sm font-semibold text-primary">
-        Ver todos contratos
-      </Link>
     </Card>
   );
 }

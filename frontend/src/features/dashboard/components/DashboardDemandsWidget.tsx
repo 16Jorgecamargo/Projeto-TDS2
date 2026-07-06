@@ -18,7 +18,12 @@ export function DashboardDemandsWidget(): JSX.Element {
 
   return (
     <Card className="flex h-full flex-col">
-      <h2 className="mb-3 text-lg font-semibold text-ink">Demandas</h2>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h2 className="text-lg font-semibold text-ink">Demandas</h2>
+        <Link to="/demands" className="text-sm font-semibold text-primary">
+          Ver mais
+        </Link>
+      </div>
       {isPending ? (
         <Skeleton className="h-16 w-full" aria-label="Carregando demandas" />
       ) : items.length === 0 ? (
@@ -37,9 +42,6 @@ export function DashboardDemandsWidget(): JSX.Element {
           </div>
         </div>
       )}
-      <Link to="/demands" className="mt-3 inline-block text-sm font-semibold text-primary">
-        Ver todas demandas
-      </Link>
     </Card>
   );
 }
