@@ -1,10 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchReports, resolveReport, fetchDisputes, resolveDispute } from './api';
-import type { ReportResolution, DisputeOutcome } from './schemas';
+import { fetchReports, resolveReport, fetchDisputes, resolveDispute, fetchUsers, setUserStatus, fetchAudit, type FetchUsersParams, type FetchAuditParams } from './api';
+import type { ReportResolution, DisputeOutcome, UserStatus } from './schemas';
 
 export const adminKeys = {
   reports: (page: number) => ['admin', 'reports', page] as const,
   disputes: (page: number) => ['admin', 'disputes', page] as const,
+};
+
+export const adminUsersKeys = {
+  users: (params: FetchUsersParams) => ['admin', 'users', params] as const,
+  audit: (params: FetchAuditParams) => ['admin', 'audit', params] as const,
 };
 
 export function useReports(page = 1) {
@@ -40,5 +45,30 @@ export function useResolveDispute() {
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: ['admin', 'disputes'] });
     },
+  });
+}
+
+export function useUsers(params: FetchUsersParams = {}) {
+  return useQuery({
+    queryKey: adminUsersKeys.users(params),
+    queryFn: () => fetchUsers(params),
+  });
+}
+
+export function useSetUserStatus() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status, reason }: { id: string; status: UserStatus; reason: string }) =>
+      setUserStatus(id, status, reason),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['admin', 'users'] });
+    },
+  });
+}
+
+export function useAudit(params: FetchAuditParams = {}) {
+  return useQuery({
+    queryKey: adminUsersKeys.audit(params),
+    queryFn: () => fetchAudit(params),
   });
 }

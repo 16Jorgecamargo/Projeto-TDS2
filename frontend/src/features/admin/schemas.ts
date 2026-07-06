@@ -39,3 +39,45 @@ export type AdminReport = z.infer<typeof adminReportSchema>;
 export type AdminDispute = z.infer<typeof adminDisputeSchema>;
 export type ReportsPage = z.infer<typeof reportsPageSchema>;
 export type DisputesPage = z.infer<typeof disputesPageSchema>;
+
+export const userStatusSchema = z.enum(['active', 'suspended', 'deleted']);
+export const userRoleSchema = z.enum(['client', 'professional', 'admin']);
+
+export const adminUserSchema = z.object({
+  id: z.string().uuid(),
+  full_name: z.string(),
+  email: z.string(),
+  role: userRoleSchema,
+  status: userStatusSchema,
+  created_at: z.string(),
+});
+
+export const adminUsersPageSchema = z.object({
+  items: z.array(adminUserSchema),
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+});
+
+export const auditLogSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().nullable(),
+  action: z.string(),
+  entityType: z.string().nullable(),
+  entityId: z.string().nullable(),
+  createdAt: z.string(),
+});
+
+export const auditLogsPageSchema = z.object({
+  items: z.array(auditLogSchema),
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+});
+
+export type UserStatus = z.infer<typeof userStatusSchema>;
+export type UserRole = z.infer<typeof userRoleSchema>;
+export type AdminUser = z.infer<typeof adminUserSchema>;
+export type AdminUsersPage = z.infer<typeof adminUsersPageSchema>;
+export type AuditLog = z.infer<typeof auditLogSchema>;
+export type AuditLogsPage = z.infer<typeof auditLogsPageSchema>;
