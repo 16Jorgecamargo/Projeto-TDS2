@@ -6,6 +6,7 @@ import type {
   AdminListQuery,
   AdminPaymentListQuery,
   AdminUserListQuery,
+  AdminWithdrawalListQuery,
   ResolveDisputeBody,
   ResolveReportBody,
   SetUserStatusBody,
@@ -68,6 +69,15 @@ export class AdminController {
   listPayments = async (req: FastifyRequest<{ Querystring: AdminPaymentListQuery }>, reply: FastifyReply) => {
     const { page, limit, status } = req.query;
     const result = await this.service.listPayments(status, page, limit);
+    return reply.send(result);
+  };
+
+  listWithdrawals = async (
+    req: FastifyRequest<{ Querystring: AdminWithdrawalListQuery }>,
+    reply: FastifyReply,
+  ) => {
+    const { page, limit, status } = req.query;
+    const result = await this.service.listWithdrawals(status, page, limit);
     return reply.send(result);
   };
 }

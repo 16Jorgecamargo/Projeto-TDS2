@@ -4,6 +4,7 @@ import { buildTestApp } from '../../test/buildTestApp.js';
 import { truncateAll, TestDataSource } from '../../test/database.js';
 import { User } from '../../infra/database/entities/user.entity.js';
 import { Payment } from '../../infra/database/entities/payment.entity.js';
+import { Wallet } from '../../infra/database/entities/wallet.entity.js';
 import { signAccessToken } from '../../shared/security/token.js';
 
 async function registerUser(app: FastifyInstance, role: 'client' | 'professional') {
@@ -133,6 +134,11 @@ describe('admin routes', () => {
     });
 
     return { client, pro, contractId };
+  }
+
+  async function seedWallet(userId: string, amount: string): Promise<void> {
+    const repo = TestDataSource.getRepository(Wallet);
+    await repo.save(repo.create({ user_id: userId, balance: amount, pending_balance: '0.00', currency: 'BRL' }));
   }
 
   it('nega acesso a nao-admin com 403', async () => {
@@ -314,6 +320,38 @@ describe('admin routes', () => {
     const res = await app.inject({
       method: 'GET',
       url: '/api/admin/payments?page=1&limit=20',
+      headers: client.headers,
+    });
+    expect(res.statusCode).toBe(403);
+  });
+
+  it('admin lista saques pendentes por padrao', async () => {
+    const pro = await createProfessionalWithProfile(app);
+    await seedWallet(pro.userId, '300.00');
+
+    const request = await app.inject({
+      method: 'POST',
+      url: '/api/withdrawals',
+      headers: pro.headers,
+      payload: { amount: 50, paymentMethod: 'pix', destination: 'chave-pix-teste' },
+    });
+    expect(request.statusCode).toBe(201);
+    const withdrawalId = request.json().id as string;
+
+    const list = await app.inject({
+      method: 'GET',
+      url: '/api/admin/withdrawals?page=1&limit=20',
+      headers: admin,
+    });
+    expect(list.statusCode).toBe(200);
+    expect(list.json().items.some((item: { id: string }) => item.id === withdrawalId)).toBe(true);
+  });
+
+  it('nega acesso a GET /admin/withdrawals para nao-admin', async () => {
+    const client = await registerUser(app, 'client');
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/admin/withdrawals?page=1&limit=20',
       headers: client.headers,
     });
     expect(res.statusCode).toBe(403);
