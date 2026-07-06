@@ -25,6 +25,7 @@ vi.mock('./queries', () => ({
     isLoading: false,
   }),
   useMarkNotificationRead: () => ({ mutate: vi.fn(), isPending: false }),
+  useMarkAllNotificationsRead: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
 function renderPage() {

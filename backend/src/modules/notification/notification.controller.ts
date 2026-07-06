@@ -19,6 +19,11 @@ export class NotificationController {
     return reply.status(204).send();
   };
 
+  markAllRead = async (req: FastifyRequest, reply: FastifyReply) => {
+    await this.service.markAllRead(req.user!.id);
+    return reply.status(204).send();
+  };
+
   registerDevice = async (
     req: FastifyRequest<{ Body: RegisterDeviceBody }>,
     reply: FastifyReply,

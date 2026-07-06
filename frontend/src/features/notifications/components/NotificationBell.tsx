@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type JSX } from 'react';
 import { BellIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
-import { useNotifications } from '../queries';
+import { useNotifications, useMarkAllNotificationsRead } from '../queries';
 import { useAuthStore } from '../../../stores/auth';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
@@ -14,6 +14,7 @@ export function NotificationBell(): JSX.Element | null {
   const containerRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const notifications = useNotifications(1, { enabled: Boolean(user) });
+  const markAllRead = useMarkAllNotificationsRead();
   const items = notifications.data?.items.slice(0, MAX_PREVIEW_ITEMS) ?? [];
   const unread = notifications.data?.items.filter((notification) => !notification.readAt).length ?? 0;
 
@@ -57,6 +58,19 @@ export function NotificationBell(): JSX.Element | null {
 
       {open && (
         <div className="absolute right-0 top-full z-dropdown mt-2 w-80 rounded-md border border-border bg-bg py-2 shadow-md">
+          {unread > 0 && (
+            <div className="flex items-center justify-between gap-2 px-3 pb-2">
+              <span className="text-sm font-semibold text-ink">Notificações</span>
+              <button
+                type="button"
+                onClick={() => markAllRead.mutate()}
+                disabled={markAllRead.isPending}
+                className="text-xs font-semibold text-primary hover:text-primary-hover disabled:opacity-50"
+              >
+                Marcar todas como lida
+              </button>
+            </div>
+          )}
           <div className="max-h-80 overflow-y-auto">
             {notifications.isLoading ? (
               <div className="px-3 py-2">

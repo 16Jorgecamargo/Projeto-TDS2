@@ -5,7 +5,11 @@ import type { ReactNode } from 'react';
 import { useNotifications } from './queries';
 import { fetchNotifications } from './api';
 
-vi.mock('./api', () => ({ fetchNotifications: vi.fn(), markNotificationRead: vi.fn() }));
+vi.mock('./api', () => ({
+  fetchNotifications: vi.fn(),
+  markNotificationRead: vi.fn(),
+  markAllNotificationsRead: vi.fn(),
+}));
 
 function wrapper({ children }: { children: ReactNode }) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });

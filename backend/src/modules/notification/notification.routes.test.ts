@@ -101,6 +101,48 @@ describe('notification routes', () => {
     expect(res.statusCode).toBe(404);
   });
 
+  it('marca todas as notificacoes do usuario como lidas', async () => {
+    const user = await registerUser(app);
+    const notifications = TestDataSource.getRepository(Notification);
+    const [n1, n2] = await Promise.all([
+      notifications.save(
+        notifications.create({
+          user_id: user.userId,
+          channel: 'in_app',
+          type: 'review_received',
+          title: 't1',
+          body: 'b1',
+          data: null,
+          read_at: null,
+          sent_at: new Date(),
+        }),
+      ),
+      notifications.save(
+        notifications.create({
+          user_id: user.userId,
+          channel: 'in_app',
+          type: 'review_received',
+          title: 't2',
+          body: 'b2',
+          data: null,
+          read_at: null,
+          sent_at: new Date(),
+        }),
+      ),
+    ]);
+
+    const res = await app.inject({
+      method: 'PATCH',
+      url: '/api/notifications/read-all',
+      headers: user.headers,
+    });
+    expect(res.statusCode).toBe(204);
+
+    const updated = await notifications.find({ where: { user_id: user.userId } });
+    expect(updated.every((n) => n.read_at !== null)).toBe(true);
+    expect(updated.map((n) => n.id).sort()).toEqual([n1.id, n2.id].sort());
+  });
+
   it('registra device token e evita duplicidade', async () => {
     const user = await registerUser(app);
 

@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { useNotifications, useMarkNotificationRead } from '../queries';
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from '../queries';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { Skeleton } from '../../../components/ui/Skeleton';
@@ -10,6 +10,7 @@ import { BackLink } from '../../../components/ui/BackLink';
 export function NotificationsPage(): JSX.Element {
   const notifications = useNotifications();
   const markRead = useMarkNotificationRead();
+  const markAllRead = useMarkAllNotificationsRead();
 
   if (notifications.isLoading || !notifications.data) {
     return (
@@ -22,11 +23,25 @@ export function NotificationsPage(): JSX.Element {
   }
 
   const items = notifications.data.items;
+  const hasUnread = items.some((notification) => !notification.readAt);
 
   return (
     <div className="flex flex-col gap-4 p-6">
       <BackLink />
-      <h1 className="text-2xl font-semibold text-ink">Notificações</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-2xl font-semibold text-ink">Notificações</h1>
+        {hasUnread && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => markAllRead.mutate()}
+            disabled={markAllRead.isPending}
+          >
+            Marcar todas como lida
+          </Button>
+        )}
+      </div>
       {items.length === 0 ? (
         <EmptyState title="Nenhuma notificação ainda" />
       ) : (

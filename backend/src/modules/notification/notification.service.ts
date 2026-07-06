@@ -1,4 +1,4 @@
-import type { Repository } from 'typeorm';
+import { IsNull, type Repository } from 'typeorm';
 import type { Notification } from '../../infra/database/entities/notification.entity.js';
 import type { PushDeviceToken } from '../../infra/database/entities/push-device-token.entity.js';
 import { NotFoundError } from '../../shared/errors.js';
@@ -92,6 +92,10 @@ export class NotificationService {
     if (!result.affected) {
       throw new NotFoundError('Notificacao nao encontrada');
     }
+  }
+
+  async markAllRead(userId: string): Promise<void> {
+    await this.deps.notifications.update({ user_id: userId, read_at: IsNull() }, { read_at: new Date() });
   }
 
   async registerDeviceToken(

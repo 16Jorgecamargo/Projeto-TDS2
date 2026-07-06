@@ -90,6 +90,19 @@ describe('NotificationService', () => {
     });
   });
 
+  describe('markAllRead', () => {
+    it('marca todas as notificacoes nao lidas do usuario', async () => {
+      notifications.update.mockResolvedValueOnce({ affected: 3, raw: {}, generatedMaps: [] });
+
+      await service.markAllRead('u-1');
+
+      expect(notifications.update).toHaveBeenCalledWith(
+        { user_id: 'u-1', read_at: expect.anything() },
+        expect.objectContaining({ read_at: expect.any(Date) }),
+      );
+    });
+  });
+
   describe('registerDeviceToken', () => {
     it('cria token novo quando nao existe', async () => {
       deviceTokens.findOne.mockResolvedValueOnce(null);

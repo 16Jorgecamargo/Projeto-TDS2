@@ -41,6 +41,17 @@ export async function notificationRoutes(app: FastifyInstance): Promise<void> {
     handler: controller.markRead,
   });
 
+  app.patch('/notifications/read-all', {
+    onRequest: [app.authenticate],
+    schema: {
+      tags: ['notification'],
+      summary: 'Marcar todas as notificacoes como lidas',
+      body: emptyBodySchema,
+      response: { 204: z.void() },
+    },
+    handler: controller.markAllRead,
+  });
+
   app.post('/notifications/devices', {
     onRequest: [app.authenticate],
     schema: {
