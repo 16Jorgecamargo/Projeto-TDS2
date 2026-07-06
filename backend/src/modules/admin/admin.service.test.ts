@@ -7,6 +7,7 @@ import type { User } from '../../infra/database/entities/user.entity.js';
 import type { Report } from '../../infra/database/entities/report.entity.js';
 import type { ContractDispute } from '../../infra/database/entities/contract-dispute.entity.js';
 import type { Payment } from '../../infra/database/entities/payment.entity.js';
+import type { Withdrawal } from '../../infra/database/entities/withdrawal.entity.js';
 import type { DisputeService } from '../dispute/dispute.service.js';
 
 describe('AdminService', () => {
@@ -14,6 +15,7 @@ describe('AdminService', () => {
   let reports: ReturnType<typeof mockRepo<Report>>;
   let disputes: ReturnType<typeof mockRepo<ContractDispute>>;
   let payments: ReturnType<typeof mockRepo<Payment>>;
+  let withdrawals: ReturnType<typeof mockRepo<Withdrawal>>;
   let disputeService: { resolve: ReturnType<typeof vi.fn> };
   let recordAudit: ReturnType<typeof vi.fn>;
   let enqueueNotification: ReturnType<typeof vi.fn>;
@@ -24,6 +26,7 @@ describe('AdminService', () => {
     reports = mockRepo<Report>();
     disputes = mockRepo<ContractDispute>();
     payments = mockRepo<Payment>();
+    withdrawals = mockRepo<Withdrawal>();
     disputeService = { resolve: vi.fn() };
     recordAudit = vi.fn().mockResolvedValue(undefined);
     enqueueNotification = vi.fn().mockResolvedValue(undefined);
@@ -32,6 +35,7 @@ describe('AdminService', () => {
       reports: reports as unknown as Repository<Report>,
       disputes: disputes as unknown as Repository<ContractDispute>,
       payments: payments as unknown as Repository<Payment>,
+      withdrawals: withdrawals as unknown as Repository<Withdrawal>,
       disputeService: disputeService as unknown as DisputeService,
       recordAudit,
       enqueueNotification,
@@ -230,6 +234,62 @@ describe('AdminService', () => {
 
       expect(payments.findAndCount).toHaveBeenCalledWith(
         expect.objectContaining({ where: {} }),
+      );
+    });
+  });
+
+  describe('listWithdrawals', () => {
+    it('lista saques com status default pending quando nao informado', async () => {
+      withdrawals.findAndCount.mockResolvedValueOnce([
+        [
+          {
+            id: 'w-1',
+            wallet_id: 'wal-1',
+            amount: '200.00',
+            payment_method: 'pix',
+            status: 'pending',
+            destination: 'chave-pix',
+            processed_at: null,
+            created_at: new Date('2026-01-01T00:00:00.000Z'),
+          },
+        ],
+        1,
+      ]);
+
+      const result = await service.listWithdrawals(undefined, 1, 20);
+
+      expect(result).toEqual({
+        items: [
+          {
+            id: 'w-1',
+            wallet_id: 'wal-1',
+            amount: '200.00',
+            payment_method: 'pix',
+            status: 'pending',
+            destination: 'chave-pix',
+            processed_at: null,
+            created_at: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        page: 1,
+        limit: 20,
+        total: 1,
+      });
+      expect(withdrawals.findAndCount).toHaveBeenCalledWith({
+        where: { status: 'pending' },
+        order: { created_at: 'ASC' },
+        skip: 0,
+        take: 20,
+      });
+    });
+
+    it('filtra por status explicito quando informado', async () => {
+      withdrawals.findAndCount.mockResolvedValueOnce([[], 0]);
+
+      await service.listWithdrawals('completed', 1, 20);
+
+      expect(withdrawals.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { status: 'completed' } }),
       );
     });
   });

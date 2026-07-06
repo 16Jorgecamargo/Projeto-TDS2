@@ -135,6 +135,31 @@ export const adminPaymentListItemSchema = z.object({
 
 export const adminPaymentListResponseSchema = paginatedResponse(adminPaymentListItemSchema);
 
+export const withdrawalMethodSchema = z.enum(['pix', 'bank_transfer']).describe('Metodo de saque');
+export const withdrawalStatusSchema = z
+  .enum(['pending', 'processing', 'completed', 'failed'])
+  .describe('Status do saque')
+  .openapi({ example: 'pending' });
+
+export const adminWithdrawalListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1).describe('Pagina').openapi({ example: 1 }),
+  limit: z.coerce.number().int().min(1).max(100).default(20).describe('Itens por pagina').openapi({ example: 20 }),
+  status: withdrawalStatusSchema.optional(),
+});
+
+export const adminWithdrawalListItemSchema = z.object({
+  id: z.string().uuid().describe('ID').openapi({ example: 'w1b2c3d4-0000-4000-8000-000000000060' }),
+  wallet_id: z.string().uuid().describe('Carteira'),
+  amount: z.string().describe('Valor').openapi({ example: '200.00' }),
+  payment_method: withdrawalMethodSchema,
+  status: withdrawalStatusSchema,
+  destination: z.string().describe('Destino'),
+  processed_at: z.string().datetime().nullable().describe('Processado em'),
+  created_at: z.string().datetime().describe('Solicitado em'),
+});
+
+export const adminWithdrawalListResponseSchema = paginatedResponse(adminWithdrawalListItemSchema);
+
 export const adminReportListResponseSchema = paginatedResponse(adminReportResponseSchema);
 export const adminDisputeListResponseSchema = paginatedResponse(adminDisputeResponseSchema);
 
@@ -152,3 +177,5 @@ export type AdminUserListQuery = z.infer<typeof adminUserListQuerySchema>;
 export type AdminUserListItem = z.infer<typeof adminUserListItemSchema>;
 export type AdminPaymentListQuery = z.infer<typeof adminPaymentListQuerySchema>;
 export type AdminPaymentListItem = z.infer<typeof adminPaymentListItemSchema>;
+export type AdminWithdrawalListQuery = z.infer<typeof adminWithdrawalListQuerySchema>;
+export type AdminWithdrawalListItem = z.infer<typeof adminWithdrawalListItemSchema>;

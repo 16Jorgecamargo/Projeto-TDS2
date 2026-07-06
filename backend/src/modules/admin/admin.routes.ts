@@ -3,6 +3,7 @@ import { User } from '../../infra/database/entities/user.entity.js';
 import { Report } from '../../infra/database/entities/report.entity.js';
 import { ContractDispute } from '../../infra/database/entities/contract-dispute.entity.js';
 import { Payment } from '../../infra/database/entities/payment.entity.js';
+import { Withdrawal } from '../../infra/database/entities/withdrawal.entity.js';
 import { Contract } from '../../infra/database/entities/contract.entity.js';
 import { AuditLog } from '../../infra/database/entities/audit-log.entity.js';
 import { AdminService } from './admin.service.js';
@@ -41,6 +42,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
     reports: app.dataSource.getRepository(Report),
     disputes: app.dataSource.getRepository(ContractDispute),
     payments: app.dataSource.getRepository(Payment),
+    withdrawals: app.dataSource.getRepository(Withdrawal),
     disputeService,
     recordAudit: buildRecordAudit(app.dataSource.getRepository(AuditLog)),
     enqueueNotification: buildEnqueueNotification(notificationQueue),

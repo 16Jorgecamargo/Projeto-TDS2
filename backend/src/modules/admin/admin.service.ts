@@ -3,6 +3,7 @@ import { User } from '../../infra/database/entities/user.entity.js';
 import { Report } from '../../infra/database/entities/report.entity.js';
 import { ContractDispute } from '../../infra/database/entities/contract-dispute.entity.js';
 import { Payment } from '../../infra/database/entities/payment.entity.js';
+import { Withdrawal } from '../../infra/database/entities/withdrawal.entity.js';
 import { NotFoundError, UnprocessableError } from '../../shared/errors.js';
 import type { RecordAudit } from '../audit/audit.service.js';
 import type { EnqueueNotification } from '../notification/notification.service.js';
@@ -16,6 +17,7 @@ import type {
   SetUserStatusBody,
   AdminUserListItem,
   AdminPaymentListItem,
+  AdminWithdrawalListItem,
 } from './admin.schemas.js';
 
 interface AdminServiceDeps {
@@ -23,6 +25,7 @@ interface AdminServiceDeps {
   reports: Repository<Report>;
   disputes: Repository<ContractDispute>;
   payments: Repository<Payment>;
+  withdrawals: Repository<Withdrawal>;
   disputeService: DisputeService;
   recordAudit: RecordAudit;
   enqueueNotification: EnqueueNotification;
@@ -133,6 +136,34 @@ export class AdminService {
       take: limit,
     });
     return { items: rows.map((row) => this.toPaymentListItem(row)), page, limit, total };
+  }
+
+  private toWithdrawalListItem(withdrawal: Withdrawal): AdminWithdrawalListItem {
+    return {
+      id: withdrawal.id,
+      wallet_id: withdrawal.wallet_id,
+      amount: withdrawal.amount,
+      payment_method: withdrawal.payment_method,
+      status: withdrawal.status,
+      destination: withdrawal.destination,
+      processed_at: withdrawal.processed_at ? withdrawal.processed_at.toISOString() : null,
+      created_at: withdrawal.created_at.toISOString(),
+    };
+  }
+
+  async listWithdrawals(
+    status: Withdrawal['status'] | undefined,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedResult<AdminWithdrawalListItem>> {
+    const effectiveStatus = status ?? 'pending';
+    const [rows, total] = await this.deps.withdrawals.findAndCount({
+      where: { status: effectiveStatus },
+      order: { created_at: 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    return { items: rows.map((row) => this.toWithdrawalListItem(row)), page, limit, total };
   }
 
   async listReports(
