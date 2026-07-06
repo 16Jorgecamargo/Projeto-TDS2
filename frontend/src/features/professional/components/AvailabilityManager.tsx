@@ -1,70 +1,79 @@
 import { useState } from 'react';
 import { useSlots, useAddSlot, useRemoveSlot } from '../queries';
 import { Card } from '../../../components/ui/Card';
-import { Button } from '../../../components/ui/Button';
-import { EmptyState } from '../../../components/ui/EmptyState';
 
 const WEEKDAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
 export function AvailabilityManager({ professionalId }: { professionalId: string | undefined }) {
-  const { data, isPending } = useSlots(professionalId);
+  const { data } = useSlots(professionalId);
   const addSlot = useAddSlot(professionalId);
   const removeSlot = useRemoveSlot(professionalId);
-  const [weekday, setWeekday] = useState(1);
-  const [startTime, setStartTime] = useState('08:00');
-  const [endTime, setEndTime] = useState('18:00');
+  const [times, setTimes] = useState<Record<number, { startTime: string; endTime: string }>>({});
+
+  function timeFor(weekday: number, slot: { startTime: string; endTime: string } | undefined) {
+    return times[weekday] ?? { startTime: slot?.startTime ?? '08:00', endTime: slot?.endTime ?? '18:00' };
+  }
+
+  function handleToggle(weekday: number, slot: { id: string } | undefined, checked: boolean) {
+    if (checked) {
+      const { startTime, endTime } = timeFor(weekday, undefined);
+      addSlot.mutate({ weekday, startTime, endTime });
+      return;
+    }
+    if (slot) {
+      removeSlot.mutate(slot.id);
+    }
+  }
+
+  function handleTimeChange(
+    weekday: number,
+    slot: { id: string } | undefined,
+    field: 'startTime' | 'endTime',
+    value: string,
+  ) {
+    const current = timeFor(weekday, undefined);
+    const next = { ...current, [field]: value };
+    setTimes((prev) => ({ ...prev, [weekday]: next }));
+    if (slot) {
+      removeSlot.mutate(slot.id, { onSuccess: () => addSlot.mutate({ weekday, ...next }) });
+    }
+  }
 
   return (
     <Card>
       <h2 className="mb-3 text-lg font-semibold text-ink">Disponibilidade</h2>
-      <div className="mb-3 flex flex-wrap gap-2">
-        <select
-          value={weekday}
-          onChange={(e) => setWeekday(Number(e.target.value))}
-          className="rounded-sm border border-surface px-2 py-1 text-ink"
-        >
-          {WEEKDAYS.map((label, index) => (
-            <option key={label} value={index}>
-              {label}
-            </option>
-          ))}
-        </select>
-        <input
-          type="time"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-          className="rounded-sm border border-surface px-2 py-1 text-ink"
-        />
-        <input
-          type="time"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-          className="rounded-sm border border-surface px-2 py-1 text-ink"
-        />
-        <Button type="button" disabled={addSlot.isPending} onClick={() => addSlot.mutate({ weekday, startTime, endTime })}>
-          Adicionar
-        </Button>
-      </div>
-      {isPending ? null : !data || data.length === 0 ? (
-        <EmptyState title="Nenhum horário cadastrado" />
-      ) : (
-        <ul className="flex flex-col gap-2">
-          {data.map((slot) => (
-            <li key={slot.id} className="flex items-center justify-between rounded-sm bg-surface px-3 py-2">
-              <span className="text-sm text-ink">
-                {WEEKDAYS[slot.weekday]} {slot.startTime}-{slot.endTime}
-              </span>
-              <button
-                type="button"
-                onClick={() => removeSlot.mutate(slot.id)}
-                className="text-sm font-semibold text-accent underline"
-              >
-                Remover
-              </button>
+      <ul className="flex flex-col gap-2">
+        {WEEKDAYS.map((label, weekday) => {
+          const slot = data?.find((s) => s.weekday === weekday);
+          const { startTime, endTime } = timeFor(weekday, slot);
+          return (
+            <li key={weekday} className="flex items-center gap-3 rounded-sm bg-surface px-3 py-2">
+              <input
+                type="checkbox"
+                checked={Boolean(slot)}
+                onChange={(e) => handleToggle(weekday, slot, e.target.checked)}
+                aria-label={label}
+              />
+              <span className="w-24 shrink-0 text-sm text-ink">{label}</span>
+              <input
+                type="time"
+                value={startTime}
+                disabled={!slot}
+                onChange={(e) => handleTimeChange(weekday, slot, 'startTime', e.target.value)}
+                className="rounded-sm border border-surface px-2 py-1 text-ink disabled:opacity-50"
+              />
+              <span className="text-sm text-muted">até</span>
+              <input
+                type="time"
+                value={endTime}
+                disabled={!slot}
+                onChange={(e) => handleTimeChange(weekday, slot, 'endTime', e.target.value)}
+                className="rounded-sm border border-surface px-2 py-1 text-ink disabled:opacity-50"
+              />
             </li>
-          ))}
-        </ul>
-      )}
+          );
+        })}
+      </ul>
     </Card>
   );
 }

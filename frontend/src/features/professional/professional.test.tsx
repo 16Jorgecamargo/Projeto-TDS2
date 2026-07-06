@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, renderHook } from '@testing-library/react';
+import { screen, fireEvent, waitFor, renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { ProfileForm } from './components/ProfileForm';
+import { renderWithProviders } from '../../test/renderWithProviders';
+import { ProfessionalProfileEditPage } from './pages/ProfessionalProfileEditPage';
 import { professionalApi } from './api';
 import { useAddPortfolioImage, useRemovePortfolioImage } from './queries';
 
@@ -14,6 +15,15 @@ vi.mock('./api', () => ({
     removePortfolioImage: vi.fn(),
   },
 }));
+vi.mock('./components/PortfolioManager', () => ({ PortfolioManager: () => null }));
+vi.mock('./components/AvailabilityManager', () => ({ AvailabilityManager: () => null }));
+vi.mock('./components/ServiceAreaManager', () => ({ ServiceAreaManager: () => null }));
+
+const navigateMock = vi.fn();
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return { ...actual, useNavigate: () => navigateMock };
+});
 
 function wrapper({ children }: { children: ReactNode }) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -21,16 +31,13 @@ function wrapper({ children }: { children: ReactNode }) {
 }
 
 function renderForm() {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(
-    <QueryClientProvider client={client}>
-      <ProfileForm />
-    </QueryClientProvider>,
-  );
+  return renderWithProviders(<ProfessionalProfileEditPage />);
 }
 
 describe('ProfileForm', () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('carrega perfil existente e envia atualizacao com campos numericos vazios como null', async () => {
     vi.mocked(professionalApi.getMyProfile).mockResolvedValue({
@@ -75,6 +82,7 @@ describe('ProfileForm', () => {
     expect(vi.mocked(professionalApi.upsertProfile).mock.calls[0][0]).toEqual(
       expect.objectContaining({ headline: 'Novo titulo', yearsExperience: null, hourlyRate: null }),
     );
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/professional/dashboard'));
   });
 
   it('cada campo tem label associado via htmlFor/id', async () => {

@@ -157,6 +157,22 @@ describe('ContractDetailPage', () => {
     expect(screen.queryByText('review-form-done')).not.toBeInTheDocument();
   });
 
+  it('profissional nao ve formulario de avaliacao mesmo com contrato concluido', () => {
+    useAuthStore.getState().setAuth({ id: 'pro-user-1', role: 'professional' }, 'token');
+    vi.mocked(useContract).mockReturnValue({
+      data: contractFixture({
+        status: 'completed',
+        startedAt: '2026-07-01T00:00:00Z',
+        completedAt: '2026-07-02T00:00:00Z',
+      }),
+      isPending: false,
+    } as never);
+
+    renderWithProviders(<ContractDetailPage />);
+
+    expect(screen.queryByText('review-form-done')).not.toBeInTheDocument();
+  });
+
   it('cliente conversa com o profissional do contrato via chat', async () => {
     useAuthStore.getState().setAuth({ id: 'client-user-1', role: 'client' }, 'token');
     vi.mocked(useContract).mockReturnValue({ data: contractFixture(), isPending: false } as never);

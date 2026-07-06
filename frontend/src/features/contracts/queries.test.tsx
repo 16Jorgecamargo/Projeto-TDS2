@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { startContract, fetchPayment, payContract } from './api';
-import { useStartContract, usePayment, usePayContract } from './queries';
+import { startContract, completeContract, addProgress, fetchPayment, payContract } from './api';
+import { useStartContract, useCompleteContract, usePayment, usePayContract } from './queries';
 
 vi.mock('./api', () => ({
   fetchContracts: vi.fn(),
@@ -39,6 +39,33 @@ describe('useStartContract', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(startContract).toHaveBeenCalledWith('c1');
+  });
+});
+
+describe('useCompleteContract', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('registra acompanhamento de 100% antes de concluir o contrato', async () => {
+    vi.mocked(addProgress).mockResolvedValue({
+      id: 'up1', description: 'Contrato de demanda concluída', percentage: 100, images: [], createdAt: '2026-07-01T00:00:00Z',
+    } as never);
+    vi.mocked(completeContract).mockResolvedValue({
+      id: 'c1', demandId: 'd1', quoteId: 'q1', clientId: 'u1', professionalId: 'p1',
+      total: 300, status: 'completed', cancelledBy: null, cancellationReason: null,
+      startedAt: '2026-07-01T00:00:00Z', completedAt: '2026-07-02T00:00:00Z', cancelledAt: null, schedule: null,
+      clientName: 'Maria Cliente', professionalHeadline: 'Eletricista', professionalUserId: 'pu1',
+      createdAt: '2026-07-01T00:00:00Z',
+    });
+
+    const { result } = renderHook(() => useCompleteContract('c1'), { wrapper });
+    result.current.mutate();
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(addProgress).toHaveBeenCalledWith('c1', {
+      description: 'Contrato de demanda concluída',
+      percentage: 100,
+    });
+    expect(completeContract).toHaveBeenCalledWith('c1');
   });
 });
 

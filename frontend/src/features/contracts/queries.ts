@@ -50,8 +50,14 @@ export function useStartContract(id: string) {
 export function useCompleteContract(id: string) {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: () => completeContract(id),
-    onSuccess: () => client.invalidateQueries({ queryKey: contractKeys.detail(id) }),
+    mutationFn: async () => {
+      await addProgress(id, { description: 'Contrato de demanda concluída', percentage: 100 });
+      return completeContract(id);
+    },
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: contractKeys.detail(id) });
+      client.invalidateQueries({ queryKey: contractKeys.progress(id) });
+    },
   });
 }
 

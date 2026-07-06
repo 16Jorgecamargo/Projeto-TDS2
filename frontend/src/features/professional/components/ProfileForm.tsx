@@ -1,40 +1,22 @@
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { profileFormSchema, type ProfileForm as FormValues } from '../schemas';
-import { useMyProfile, useUpsertProfile } from '../queries';
+import type { FormEventHandler } from 'react';
+import type { FieldErrors, UseFormRegister } from 'react-hook-form';
+import type { ProfileForm as FormValues } from '../schemas';
 import { Card } from '../../../components/ui/Card';
-import { Button } from '../../../components/ui/Button';
+
+export const PROFILE_FORM_ID = 'profile-form';
 
 const setValueAsNumber = (value: string) => (value === '' ? null : Number(value));
 
-export function ProfileForm() {
-  const { data } = useMyProfile();
-  const upsert = useUpsertProfile();
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(profileFormSchema) });
+export interface ProfileFormProps {
+  register: UseFormRegister<FormValues>;
+  errors: FieldErrors<FormValues>;
+  onSubmit: FormEventHandler<HTMLFormElement>;
+}
 
-  useEffect(() => {
-    if (data) {
-      reset({
-        headline: data.headline,
-        bio: data.bio,
-        yearsExperience: data.yearsExperience,
-        hourlyRate: data.hourlyRate,
-        serviceRadiusKm: data.serviceRadiusKm,
-      });
-    }
-  }, [data, reset]);
-
-  const onSubmit = handleSubmit((values) => upsert.mutate(values));
-
+export function ProfileForm({ register, errors, onSubmit }: ProfileFormProps) {
   return (
     <Card>
-      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-3">
+      <form id={PROFILE_FORM_ID} onSubmit={onSubmit} noValidate className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold text-ink">Perfil profissional</h2>
         <label htmlFor="profile-headline" className="flex flex-col gap-1 text-sm">
           <span className="text-muted">Título</span>
@@ -80,10 +62,6 @@ export function ProfileForm() {
             className="rounded-sm border border-surface px-3 py-2 text-ink"
           />
         </label>
-        {upsert.isError && <p className="text-sm text-accent">Não foi possível salvar o perfil</p>}
-        <Button type="submit" disabled={upsert.isPending}>
-          {upsert.isPending ? 'Salvando...' : 'Salvar perfil'}
-        </Button>
       </form>
     </Card>
   );

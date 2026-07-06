@@ -66,7 +66,7 @@ export default function ContractDetailPage(): JSX.Element {
     contract.status !== 'cancelled' &&
     contract.status !== 'disputed' &&
     (!payment || payment.status !== 'captured');
-  const canReview = !reviewDone && contract.status === 'completed' && (isClient || isProfessional);
+  const canReview = !reviewDone && contract.status === 'completed' && isClient;
   const otherPartyName = isProfessional ? contract.clientName : contract.professionalHeadline;
 
   function handleChat(activeContract: Contract) {
