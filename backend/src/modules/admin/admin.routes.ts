@@ -26,6 +26,8 @@ import {
   adminAuditQuerySchema,
   adminUserListQuerySchema,
   adminUserListResponseSchema,
+  adminPaymentListQuerySchema,
+  adminPaymentListResponseSchema,
 } from './admin.schemas.js';
 import { auditLogListResponseSchema } from '../audit/audit.schemas.js';
 
@@ -126,5 +128,16 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
       response: { 200: auditLogListResponseSchema },
     },
     handler: controller.listAudit,
+  });
+
+  app.get('/admin/payments', {
+    ...guard,
+    schema: {
+      tags: ['admin'],
+      summary: 'Listar pagamentos',
+      querystring: adminPaymentListQuerySchema,
+      response: { 200: adminPaymentListResponseSchema },
+    },
+    handler: controller.listPayments,
   });
 }

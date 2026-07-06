@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { buildTestApp } from '../../test/buildTestApp.js';
 import { truncateAll, TestDataSource } from '../../test/database.js';
 import { User } from '../../infra/database/entities/user.entity.js';
+import { Payment } from '../../infra/database/entities/payment.entity.js';
 import { signAccessToken } from '../../shared/security/token.js';
 
 async function registerUser(app: FastifyInstance, role: 'client' | 'professional') {
@@ -282,5 +283,39 @@ describe('admin routes', () => {
     expect(
       audit.json().items.some((item: { entityId: string }) => item.entityId === target.userId),
     ).toBe(true);
+  });
+
+  it('admin lista pagamentos filtrando por status', async () => {
+    const payments = TestDataSource.getRepository(Payment);
+    const { client, contractId } = await createStartedContract();
+    const payment = await payments.save(
+      payments.create({
+        contract_id: contractId,
+        payer_id: client.userId,
+        amount: '100.00',
+        status: 'captured',
+        method: 'pix',
+        external_reference: null,
+        paid_at: new Date(),
+      }),
+    );
+
+    const list = await app.inject({
+      method: 'GET',
+      url: '/api/admin/payments?page=1&limit=20&status=captured',
+      headers: admin,
+    });
+    expect(list.statusCode).toBe(200);
+    expect(list.json().items.some((item: { id: string }) => item.id === payment.id)).toBe(true);
+  });
+
+  it('nega acesso a GET /admin/payments para nao-admin', async () => {
+    const client = await registerUser(app, 'client');
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/admin/payments?page=1&limit=20',
+      headers: client.headers,
+    });
+    expect(res.statusCode).toBe(403);
   });
 });

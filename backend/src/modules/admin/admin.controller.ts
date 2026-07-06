@@ -4,6 +4,7 @@ import type { AuditService } from '../audit/audit.service.js';
 import type {
   AdminAuditQuery,
   AdminListQuery,
+  AdminPaymentListQuery,
   AdminUserListQuery,
   ResolveDisputeBody,
   ResolveReportBody,
@@ -61,6 +62,12 @@ export class AdminController {
   listAudit = async (req: FastifyRequest<{ Querystring: AdminAuditQuery }>, reply: FastifyReply) => {
     const { page, limit, userId, action } = req.query;
     const result = await this.auditService.list({ userId, action }, page, limit);
+    return reply.send(result);
+  };
+
+  listPayments = async (req: FastifyRequest<{ Querystring: AdminPaymentListQuery }>, reply: FastifyReply) => {
+    const { page, limit, status } = req.query;
+    const result = await this.service.listPayments(status, page, limit);
     return reply.send(result);
   };
 }
