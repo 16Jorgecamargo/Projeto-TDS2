@@ -6,6 +6,9 @@ import { Payment } from '../../infra/database/entities/payment.entity.js';
 import { Withdrawal } from '../../infra/database/entities/withdrawal.entity.js';
 import { Contract } from '../../infra/database/entities/contract.entity.js';
 import { AuditLog } from '../../infra/database/entities/audit-log.entity.js';
+import { ServiceDemand } from '../../infra/database/entities/service-demand.entity.js';
+import { Refund } from '../../infra/database/entities/refund.entity.js';
+import { Wallet } from '../../infra/database/entities/wallet.entity.js';
 import { AdminService } from './admin.service.js';
 import { AdminController } from './admin.controller.js';
 import { AuditService, buildRecordAudit } from '../audit/audit.service.js';
@@ -31,6 +34,7 @@ import {
   adminPaymentListResponseSchema,
   adminWithdrawalListQuerySchema,
   adminWithdrawalListResponseSchema,
+  adminDashboardResponseSchema,
 } from './admin.schemas.js';
 import { auditLogListResponseSchema } from '../audit/audit.schemas.js';
 
@@ -45,6 +49,10 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
     disputes: app.dataSource.getRepository(ContractDispute),
     payments: app.dataSource.getRepository(Payment),
     withdrawals: app.dataSource.getRepository(Withdrawal),
+    contracts: app.dataSource.getRepository(Contract),
+    demands: app.dataSource.getRepository(ServiceDemand),
+    refunds: app.dataSource.getRepository(Refund),
+    wallets: app.dataSource.getRepository(Wallet),
     disputeService,
     recordAudit: buildRecordAudit(app.dataSource.getRepository(AuditLog)),
     enqueueNotification: buildEnqueueNotification(notificationQueue),
@@ -154,5 +162,15 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
       response: { 200: adminWithdrawalListResponseSchema },
     },
     handler: controller.listWithdrawals,
+  });
+
+  app.get('/admin/dashboard', {
+    ...guard,
+    schema: {
+      tags: ['admin'],
+      summary: 'Metricas agregadas do projeto',
+      response: { 200: adminDashboardResponseSchema },
+    },
+    handler: controller.getDashboard,
   });
 }

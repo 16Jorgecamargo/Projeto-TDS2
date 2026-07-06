@@ -3,6 +3,7 @@ import type { AdminService } from './admin.service.js';
 import type { AuditService } from '../audit/audit.service.js';
 import type {
   AdminAuditQuery,
+  AdminDashboardResponse,
   AdminListQuery,
   AdminPaymentListQuery,
   AdminUserListQuery,
@@ -78,6 +79,11 @@ export class AdminController {
   ) => {
     const { page, limit, status } = req.query;
     const result = await this.service.listWithdrawals(status, page, limit);
+    return reply.send(result);
+  };
+
+  getDashboard = async (_req: FastifyRequest, reply: FastifyReply) => {
+    const result: AdminDashboardResponse = await this.service.getDashboard();
     return reply.send(result);
   };
 }

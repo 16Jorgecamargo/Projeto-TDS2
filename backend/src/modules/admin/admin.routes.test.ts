@@ -356,4 +356,30 @@ describe('admin routes', () => {
     });
     expect(res.statusCode).toBe(403);
   });
+
+  it('admin consulta dashboard agregado', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/admin/dashboard',
+      headers: admin,
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(typeof body.counters.totalUsers).toBe('number');
+    expect(typeof body.counters.gmvLast30Days).toBe('string');
+    expect(typeof body.pending.reports).toBe('number');
+    expect(Array.isArray(body.activity.newUsersByDay)).toBe(true);
+    expect(typeof body.finance.walletBalanceSum).toBe('string');
+  });
+
+  it('nega acesso a GET /admin/dashboard para nao-admin', async () => {
+    const client = await registerUser(app, 'client');
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/admin/dashboard',
+      headers: client.headers,
+    });
+    expect(res.statusCode).toBe(403);
+  });
 });
