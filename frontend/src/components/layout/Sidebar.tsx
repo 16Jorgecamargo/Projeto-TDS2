@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../../stores/auth';
 import { useSidebarStore } from '../../stores/sidebar';
-import { getMobilePrimaryItems, getDashboardItem, getChatItem, type NavItem } from '../../lib/navConfig';
+import { getNavItems, getDashboardItem, type NavItem } from '../../lib/navConfig';
 import { Tooltip } from '../ui/Tooltip';
 import { cn } from '../../lib/utils';
 
@@ -38,9 +38,8 @@ export function Sidebar(): JSX.Element | null {
   if (!role || role === 'client' || role === 'professional') return null;
 
   const dashboardItem = getDashboardItem(role);
-  const chatItem = getChatItem(role);
-  const primaryItems = getMobilePrimaryItems(role);
-  const linkItems = [dashboardItem, ...(chatItem ? [chatItem] : []), ...primaryItems];
+  const items = getNavItems(role);
+  const linkItems = [dashboardItem, ...items];
   const primaryRouteIndexes = getPrimaryRouteIndexes(linkItems);
 
   function renderLink(item: NavItem, linkIndex: number) {
@@ -83,8 +82,7 @@ export function Sidebar(): JSX.Element | null {
     >
       <nav className="flex flex-1 flex-col gap-1 px-2" aria-label="Navegação principal">
         {renderLink(dashboardItem, 0)}
-        {chatItem && renderLink(chatItem, 1)}
-        {primaryItems.map((item, offset) => renderLink(item, (chatItem ? 2 : 1) + offset))}
+        {items.map((item, offset) => renderLink(item, offset + 1))}
       </nav>
       <button
         type="button"

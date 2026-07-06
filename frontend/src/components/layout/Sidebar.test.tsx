@@ -59,7 +59,7 @@ describe('Sidebar', () => {
     restoreMatchMedia = mockNarrowViewport(true);
     useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
     renderWithProviders(<Sidebar />);
-    expect(screen.queryByText('Denúncias')).not.toBeInTheDocument();
+    expect(screen.queryByText('Painel')).not.toBeInTheDocument();
   });
 
   it('colapsa automaticamente quando a tela e estreita (menos de 1024px)', () => {
@@ -68,7 +68,16 @@ describe('Sidebar', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
     renderWithProviders(<Sidebar />);
     expect(useSidebarStore.getState().collapsed).toBe(true);
-    expect(screen.queryByText('Denúncias')).not.toBeInTheDocument();
+    expect(screen.queryByText('Painel')).not.toBeInTheDocument();
+  });
+
+  it('mostra todos os itens de navegacao do admin, nao so os 2 primeiros', () => {
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
+    renderWithProviders(<Sidebar />);
+
+    expect(screen.getByRole('link', { name: 'Painel' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Contratos' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Pagamentos/Carteira' })).toBeInTheDocument();
   });
 
   it('alterna o estado ao clicar no botão de colapsar', async () => {
