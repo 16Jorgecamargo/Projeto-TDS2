@@ -2,11 +2,13 @@ import { useState, type JSX } from 'react';
 import { useAudit } from '../queries';
 
 const inputClass = 'rounded-sm border border-surface px-3 py-2 text-ink';
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function AuditTable(): JSX.Element {
   const [userId, setUserId] = useState('');
   const [action, setAction] = useState('');
-  const audit = useAudit({ userId: userId || undefined, action: action || undefined });
+  const validatedUserId = userId && uuidRegex.test(userId) ? userId : undefined;
+  const audit = useAudit({ userId: validatedUserId, action: action || undefined });
 
   return (
     <>

@@ -26,7 +26,9 @@ export function FinanceManager(): JSX.Element {
 
   function confirmRefund() {
     if (!refundTargetId) return;
-    refund.mutate({ id: refundTargetId, reason: reason.trim() || null });
+    const trimmed = reason.trim();
+    const finalReason = trimmed.length >= 3 ? trimmed : null;
+    refund.mutate({ id: refundTargetId, reason: finalReason });
     setRefundTargetId(null);
   }
 
