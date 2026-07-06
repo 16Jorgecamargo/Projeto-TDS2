@@ -9,6 +9,7 @@ import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { BackLink } from '../../../components/ui/BackLink';
 
 export default function DemandDetailPage(): JSX.Element {
   const { id = '' } = useParams();
@@ -28,7 +29,8 @@ export default function DemandDetailPage(): JSX.Element {
   }
 
   return (
-    <section className="mx-auto flex max-w-3xl flex-col gap-4 p-6">
+    <section className="flex flex-col gap-4 p-6">
+      <BackLink />
       <header className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold text-ink">{demand.title}</h1>

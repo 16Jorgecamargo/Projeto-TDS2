@@ -8,6 +8,7 @@ import { AvailabilityGrid } from '../components/AvailabilityGrid';
 import { ReviewList } from '../../reviews/components/ReviewList';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { BackLink } from '../../../components/ui/BackLink';
 
 export default function PublicProfilePage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +24,8 @@ export default function PublicProfilePage(): JSX.Element {
   }
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-6">
+      <BackLink />
       <ProfessionalProfileHeader profile={profile} isFavorite={favoriteIds.has(profile.id)} />
       {profile.bio && (
         <section>

@@ -19,6 +19,7 @@ import { ReviewForm } from '../../reviews/components/ReviewForm';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Skeleton } from '../../../components/ui/Skeleton';
+import { BackLink } from '../../../components/ui/BackLink';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import type { Contract, ContractStatus } from '../api';
 
@@ -77,7 +78,8 @@ export default function ContractDetailPage(): JSX.Element {
   }
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-4 p-6">
+    <div className="flex flex-col gap-4 p-6">
+      <BackLink />
       <header className="flex items-center justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold text-ink">{otherPartyName}</h1>
