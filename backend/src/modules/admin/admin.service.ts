@@ -26,11 +26,13 @@ import type {
 } from './admin.schemas.js';
 
 export function fillDateGaps(
-  rows: { date: string; count: string }[],
+  rows: { date: string | Date; count: string }[],
   from: Date,
   to: Date,
 ): { date: string; count: number }[] {
-  const countByDate = new Map(rows.map((row) => [row.date, Number(row.count)]));
+  const normalizeDateKey = (date: string | Date): string =>
+    typeof date === 'string' ? date : date.toISOString().slice(0, 10);
+  const countByDate = new Map(rows.map((row) => [normalizeDateKey(row.date), Number(row.count)]));
   const result: { date: string; count: number }[] = [];
   const cursor = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()));
   const end = new Date(Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate()));

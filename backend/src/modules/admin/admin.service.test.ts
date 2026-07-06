@@ -331,6 +331,19 @@ describe('AdminService', () => {
 
       expect(fillDateGaps([], from, to)).toEqual([]);
     });
+
+    it('aceita Date object como row.date, nao so string', () => {
+      const from = new Date('2026-01-01T00:00:00.000Z');
+      const to = new Date('2026-01-02T00:00:00.000Z');
+      const rows = [{ date: new Date('2026-01-01T00:00:00.000Z'), count: '2' }];
+
+      const result = fillDateGaps(rows, from, to);
+
+      expect(result).toEqual([
+        { date: '2026-01-01', count: 2 },
+        { date: '2026-01-02', count: 0 },
+      ]);
+    });
   });
 
   describe('getDashboard', () => {
