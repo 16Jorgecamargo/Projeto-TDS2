@@ -1,96 +1,54 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 
 vi.mock('./queries', () => ({
-  useReports: () => ({
+  useDashboard: () => ({
     data: {
-      items: [{ id: 'r1b2c3d4-0000-4000-8000-000000000041', status: 'pending' }],
-      page: 1,
-      limit: 20,
-      total: 1,
+      counters: { totalUsers: 10, activeContracts: 2, openDemands: 1, gmvLast30Days: '500.00' },
+      pending: { reports: 1, disputes: 0, withdrawals: 0 },
+      activity: { newUsersByDay: [], completedContractsByDay: [] },
+      finance: {
+        totalCaptured30d: '500.00',
+        totalRefunded30d: '0.00',
+        walletBalanceSum: '100.00',
+        pendingWithdrawalsAmount: '0.00',
+      },
     },
     isLoading: false,
   }),
-  useResolveReport: () => ({ mutate: vi.fn(), isPending: false }),
-  useDisputes: () => ({
-    data: {
-      items: [{ id: 'd1b2c3d4-0000-4000-8000-000000000042', status: 'open', outcome: null }],
-      page: 1,
-      limit: 20,
-      total: 1,
-    },
-    isLoading: false,
-  }),
-  useResolveDispute: () => ({ mutate: vi.fn(), isPending: false }),
-  useUsers: () => ({
-    data: {
-      items: [],
-      page: 1,
-      limit: 20,
-      total: 0,
-    },
-    isLoading: false,
-  }),
-  useSetUserStatus: () => ({ mutate: vi.fn(), isPending: false }),
-  useAudit: () => ({
-    data: {
-      items: [],
-      page: 1,
-      limit: 20,
-      total: 0,
-    },
-    isLoading: false,
-  }),
-  useCategories: () => ({ data: [], isLoading: false }),
-  useCreateCategory: () => ({ mutate: vi.fn(), isPending: false }),
-  useUpdateCategory: () => ({ mutate: vi.fn(), isPending: false }),
-  useTags: () => ({ data: [], isLoading: false }),
-  useCreateTag: () => ({ mutate: vi.fn(), isPending: false }),
-  usePayments: () => ({
-    data: {
-      items: [],
-      page: 1,
-      limit: 20,
-      total: 0,
-    },
-    isLoading: false,
-  }),
-  useRefundPayment: () => ({ mutate: vi.fn(), isPending: false }),
-  useWithdrawals: () => ({
-    data: {
-      items: [],
-      page: 1,
-      limit: 20,
-      total: 0,
-    },
-    isLoading: false,
-  }),
-  useProcessWithdrawal: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
-function renderWithClient() {
+vi.mock('recharts', () => ({
+  LineChart: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Line: () => <div />,
+  XAxis: () => <div />,
+  YAxis: () => <div />,
+  CartesianGrid: () => <div />,
+  Tooltip: () => <div />,
+  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
+function renderWithProviders() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
-      <AdminDashboardPage />
+      <MemoryRouter>
+        <AdminDashboardPage />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
 
-describe('AdminDashboardPage', () => {
+describe('AdminDashboardPage (integracao)', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('renderiza denúncias e disputas abertas', () => {
-    renderWithClient();
-    expect(screen.getByText('r1b2c3d4-0000-4000-8000-000000000041')).toBeInTheDocument();
-    expect(screen.getByText('d1b2c3d4-0000-4000-8000-000000000042')).toBeInTheDocument();
-  });
+  it('mostra contadores e pendencias vindos do hook de dashboard', () => {
+    renderWithProviders();
 
-  it('mostra as ações de resolução disponíveis', () => {
-    renderWithClient();
-    expect(screen.getByText('Aplicar ação')).toBeInTheDocument();
-    expect(screen.getByText('Reembolsar cliente')).toBeInTheDocument();
+    expect(screen.getByText('10')).toBeInTheDocument();
+    expect(screen.getAllByText('500.00').length).not.toBe(0);
   });
 });
