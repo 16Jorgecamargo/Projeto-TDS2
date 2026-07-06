@@ -44,11 +44,11 @@ describe('MobileNav', () => {
     renderWithProviders(<MobileNav />, { route: '/admin' });
 
     const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
-    const denunciasLink = screen.getByRole('link', { name: 'Denúncias' });
+    const painelLink = screen.getByRole('link', { name: 'Painel' });
 
     expect(dashboardLink.classList.contains('text-primary')).toBe(true);
     expect(dashboardLink).toHaveAttribute('aria-current', 'page');
-    expect(denunciasLink.classList.contains('text-primary')).toBe(false);
-    expect(denunciasLink).not.toHaveAttribute('aria-current', 'page');
+    expect(painelLink.classList.contains('text-primary')).toBe(false);
+    expect(painelLink).not.toHaveAttribute('aria-current', 'page');
   });
 });

@@ -86,17 +86,14 @@ describe('Sidebar', () => {
     renderWithProviders(<Sidebar />, { route: '/admin' });
 
     const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
-    const denunciasLink = screen.getByRole('link', { name: 'Denúncias' });
-    const disputasLink = screen.getByRole('link', { name: 'Disputas' });
+    const painelLink = screen.getByRole('link', { name: 'Painel' });
 
     expect(dashboardLink.classList.contains('bg-surface')).toBe(true);
     expect(dashboardLink.classList.contains('text-primary')).toBe(true);
     expect(dashboardLink).toHaveAttribute('aria-current', 'page');
 
-    for (const link of [denunciasLink, disputasLink]) {
-      expect(link.classList.contains('bg-surface')).toBe(false);
-      expect(link.classList.contains('text-primary')).toBe(false);
-      expect(link).not.toHaveAttribute('aria-current', 'page');
-    }
+    expect(painelLink.classList.contains('bg-surface')).toBe(false);
+    expect(painelLink.classList.contains('text-primary')).toBe(false);
+    expect(painelLink).not.toHaveAttribute('aria-current', 'page');
   });
 });

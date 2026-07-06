@@ -6,9 +6,6 @@ import {
   ChatBubbleLeftRightIcon,
   BanknotesIcon,
   BriefcaseIcon,
-  UsersIcon,
-  ScaleIcon,
-  ExclamationTriangleIcon,
   CreditCardIcon,
 } from '@heroicons/react/24/outline';
 import type { Role } from '../stores/auth';
@@ -35,9 +32,7 @@ const professionalNav: NavItem[] = [
 ];
 
 const adminNav: NavItem[] = [
-  { label: 'Denúncias', to: '/admin', icon: ExclamationTriangleIcon },
-  { label: 'Disputas', to: '/admin', icon: ScaleIcon },
-  { label: 'Usuários', to: '/admin', icon: UsersIcon },
+  { label: 'Painel', to: '/admin', icon: HomeIcon },
   { label: 'Contratos', to: '/contracts', icon: DocumentTextIcon },
   { label: 'Pagamentos/Carteira', to: '/wallet', icon: CreditCardIcon },
 ];
