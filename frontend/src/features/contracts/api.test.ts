@@ -13,7 +13,8 @@ describe('contracts api', () => {
         id: 'c1', demandId: 'd1', quoteId: 'q1', clientId: 'u1', professionalId: 'p1',
         total: 300, status: 'active', cancelledBy: null, cancellationReason: null,
         startedAt: '2026-07-01T00:00:00Z', completedAt: null, cancelledAt: null, schedule: null,
-        clientName: 'Maria Cliente', professionalHeadline: 'Eletricista', professionalUserId: 'pu1',
+        demandTitle: 'Instalacao eletrica',
+        clientName: 'Maria Cliente', professionalHeadline: 'Eletricista', professionalName: 'Joao Profissional', professionalUserId: 'pu1',
         createdAt: '2026-07-01T00:00:00Z',
       },
     } as never);

@@ -48,7 +48,8 @@ function contractFixture(overrides: Partial<Record<string, unknown>> = {}) {
     id: 'c1', demandId: 'd1', quoteId: 'q1', clientId: 'client-user-1', professionalId: 'profile-1',
     total: 300, status: 'active', cancelledBy: null, cancellationReason: null,
     startedAt: null, completedAt: null, cancelledAt: null, schedule: null,
-    clientName: 'Maria Cliente', professionalHeadline: 'Eletricista Residencial', professionalUserId: 'pro-user-1',
+    demandTitle: 'Instalacao eletrica',
+    clientName: 'Maria Cliente', professionalHeadline: 'Eletricista Residencial', professionalName: 'Joao Profissional', professionalUserId: 'pro-user-1',
     createdAt: '2026-07-01T00:00:00Z',
     ...overrides,
   };

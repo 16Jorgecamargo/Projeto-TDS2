@@ -67,7 +67,6 @@ export default function ContractDetailPage(): JSX.Element {
     contract.status !== 'disputed' &&
     (!payment || payment.status !== 'captured');
   const canReview = !reviewDone && contract.status === 'completed' && isClient;
-  const otherPartyName = isProfessional ? contract.clientName : contract.professionalHeadline;
 
   function handleChat(activeContract: Contract) {
     const participantId = isClient ? activeContract.professionalUserId : activeContract.clientId;
@@ -82,7 +81,9 @@ export default function ContractDetailPage(): JSX.Element {
       <BackLink />
       <header className="flex items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-ink">{otherPartyName}</h1>
+          <h1 className="text-2xl font-bold text-ink">{contract.demandTitle}</h1>
+          <p className="text-sm text-muted">Cliente: {contract.clientName}</p>
+          <p className="text-sm text-muted">Profissional: {contract.professionalName}</p>
           <p className="text-sm text-muted">{formatCurrency(contract.total)}</p>
         </div>
         <Badge tone={contract.status === 'disputed' ? 'accent' : 'neutral'}>

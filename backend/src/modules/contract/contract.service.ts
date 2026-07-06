@@ -33,9 +33,13 @@ export class ContractService {
   private async toResponse(contract: Contract): Promise<ContractResponse> {
     const schedule = await this.deps.schedules.findOne({ where: { contract_id: contract.id } });
     const client = await this.deps.users.findOne({ where: { id: contract.client_id } });
+    const demand = await this.deps.demands.findOne({ where: { id: contract.demand_id } });
     const professionalProfile = await this.deps.professionalProfiles.findOne({
       where: { id: contract.professional_id },
     });
+    const professionalUser = professionalProfile
+      ? await this.deps.users.findOne({ where: { id: professionalProfile.user_id } })
+      : null;
     return {
       id: contract.id,
       demandId: contract.demand_id,
@@ -58,8 +62,10 @@ export class ContractService {
             status: schedule.status,
           }
         : null,
+      demandTitle: demand ? demand.title : 'Demanda',
       clientName: client ? client.full_name : 'Cliente',
       professionalHeadline: professionalProfile ? professionalProfile.headline : 'Profissional',
+      professionalName: professionalUser ? professionalUser.full_name : 'Profissional',
       professionalUserId: professionalProfile ? professionalProfile.user_id : contract.professional_id,
       createdAt: contract.created_at.toISOString(),
     };

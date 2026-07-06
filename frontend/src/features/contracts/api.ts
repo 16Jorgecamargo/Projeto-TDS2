@@ -27,8 +27,10 @@ export interface Contract {
   completedAt: string | null;
   cancelledAt: string | null;
   schedule: Schedule | null;
+  demandTitle: string;
   clientName: string;
   professionalHeadline: string;
+  professionalName: string;
   professionalUserId: string;
   createdAt: string;
 }
