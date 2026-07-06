@@ -33,4 +33,12 @@ describe('HomeRoute', () => {
     renderWithProviders(<HomeRoute />);
     expect(screen.getByText('professional-dashboard')).toBeInTheDocument();
   });
+
+  it('redireciona para /admin quando usuario tem papel admin, sem renderizar a LandingPage', () => {
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
+    renderWithProviders(<HomeRoute />);
+    expect(screen.queryByText('landing-page')).not.toBeInTheDocument();
+    expect(screen.queryByText('client-dashboard')).not.toBeInTheDocument();
+    expect(screen.queryByText('professional-dashboard')).not.toBeInTheDocument();
+  });
 });
