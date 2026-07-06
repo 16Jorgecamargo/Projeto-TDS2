@@ -68,12 +68,12 @@ export function UsersTable(): JSX.Element {
                 <td className="py-2 text-ink">{item.email}</td>
                 <td className="py-2 text-ink">{item.role}</td>
                 <td className="py-2">
-                  <Badge tone={item.status === 'active' ? 'neutral' : 'accent'}>
+                  <Badge tone={item.status === 'active' ? 'neutral' : 'primary'}>
                     {STATUS_LABELS[item.status]}
                   </Badge>
                 </td>
                 <td className="py-2">
-                  <Button type="button" variant="accent" size="sm" onClick={() => openAction(item.id)}>
+                  <Button type="button" variant="primary" size="sm" onClick={() => openAction(item.id)}>
                     Mudar status
                   </Button>
                 </td>
@@ -114,7 +114,7 @@ export function UsersTable(): JSX.Element {
               </Button>
               <Button
                 type="button"
-                variant="accent"
+                variant="primary"
                 disabled={setStatus.isPending || reason.trim().length < 3}
                 onClick={confirmAction}
               >
