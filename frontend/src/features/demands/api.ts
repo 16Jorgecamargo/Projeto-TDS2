@@ -11,6 +11,7 @@ export interface DemandImage {
 export interface Demand {
   id: string;
   clientId: string;
+  clientName: string;
   categoryId: string;
   title: string;
   description: string;

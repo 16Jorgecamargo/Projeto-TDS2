@@ -51,6 +51,7 @@ export default function DemandDetailPage(): JSX.Element {
           </Button>
         )}
       </header>
+      {role === 'professional' && <p className="text-sm text-muted">Cliente: {demand.clientName}</p>}
       <p className="text-sm text-muted">
         {demand.city} - {demand.state}
       </p>
@@ -71,18 +72,20 @@ export default function DemandDetailPage(): JSX.Element {
       {!quotes || quotes.length === 0 ? (
         <EmptyState title="Nenhum orçamento recebido ainda" />
       ) : (
-        <div className="flex flex-col gap-3">
-          {quotes.map((quote) => (
-            <QuoteCard
-              key={quote.id}
-              quote={quote}
-              canAccept={quote.status === 'pending' && demand.status === 'open'}
-              onAccept={() => accept.mutate(quote.id)}
-              accepting={accept.isPending}
-              onWithdraw={() => withdrawQuote.mutate(quote.id)}
-              withdrawing={withdrawQuote.isPending}
-            />
-          ))}
+        <div className="rounded-lg bg-surface p-2">
+          <div className="flex flex-col gap-3">
+            {quotes.map((quote) => (
+              <QuoteCard
+                key={quote.id}
+                quote={quote}
+                canAccept={quote.status === 'pending' && demand.status === 'open'}
+                onAccept={() => accept.mutate(quote.id)}
+                accepting={accept.isPending}
+                onWithdraw={() => withdrawQuote.mutate(quote.id)}
+                withdrawing={withdrawQuote.isPending}
+              />
+            ))}
+          </div>
         </div>
       )}
       {role === 'professional' && demand.status === 'open' && (

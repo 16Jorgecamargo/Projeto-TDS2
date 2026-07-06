@@ -14,6 +14,7 @@ vi.mock('../queries', () => ({ useDeleteDemand: vi.fn() }));
 const baseDemand: Demand = {
   id: 'd1',
   clientId: 'c1',
+  clientName: 'Maria Silva',
   categoryId: 'cat1',
   title: 'Pintar sala',
   description: 'x',

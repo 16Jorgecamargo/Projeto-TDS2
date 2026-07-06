@@ -39,22 +39,24 @@ export function DashboardRevenueWidget(): JSX.Element {
       {isPending ? (
         <Skeleton className="h-16 w-full" aria-label="Carregando receita" />
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 3xl:grid-cols-4">
-          <div>
-            <p className="text-2xl font-bold text-ink">{formatCurrency(wallet?.balance ?? 0)}</p>
-            <p className="text-xs text-muted">Saldo disponível</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-ink">{formatCurrency(wallet?.pendingBalance ?? 0)}</p>
-            <p className="text-xs text-muted">Saldo pendente</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-ink">{formatCurrency(monthlyRevenue)}</p>
-            <p className="text-xs text-muted">Receita do mês</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-ink">{formatCurrency(withdrawnRevenue)}</p>
-            <p className="text-xs text-muted">Receita sacada</p>
+        <div className="rounded-lg bg-surface p-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 3xl:grid-cols-4">
+            <div>
+              <p className="text-2xl font-bold text-ink">{formatCurrency(wallet?.balance ?? 0)}</p>
+              <p className="text-xs text-muted">Saldo disponível</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-ink">{formatCurrency(wallet?.pendingBalance ?? 0)}</p>
+              <p className="text-xs text-muted">Saldo pendente</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-ink">{formatCurrency(monthlyRevenue)}</p>
+              <p className="text-xs text-muted">Receita do mês</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-ink">{formatCurrency(withdrawnRevenue)}</p>
+              <p className="text-xs text-muted">Receita sacada</p>
+            </div>
           </div>
         </div>
       )}

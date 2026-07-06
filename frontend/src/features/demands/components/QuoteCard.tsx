@@ -73,6 +73,7 @@ export function QuoteCard({
           {ratingInfo}
         </div>
         <div className="flex items-center gap-4 text-xs text-muted">
+          {categoryName && <span>{categoryName}</span>}
           <span>Enviado {formatDate(quote.createdAt)}</span>
           {quote.validUntil && <span>Válido até {formatDate(quote.validUntil)}</span>}
         </div>

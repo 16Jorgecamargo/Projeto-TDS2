@@ -24,6 +24,7 @@ vi.mock('../components/QuoteForm', () => ({ QuoteForm: () => <div>quote-form</di
 
 const demand = {
   id: 'd1',
+  clientName: 'Maria Silva',
   title: 'Pintar sala',
   description: 'Pintura completa',
   status: 'open',
@@ -90,6 +91,26 @@ describe('DemandDetailPage', () => {
     renderWithProviders(<DemandDetailPage />);
 
     expect(screen.getByRole('button', { name: 'Convidar profissional' })).toBeInTheDocument();
+  });
+
+  it('mostra o nome do cliente autor apenas para o profissional', () => {
+    vi.mocked(useDemand).mockReturnValue({ data: demand, isPending: false } as never);
+    vi.mocked(useDemandQuotes).mockReturnValue({ data: [] } as never);
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 'token');
+
+    renderWithProviders(<DemandDetailPage />);
+
+    expect(screen.getByText('Cliente: Maria Silva')).toBeInTheDocument();
+  });
+
+  it('nao mostra o nome do cliente para o proprio cliente', () => {
+    vi.mocked(useDemand).mockReturnValue({ data: demand, isPending: false } as never);
+    vi.mocked(useDemandQuotes).mockReturnValue({ data: [] } as never);
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
+
+    renderWithProviders(<DemandDetailPage />);
+
+    expect(screen.queryByText('Cliente: Maria Silva')).not.toBeInTheDocument();
   });
 
   it('nao mostra o botao de convidar profissional para o profissional', () => {

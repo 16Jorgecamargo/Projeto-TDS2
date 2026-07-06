@@ -6,6 +6,7 @@ import type { DemandInvitation } from '../../infra/database/entities/demand-invi
 import type { Contract } from '../../infra/database/entities/contract.entity.js';
 import type { Quote } from '../../infra/database/entities/quote.entity.js';
 import type { QuoteItem } from '../../infra/database/entities/quote-item.entity.js';
+import type { User } from '../../infra/database/entities/user.entity.js';
 import { NotFoundError, ForbiddenError, ConflictError } from '../../shared/errors.js';
 import { businessMetrics } from '../../observability/metrics.js';
 import type {
@@ -29,6 +30,7 @@ interface DemandServiceDeps {
   contracts: Repository<Contract>;
   quotes: Repository<Quote>;
   quoteItems: Repository<QuoteItem>;
+  users: Repository<User>;
 }
 
 export class DemandService {
@@ -44,6 +46,12 @@ export class DemandService {
     return contract !== null;
   }
 
+  private async resolveClientName(demand: ServiceDemand): Promise<string> {
+    if (demand.client) return demand.client.full_name;
+    const client = await this.deps.users.findOne({ where: { id: demand.client_id } });
+    return client?.full_name ?? '';
+  }
+
   private async toResponse(
     demand: ServiceDemand,
     images: DemandImage[],
@@ -52,9 +60,11 @@ export class DemandService {
     actor?: DemandActor,
   ): Promise<DemandResponse> {
     const revealAddress = await this.canRevealFullAddress(demand, actor);
+    const clientName = await this.resolveClientName(demand);
     return {
       id: demand.id,
       clientId: demand.client_id,
+      clientName,
       categoryId: demand.category_id,
       title: demand.title,
       description: demand.description,
@@ -143,6 +153,7 @@ export class DemandService {
     if (query.state) where.state = query.state;
     const [rows, total] = await this.deps.demands.findAndCount({
       where,
+      relations: ['client'],
       order: { created_at: 'DESC' },
       skip: (query.page - 1) * query.limit,
       take: query.limit,
@@ -158,7 +169,7 @@ export class DemandService {
   }
 
   async getById(id: string, actor?: DemandActor): Promise<DemandResponse> {
-    const demand = await this.deps.demands.findOne({ where: { id } });
+    const demand = await this.deps.demands.findOne({ where: { id }, relations: ['client'] });
     if (!demand) throw new NotFoundError('Demanda nao encontrada');
     const { images, tagIds } = await this.loadAssociations(id);
     const quotesCount = await this.countQuotes(id);

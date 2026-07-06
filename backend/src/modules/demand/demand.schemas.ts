@@ -128,6 +128,7 @@ export const demandResponseSchema = z.object({
     .uuid()
     .describe('Cliente autor')
     .openapi({ example: '1a2b1111-1111-1111-1111-111111111111' }),
+  clientName: z.string().describe('Nome do cliente autor').openapi({ example: 'Maria Silva' }),
   categoryId: z
     .string()
     .uuid()

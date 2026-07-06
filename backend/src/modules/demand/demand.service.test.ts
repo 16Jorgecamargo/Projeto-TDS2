@@ -10,6 +10,7 @@ import type { DemandInvitation } from '../../infra/database/entities/demand-invi
 import type { Contract } from '../../infra/database/entities/contract.entity.js';
 import type { Quote } from '../../infra/database/entities/quote.entity.js';
 import type { QuoteItem } from '../../infra/database/entities/quote-item.entity.js';
+import type { User } from '../../infra/database/entities/user.entity.js';
 
 describe('DemandService', () => {
   let demands: ReturnType<typeof mockRepo<ServiceDemand>>;
@@ -19,6 +20,7 @@ describe('DemandService', () => {
   let contracts: ReturnType<typeof mockRepo<Contract>>;
   let quotes: ReturnType<typeof mockRepo<Quote>>;
   let quoteItems: ReturnType<typeof mockRepo<QuoteItem>>;
+  let users: ReturnType<typeof mockRepo<User>>;
   let service: DemandService;
 
   beforeEach(() => {
@@ -29,6 +31,8 @@ describe('DemandService', () => {
     contracts = mockRepo<Contract>();
     quotes = mockRepo<Quote>();
     quoteItems = mockRepo<QuoteItem>();
+    users = mockRepo<User>();
+    users.findOne.mockResolvedValue({ full_name: 'Cliente Teste' } as User);
     service = new DemandService({
       demands: demands as unknown as Repository<ServiceDemand>,
       images: images as unknown as Repository<DemandImage>,
@@ -37,6 +41,7 @@ describe('DemandService', () => {
       contracts: contracts as unknown as Repository<Contract>,
       quotes: quotes as unknown as Repository<Quote>,
       quoteItems: quoteItems as unknown as Repository<QuoteItem>,
+      users: users as unknown as Repository<User>,
     });
   });
 

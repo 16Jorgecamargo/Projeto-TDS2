@@ -110,19 +110,19 @@ describe('QuoteCard', () => {
     expect(navigateMock).toHaveBeenCalledWith('/chat/room-1');
   });
 
-  it('profissional vendo orcamento de outro ve somente nome, nota e datas', () => {
+  it('profissional vendo orcamento de outro ve nome, categoria, nota e datas', () => {
     useAuthStore.getState().setAuth({ id: 'u2', role: 'professional' }, 'token');
     vi.mocked(useMyProfile).mockReturnValue({ data: { id: 'other-profile' } } as never);
 
     renderCard();
 
     expect(screen.getByRole('link', { name: 'Eletricista João' })).toBeInTheDocument();
+    expect(screen.getByText('Eletrica')).toBeInTheDocument();
     expect(screen.getByText('4.5 (10)')).toBeInTheDocument();
     expect(screen.getByText(/Enviado/)).toBeInTheDocument();
     expect(screen.getByText(/Válido até/)).toBeInTheDocument();
     expect(screen.queryByText('Posso fazer amanhã')).not.toBeInTheDocument();
     expect(screen.queryByText('R$ 250,00')).not.toBeInTheDocument();
-    expect(screen.queryByText('Eletrica')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Conversar' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Aceitar' })).not.toBeInTheDocument();
   });

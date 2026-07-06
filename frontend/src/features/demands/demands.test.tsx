@@ -18,6 +18,7 @@ describe('DemandCard', () => {
         demand={{
           id: 'd1',
           clientId: 'c1',
+          clientName: 'Maria Silva',
           categoryId: 'cat1',
           title: 'Instalação elétrica',
           description: 'x',

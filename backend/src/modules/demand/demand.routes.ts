@@ -11,6 +11,7 @@ import { Contract } from '../../infra/database/entities/contract.entity.js';
 import { Quote } from '../../infra/database/entities/quote.entity.js';
 import { QuoteItem } from '../../infra/database/entities/quote-item.entity.js';
 import { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
+import { User } from '../../infra/database/entities/user.entity.js';
 import { emptyBodySchema, idParamSchema } from '../../shared/schemas.js';
 import { requireRole } from '../../plugins/auth.js';
 import {
@@ -32,6 +33,7 @@ export async function demandRoutes(app: FastifyInstance): Promise<void> {
     contracts: app.dataSource.getRepository(Contract),
     quotes: app.dataSource.getRepository(Quote),
     quoteItems: app.dataSource.getRepository(QuoteItem),
+    users: app.dataSource.getRepository(User),
   });
   const controller = new DemandController(service, app.dataSource.getRepository(ProfessionalProfile));
 
