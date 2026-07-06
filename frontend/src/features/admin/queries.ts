@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchReports, resolveReport, fetchDisputes, resolveDispute, fetchUsers, setUserStatus, fetchAudit, type FetchUsersParams, type FetchAuditParams } from './api';
-import type { ReportResolution, DisputeOutcome, UserStatus } from './schemas';
+import { fetchReports, resolveReport, fetchDisputes, resolveDispute, fetchUsers, setUserStatus, fetchAudit, fetchCategories, createCategory, updateCategory, fetchTags, createTag, type FetchUsersParams, type FetchAuditParams } from './api';
+import type { ReportResolution, DisputeOutcome, UserStatus, CreateCategoryInput, UpdateCategoryInput, CreateTagInput } from './schemas';
 
 export const adminKeys = {
   reports: (page: number) => ['admin', 'reports', page] as const,
@@ -70,5 +70,43 @@ export function useAudit(params: FetchAuditParams = {}) {
   return useQuery({
     queryKey: adminUsersKeys.audit(params),
     queryFn: () => fetchAudit(params),
+  });
+}
+
+export function useCategories() {
+  return useQuery({ queryKey: ['admin', 'categories'], queryFn: fetchCategories });
+}
+
+export function useCreateCategory() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateCategoryInput) => createCategory(input),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['admin', 'categories'] });
+    },
+  });
+}
+
+export function useUpdateCategory() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: UpdateCategoryInput }) => updateCategory(id, input),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['admin', 'categories'] });
+    },
+  });
+}
+
+export function useTags() {
+  return useQuery({ queryKey: ['admin', 'tags'], queryFn: fetchTags });
+}
+
+export function useCreateTag() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateTagInput) => createTag(input),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['admin', 'tags'] });
+    },
   });
 }

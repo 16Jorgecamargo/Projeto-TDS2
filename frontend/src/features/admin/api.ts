@@ -1,9 +1,12 @@
+import { z } from 'zod';
 import { http } from '../../lib/http';
 import {
   reportsPageSchema,
   disputesPageSchema,
   adminUsersPageSchema,
   auditLogsPageSchema,
+  categorySchema,
+  tagSchema,
   type ReportsPage,
   type DisputesPage,
   type ReportResolution,
@@ -12,6 +15,11 @@ import {
   type AuditLogsPage,
   type UserStatus,
   type UserRole,
+  type Category,
+  type Tag,
+  type CreateCategoryInput,
+  type UpdateCategoryInput,
+  type CreateTagInput,
 } from './schemas';
 
 export async function fetchReports(page = 1, limit = 20): Promise<ReportsPage> {
@@ -61,4 +69,29 @@ export async function fetchAudit(params: FetchAuditParams = {}): Promise<AuditLo
   const { page = 1, limit = 20, userId, action } = params;
   const { data } = await http.get('/admin/audit', { params: { page, limit, userId, action } });
   return auditLogsPageSchema.parse(data);
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+  const { data } = await http.get('/categories');
+  return z.array(categorySchema).parse(data);
+}
+
+export async function createCategory(input: CreateCategoryInput): Promise<Category> {
+  const { data } = await http.post('/categories', input);
+  return categorySchema.parse(data);
+}
+
+export async function updateCategory(id: string, input: UpdateCategoryInput): Promise<Category> {
+  const { data } = await http.patch(`/categories/${id}`, input);
+  return categorySchema.parse(data);
+}
+
+export async function fetchTags(): Promise<Tag[]> {
+  const { data } = await http.get('/tags');
+  return z.array(tagSchema).parse(data);
+}
+
+export async function createTag(input: CreateTagInput): Promise<Tag> {
+  const { data } = await http.post('/tags', input);
+  return tagSchema.parse(data);
 }
