@@ -33,7 +33,7 @@ export function FinanceManager(): JSX.Element {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div>
         <h3 className="mb-2 text-sm font-semibold text-ink">Pagamentos</h3>
         {payments.isLoading || !payments.data ? (
@@ -59,7 +59,7 @@ export function FinanceManager(): JSX.Element {
                     <Badge tone="neutral">{payment.status}</Badge>
                   </td>
                   <td className="py-2">
-                    <Button type="button" variant="accent" size="sm" onClick={() => openRefund(payment.id)}>
+                    <Button type="button" variant="primary" size="sm" onClick={() => openRefund(payment.id)}>
                       Estornar
                     </Button>
                   </td>
@@ -93,7 +93,7 @@ export function FinanceManager(): JSX.Element {
                   <td className="py-2">
                     <Button
                       type="button"
-                      variant="accent"
+                      variant="primary"
                       size="sm"
                       disabled={process.isPending}
                       onClick={() => process.mutate(withdrawal.id)}
@@ -125,7 +125,7 @@ export function FinanceManager(): JSX.Element {
               <Button type="button" variant="ghost" onClick={closeRefund}>
                 Cancelar
               </Button>
-              <Button type="button" variant="accent" disabled={refund.isPending} onClick={confirmRefund}>
+              <Button type="button" variant="primary" disabled={refund.isPending} onClick={confirmRefund}>
                 Confirmar
               </Button>
             </div>
