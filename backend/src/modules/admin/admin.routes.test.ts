@@ -204,6 +204,28 @@ describe('admin routes', () => {
     expect(resolve.json().status).toBe('actioned');
   });
 
+  it('admin lista usuarios com filtro de busca', async () => {
+    const target = await registerUser(app, 'client');
+
+    const list = await app.inject({
+      method: 'GET',
+      url: '/api/admin/users?page=1&limit=20',
+      headers: admin,
+    });
+    expect(list.statusCode).toBe(200);
+    expect(list.json().items.some((item: { id: string }) => item.id === target.userId)).toBe(true);
+  });
+
+  it('nega acesso a GET /admin/users para nao-admin', async () => {
+    const client = await registerUser(app, 'client');
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/admin/users?page=1&limit=20',
+      headers: client.headers,
+    });
+    expect(res.statusCode).toBe(403);
+  });
+
   it('admin lista e resolve disputa com outcome, refletindo no dispute original', async () => {
     const { client, contractId } = await createStartedContract();
 

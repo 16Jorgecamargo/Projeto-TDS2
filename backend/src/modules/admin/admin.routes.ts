@@ -23,6 +23,8 @@ import {
   adminDisputeListResponseSchema,
   adminListQuerySchema,
   adminAuditQuerySchema,
+  adminUserListQuerySchema,
+  adminUserListResponseSchema,
 } from './admin.schemas.js';
 import { auditLogListResponseSchema } from '../audit/audit.schemas.js';
 
@@ -54,6 +56,17 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
       response: { 200: adminUserResponseSchema },
     },
     handler: controller.setUserStatus,
+  });
+
+  app.get('/admin/users', {
+    ...guard,
+    schema: {
+      tags: ['admin'],
+      summary: 'Listar usuarios',
+      querystring: adminUserListQuerySchema,
+      response: { 200: adminUserListResponseSchema },
+    },
+    handler: controller.listUsers,
   });
 
   app.get('/admin/reports', {

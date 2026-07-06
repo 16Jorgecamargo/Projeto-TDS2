@@ -4,6 +4,7 @@ import type { AuditService } from '../audit/audit.service.js';
 import type {
   AdminAuditQuery,
   AdminListQuery,
+  AdminUserListQuery,
   ResolveDisputeBody,
   ResolveReportBody,
   SetUserStatusBody,
@@ -20,6 +21,12 @@ export class AdminController {
     reply: FastifyReply,
   ) => {
     const result = await this.service.setUserStatus(req.user!.id, req.params.id, req.body);
+    return reply.send(result);
+  };
+
+  listUsers = async (req: FastifyRequest<{ Querystring: AdminUserListQuery }>, reply: FastifyReply) => {
+    const { page, limit, search, role, status } = req.query;
+    const result = await this.service.listUsers(search, role, status, page, limit);
     return reply.send(result);
   };
 
