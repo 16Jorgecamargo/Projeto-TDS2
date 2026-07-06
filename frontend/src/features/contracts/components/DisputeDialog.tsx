@@ -42,7 +42,7 @@ export function DisputeDialog({ contractId, onClose }: DisputeDialogProps): JSX.
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancelar
           </Button>
-          <Button type="submit" variant="accent" disabled={dispute.isPending}>
+          <Button type="submit" disabled={dispute.isPending}>
             Abrir disputa
           </Button>
         </div>
