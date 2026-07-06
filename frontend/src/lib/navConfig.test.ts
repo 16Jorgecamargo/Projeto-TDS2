@@ -10,8 +10,8 @@ describe('navConfig', () => {
     expect(getNavItems('professional')).toHaveLength(5);
   });
 
-  it('retorna 3 itens para o admin', () => {
-    expect(getNavItems('admin')).toHaveLength(3);
+  it('retorna 8 itens para o admin', () => {
+    expect(getNavItems('admin')).toHaveLength(8);
   });
 
   it('separa os 2 primeiros itens como prioridade mobile do cliente', () => {
@@ -26,7 +26,7 @@ describe('navConfig', () => {
 
   it('separa os 2 primeiros itens como prioridade mobile do admin', () => {
     const primary = getMobilePrimaryItems('admin');
-    expect(primary.map((item) => item.label)).toEqual(['Painel', 'Contratos']);
+    expect(primary.map((item) => item.label)).toEqual(['Denúncias', 'Disputas']);
   });
 
   it('resolve o item de dashboard por papel', () => {

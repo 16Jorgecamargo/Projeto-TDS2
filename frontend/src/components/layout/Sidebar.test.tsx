@@ -59,7 +59,7 @@ describe('Sidebar', () => {
     restoreMatchMedia = mockNarrowViewport(true);
     useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
     renderWithProviders(<Sidebar />);
-    expect(screen.queryByText('Painel')).not.toBeInTheDocument();
+    expect(screen.queryByText('Denúncias')).not.toBeInTheDocument();
   });
 
   it('colapsa automaticamente quando a tela e estreita (menos de 1024px)', () => {
@@ -68,14 +68,19 @@ describe('Sidebar', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
     renderWithProviders(<Sidebar />);
     expect(useSidebarStore.getState().collapsed).toBe(true);
-    expect(screen.queryByText('Painel')).not.toBeInTheDocument();
+    expect(screen.queryByText('Denúncias')).not.toBeInTheDocument();
   });
 
   it('mostra todos os itens de navegacao do admin, nao so os 2 primeiros', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
     renderWithProviders(<Sidebar />);
 
-    expect(screen.getByRole('link', { name: 'Painel' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Denúncias' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Disputas' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Usuários' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Auditoria' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Catálogo' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Financeiro' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Contratos' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Pagamentos/Carteira' })).toBeInTheDocument();
   });
@@ -90,19 +95,14 @@ describe('Sidebar', () => {
     expect(useSidebarStore.getState().collapsed).toBe(true);
   });
 
-  it('destaca somente o dashboard entre os itens que compartilham a mesma rota do admin', () => {
+  it('nao ha item de nav compartilhando a rota do dashboard, cada item tem rota propria', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
     renderWithProviders(<Sidebar />, { route: '/admin' });
 
     const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
-    const painelLink = screen.getByRole('link', { name: 'Painel' });
-
-    expect(dashboardLink.classList.contains('bg-surface')).toBe(true);
-    expect(dashboardLink.classList.contains('text-primary')).toBe(true);
     expect(dashboardLink).toHaveAttribute('aria-current', 'page');
 
-    expect(painelLink.classList.contains('bg-surface')).toBe(false);
-    expect(painelLink.classList.contains('text-primary')).toBe(false);
-    expect(painelLink).not.toHaveAttribute('aria-current', 'page');
+    const reportsLink = screen.getByRole('link', { name: 'Denúncias' });
+    expect(reportsLink).not.toHaveAttribute('aria-current', 'page');
   });
 });

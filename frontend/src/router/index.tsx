@@ -26,6 +26,12 @@ import { NotificationsPage } from '../features/notifications/pages/Notifications
 import { ChatIndexPage } from '../features/chat/pages/ChatIndexPage';
 import { ChatPage } from '../features/chat/pages/ChatPage';
 import { AdminDashboardPage } from '../features/admin/pages/AdminDashboardPage';
+import { ReportsPage } from '../features/admin/pages/ReportsPage';
+import { DisputesPage } from '../features/admin/pages/DisputesPage';
+import { UsersPage } from '../features/admin/pages/UsersPage';
+import { AuditPage } from '../features/admin/pages/AuditPage';
+import { CatalogPage } from '../features/admin/pages/CatalogPage';
+import { FinancePage } from '../features/admin/pages/FinancePage';
 
 export const router = createBrowserRouter([
   {
@@ -60,7 +66,15 @@ export const router = createBrowserRouter([
           },
           {
             element: <ProtectedRoute roles={['admin']} />,
-            children: [{ path: '/admin', element: <AdminDashboardPage /> }],
+            children: [
+              { path: '/admin', element: <AdminDashboardPage /> },
+              { path: '/admin/reports', element: <ReportsPage /> },
+              { path: '/admin/disputes', element: <DisputesPage /> },
+              { path: '/admin/users', element: <UsersPage /> },
+              { path: '/admin/audit', element: <AuditPage /> },
+              { path: '/admin/catalog', element: <CatalogPage /> },
+              { path: '/admin/finance', element: <FinancePage /> },
+            ],
           },
           { path: '*', element: <NotFound /> },
         ],

@@ -39,16 +39,16 @@ describe('MobileNav', () => {
     expect(screen.getByRole('link', { name: 'Dashboard' })).toBeInTheDocument();
   });
 
-  it('destaca a aba Dashboard quando na rota compartilhada com outra aba', () => {
+  it('destaca a aba Dashboard quando na rota do admin, sem nenhuma aba compartilhando essa rota', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
     renderWithProviders(<MobileNav />, { route: '/admin' });
 
     const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
-    const painelLink = screen.getByRole('link', { name: 'Painel' });
+    const reportsLink = screen.getByRole('link', { name: 'Denúncias' });
 
     expect(dashboardLink.classList.contains('text-primary')).toBe(true);
     expect(dashboardLink).toHaveAttribute('aria-current', 'page');
-    expect(painelLink.classList.contains('text-primary')).toBe(false);
-    expect(painelLink).not.toHaveAttribute('aria-current', 'page');
+    expect(reportsLink.classList.contains('text-primary')).toBe(false);
+    expect(reportsLink).not.toHaveAttribute('aria-current', 'page');
   });
 });
