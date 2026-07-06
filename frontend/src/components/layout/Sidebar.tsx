@@ -47,7 +47,7 @@ export function Sidebar(): JSX.Element | null {
     const link = (
       <NavLink
         to={item.to}
-        end={item.to === '/'}
+        end
         aria-label={collapsed ? item.label : undefined}
         aria-current={isPrimaryOccurrence ? 'page' : false}
         className={({ isActive }) =>

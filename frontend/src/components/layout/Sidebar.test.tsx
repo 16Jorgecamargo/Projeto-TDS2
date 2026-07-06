@@ -105,4 +105,16 @@ describe('Sidebar', () => {
     const reportsLink = screen.getByRole('link', { name: 'Denúncias' });
     expect(reportsLink).not.toHaveAttribute('aria-current', 'page');
   });
+
+  it('Dashboard nao fica ativo em subrotas do admin como /admin/reports', () => {
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
+    renderWithProviders(<Sidebar />, { route: '/admin/reports' });
+
+    const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
+    expect(dashboardLink).not.toHaveAttribute('aria-current', 'page');
+    expect(dashboardLink.classList.contains('bg-surface')).toBe(false);
+
+    const reportsLink = screen.getByRole('link', { name: 'Denúncias' });
+    expect(reportsLink).toHaveAttribute('aria-current', 'page');
+  });
 });

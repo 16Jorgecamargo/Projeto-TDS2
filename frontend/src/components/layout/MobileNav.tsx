@@ -20,7 +20,7 @@ function NavTab({ item, isPrimaryOccurrence }: { item: NavItem; isPrimaryOccurre
   return (
     <NavLink
       to={item.to}
-      end={item.to === '/'}
+      end
       aria-label={item.label}
       aria-current={isPrimaryOccurrence ? 'page' : false}
       className={({ isActive }) =>

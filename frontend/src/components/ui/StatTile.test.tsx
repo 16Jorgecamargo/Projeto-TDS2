@@ -26,4 +26,10 @@ describe('StatTile', () => {
 
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
+  it('tem fundo roxo do projeto', () => {
+    render(<StatTile label="Usuários totais" value="42" />);
+
+    expect(screen.getByText('42').closest('[class*="bg-primary"]')).not.toBeNull();
+  });
 });
