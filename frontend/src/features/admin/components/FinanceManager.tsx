@@ -1,10 +1,27 @@
 import { useState, type JSX } from 'react';
 import { usePayments, useRefundPayment, useWithdrawals, useProcessWithdrawal } from '../queries';
+import type { PaymentStatus } from '../schemas';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Modal } from '../../../components/ui/Modal';
 
 const inputClass = 'rounded-sm border border-surface px-3 py-2 text-ink';
+
+const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
+  pending: 'Pendente',
+  authorized: 'Autorizado',
+  captured: 'Capturado',
+  failed: 'Falhou',
+  refunded: 'Estornado',
+};
+
+function getErrorMessage(error: unknown): string {
+  if (error && typeof error === 'object' && 'response' in error) {
+    const response = (error as { response?: { data?: { message?: string } } }).response;
+    if (response?.data?.message) return response.data.message;
+  }
+  return 'Nao foi possivel concluir a acao. Tente novamente.';
+}
 
 export function FinanceManager(): JSX.Element {
   const payments = usePayments({ status: 'captured' });
@@ -28,8 +45,10 @@ export function FinanceManager(): JSX.Element {
     if (!refundTargetId) return;
     const trimmed = reason.trim();
     const finalReason = trimmed.length >= 3 ? trimmed : null;
-    refund.mutate({ id: refundTargetId, reason: finalReason });
-    setRefundTargetId(null);
+    refund.mutate(
+      { id: refundTargetId, reason: finalReason },
+      { onSuccess: () => setRefundTargetId(null) },
+    );
   }
 
   return (
@@ -56,7 +75,7 @@ export function FinanceManager(): JSX.Element {
                   <td className="py-2 text-ink">{payment.amount}</td>
                   <td className="py-2 text-ink">{payment.method}</td>
                   <td className="py-2">
-                    <Badge tone="neutral">{payment.status}</Badge>
+                    <Badge tone="neutral">{PAYMENT_STATUS_LABELS[payment.status]}</Badge>
                   </td>
                   <td className="py-2">
                     <Button type="button" variant="primary" size="sm" onClick={() => openRefund(payment.id)}>
@@ -72,6 +91,9 @@ export function FinanceManager(): JSX.Element {
 
       <div>
         <h3 className="mb-2 text-sm font-semibold text-ink">Saques pendentes</h3>
+        {process.isError && (
+          <p className="mb-2 text-sm text-danger">{getErrorMessage(process.error)}</p>
+        )}
         {withdrawals.isLoading || !withdrawals.data ? (
           <p className="text-sm text-muted">Carregando saques...</p>
         ) : withdrawals.data.items.length === 0 ? (
@@ -121,6 +143,7 @@ export function FinanceManager(): JSX.Element {
                 className={inputClass}
               />
             </label>
+            {refund.isError && <p className="text-sm text-danger">{getErrorMessage(refund.error)}</p>}
             <div className="flex justify-end gap-2">
               <Button type="button" variant="ghost" onClick={closeRefund}>
                 Cancelar

@@ -85,7 +85,10 @@ describe('FinanceManager', () => {
     await user.type(screen.getByLabelText('Motivo (opcional)'), 'Servico cancelado');
     await user.click(screen.getByRole('button', { name: 'Confirmar' }));
 
-    expect(mutate).toHaveBeenCalledWith({ id: 'p1', reason: 'Servico cancelado' });
+    expect(mutate).toHaveBeenCalledWith(
+      { id: 'p1', reason: 'Servico cancelado' },
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
+    );
   });
 
   it('aprova saque com um clique, sem modal', async () => {
@@ -101,5 +104,35 @@ describe('FinanceManager', () => {
 
     expect(mutate).toHaveBeenCalledWith('w1');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('mostra status do pagamento traduzido em portugues', () => {
+    vi.mocked(usePayments).mockReturnValue(paymentsFixture() as never);
+    vi.mocked(useWithdrawals).mockReturnValue(withdrawalsFixture() as never);
+    vi.mocked(useRefundPayment).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
+    vi.mocked(useProcessWithdrawal).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
+
+    render(<FinanceManager />);
+
+    expect(screen.getByText('Capturado')).toBeInTheDocument();
+    expect(screen.queryByText('captured')).not.toBeInTheDocument();
+  });
+
+  it('mostra mensagem de erro quando estorno falha', async () => {
+    vi.mocked(usePayments).mockReturnValue(paymentsFixture() as never);
+    vi.mocked(useWithdrawals).mockReturnValue(withdrawalsFixture() as never);
+    vi.mocked(useRefundPayment).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+      isError: true,
+      error: { response: { data: { message: 'Saldo insuficiente para estorno' } } },
+    } as never);
+    vi.mocked(useProcessWithdrawal).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
+    const user = userEvent.setup();
+
+    render(<FinanceManager />);
+    await user.click(screen.getByRole('button', { name: 'Estornar' }));
+
+    expect(screen.getByText('Saldo insuficiente para estorno')).toBeInTheDocument();
   });
 });
