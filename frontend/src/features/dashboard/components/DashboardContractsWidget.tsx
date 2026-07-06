@@ -43,7 +43,7 @@ export function DashboardContractsWidget(): JSX.Element {
             </div>
           </div>
           <div className="min-h-0 flex-1 rounded-lg bg-surface p-2">
-            <div ref={listRef} className="flex h-full flex-col gap-2 overflow-hidden">
+            <div ref={listRef} className="flex h-full flex-col gap-2 overflow-y-auto">
               {contracts.slice(0, visibleCount).map((contract) => (
                 <ContractCard
                   key={contract.id}

@@ -54,7 +54,7 @@ export function DashboardFavoritesWidget(): JSX.Element {
         />
       ) : (
         <div className="min-h-0 flex-1 rounded-lg bg-surface p-2">
-          <ul ref={listRef} className="flex h-full flex-col gap-2 overflow-hidden">
+          <ul ref={listRef} className="flex h-full flex-col gap-2 overflow-y-auto">
             {items.slice(0, visibleCount).map((favorite) => (
               <li key={favorite.id}>
                 <FavoriteProfessionalPreview professionalId={favorite.professionalId} />
