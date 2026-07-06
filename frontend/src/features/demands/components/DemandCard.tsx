@@ -61,7 +61,7 @@ export function DemandCard({ demand, onOpen, className }: DemandCardProps): JSX.
 
       {categoryName && <span className="text-sm text-muted">{categoryName}</span>}
 
-      <div className="flex items-center gap-4 pb-6 text-xs text-muted">
+      <div className="flex items-center gap-4 text-xs text-muted">
         <span className="flex items-center gap-1">
           <Wallet className="h-3.5 w-3.5" />
           {demand.quotesCount} {demand.quotesCount === 1 ? 'orçamento' : 'orçamentos'}
@@ -70,16 +70,15 @@ export function DemandCard({ demand, onOpen, className }: DemandCardProps): JSX.
           <CalendarDays className="h-3.5 w-3.5" />
           {formatRelativeDays(demand.createdAt)}
         </span>
+        <Badge tone="primary" className="ml-auto">
+          <span className="flex items-center gap-1">
+            {demand.status === 'cancelled' && (
+              <XCircleIcon className="h-3.5 w-3.5" data-testid="demand-cancelled-icon" />
+            )}
+            {STATUS_LABELS[demand.status]}
+          </span>
+        </Badge>
       </div>
-
-      <Badge tone="primary" className="absolute bottom-3 right-3">
-        <span className="flex items-center gap-1">
-          {demand.status === 'cancelled' && (
-            <XCircleIcon className="h-3.5 w-3.5" data-testid="demand-cancelled-icon" />
-          )}
-          {STATUS_LABELS[demand.status]}
-        </span>
-      </Badge>
 
       {confirmingDelete && (
         <Modal
