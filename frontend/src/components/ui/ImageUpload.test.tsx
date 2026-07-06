@@ -33,6 +33,17 @@ describe('ImageUpload', () => {
     expect(screen.getByLabelText('Foto da demanda')).toBeInTheDocument();
   });
 
+  it('abre o seletor de arquivo ao clicar no botao', async () => {
+    render(<ImageUpload onUploaded={vi.fn()} label="Foto da demanda" />);
+    const input = screen.getByLabelText('Foto da demanda') as HTMLInputElement;
+    const clickSpy = vi.spyOn(input, 'click');
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: 'Foto da demanda' }));
+
+    expect(clickSpy).toHaveBeenCalled();
+  });
+
   it('envia o arquivo selecionado e chama onUploaded com o resultado', async () => {
     vi.mocked(uploadImage).mockResolvedValue({ url: '/uploads/abc.jpg', filename: 'abc.jpg', size: 1024 });
     const onUploaded = vi.fn();
@@ -108,10 +119,10 @@ describe('ImageUpload', () => {
     const onUploaded = vi.fn();
     render(<ImageUpload onUploaded={onUploaded} />);
 
-    const label = screen.getByText('Enviar imagem').closest('label') as HTMLLabelElement;
+    const button = screen.getByRole('button', { name: 'Enviar imagem' });
     const file = new File(['conteudo'], 'drop.jpg', { type: 'image/jpeg' });
 
-    fireEvent.drop(label, { dataTransfer: { files: [file] } });
+    fireEvent.drop(button, { dataTransfer: { files: [file] } });
 
     await waitFor(() =>
       expect(onUploaded).toHaveBeenCalledWith({ url: '/uploads/drop.jpg', filename: 'drop.jpg', size: 2048 }),

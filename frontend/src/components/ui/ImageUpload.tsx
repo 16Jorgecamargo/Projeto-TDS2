@@ -59,7 +59,7 @@ export function ImageUpload({ onUploaded, label = 'Enviar imagem', className }: 
     void processFile(file);
   }
 
-  function handleDragOver(event: DragEvent<HTMLLabelElement>) {
+  function handleDragOver(event: DragEvent<HTMLButtonElement>) {
     event.preventDefault();
     setDragging(true);
   }
@@ -68,7 +68,7 @@ export function ImageUpload({ onUploaded, label = 'Enviar imagem', className }: 
     setDragging(false);
   }
 
-  function handleDrop(event: DragEvent<HTMLLabelElement>) {
+  function handleDrop(event: DragEvent<HTMLButtonElement>) {
     event.preventDefault();
     setDragging(false);
     const file = event.dataTransfer.files?.[0];
@@ -78,7 +78,9 @@ export function ImageUpload({ onUploaded, label = 'Enviar imagem', className }: 
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      <label
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -88,15 +90,15 @@ export function ImageUpload({ onUploaded, label = 'Enviar imagem', className }: 
         )}
       >
         {label}
-        <input
-          ref={inputRef}
-          type="file"
-          accept={ACCEPTED_MIME}
-          onChange={handleChange}
-          className="sr-only"
-          aria-label={label}
-        />
-      </label>
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPTED_MIME}
+        onChange={handleChange}
+        className="sr-only"
+        aria-label={label}
+      />
       {uploading && <Skeleton className="h-24 w-24" aria-label="Enviando imagem" />}
       {!uploading && preview && (
         <motion.img
