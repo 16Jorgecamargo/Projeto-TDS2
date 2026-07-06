@@ -70,7 +70,7 @@ export default function DemandSearchPage(): JSX.Element {
     updateParams({ city: next.city, state: next.state, categoryId: next.categoryId });
   }
 
-  const params = { ...filters, page, limit: DEFAULT_LIMIT };
+  const params = { ...filters, status: 'open' as const, page, limit: DEFAULT_LIMIT };
   const { data } = useDemandSearch(params);
 
   return (

@@ -22,7 +22,7 @@ const baseDemand = {
 describe('DashboardDemandsWidget', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('lista demandas abertas ou em andamento', () => {
+  it('lista somente demandas abertas; some da lista quando vira contrato ou e concluida', () => {
     vi.mocked(useDemands).mockReturnValue({
       data: {
         items: [
@@ -40,7 +40,7 @@ describe('DashboardDemandsWidget', () => {
     renderWithProviders(<DashboardDemandsWidget />);
 
     expect(screen.getByText('Pintar sala')).toBeInTheDocument();
-    expect(screen.getByText('Trocar torneira')).toBeInTheDocument();
+    expect(screen.queryByText('Trocar torneira')).not.toBeInTheDocument();
     expect(screen.queryByText('Concluída')).not.toBeInTheDocument();
   });
 

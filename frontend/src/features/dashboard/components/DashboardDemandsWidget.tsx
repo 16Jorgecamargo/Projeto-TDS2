@@ -7,7 +7,7 @@ import { Skeleton } from '../../../components/ui/Skeleton';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { useFitCount } from '../../../lib/hooks/useFitCount';
 
-const OPEN_STATUSES = new Set(['open', 'in_progress']);
+const OPEN_STATUSES = new Set(['open']);
 
 export function DashboardDemandsWidget(): JSX.Element {
   const navigate = useNavigate();

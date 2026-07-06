@@ -88,6 +88,7 @@ export interface DemandListParams {
   page?: number;
   limit?: number;
   mine?: boolean;
+  status?: DemandStatus;
   categoryId?: string;
   city?: string;
   state?: string;

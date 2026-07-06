@@ -32,4 +32,25 @@ describe('DemandListPage', () => {
 
     expect(screen.getByText('Pintar sala')).toBeInTheDocument();
   });
+
+  it('some da lista quando a demanda vira contrato (em andamento) ou e concluida', () => {
+    vi.mocked(useDemands).mockReturnValue({
+      data: {
+        items: [
+          { id: 'd1', title: 'Virou contrato', budgetMin: 100, budgetMax: 200, status: 'in_progress', clientId: '', categoryId: '', description: '', images: [], tagIds: [], quotesCount: 1, createdAt: new Date().toISOString() },
+          { id: 'd2', title: 'Concluida', budgetMin: 100, budgetMax: 200, status: 'closed', clientId: '', categoryId: '', description: '', images: [], tagIds: [], quotesCount: 1, createdAt: new Date().toISOString() },
+        ],
+        page: 1,
+        limit: 20,
+        total: 2,
+      },
+      isPending: false,
+    } as never);
+
+    renderWithProviders(<DemandListPage />);
+
+    expect(screen.getByText('Nenhuma demanda ainda')).toBeInTheDocument();
+    expect(screen.queryByText('Virou contrato')).not.toBeInTheDocument();
+    expect(screen.queryByText('Concluida')).not.toBeInTheDocument();
+  });
 });
