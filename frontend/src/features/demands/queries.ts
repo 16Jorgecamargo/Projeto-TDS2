@@ -66,7 +66,10 @@ export function useAcceptQuote(demandId: string) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (quoteId: string) => acceptQuote(quoteId),
-    onSuccess: () => client.invalidateQueries({ queryKey: demandKeys.detail(demandId) }),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: demandKeys.detail(demandId) });
+      client.invalidateQueries({ queryKey: demandKeys.quotes(demandId) });
+    },
   });
 }
 
