@@ -2,6 +2,7 @@ import type { JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import { Briefcase, Lock, Mail, MapPin, Phone, User } from 'lucide-react';
 import { registerSchema, type RegisterForm } from '../schemas';
 import { useRegister } from '../queries';
@@ -60,8 +61,11 @@ export default function RegisterPage(): JSX.Element {
       });
       toast('Conta criada com sucesso', { tone: 'success' });
       navigate('/verify-email');
-    } catch {
-      toast('Nao foi possivel criar a conta', { tone: 'error' });
+    } catch (error) {
+      const message = axios.isAxiosError<{ error?: { message?: string } }>(error)
+        ? error.response?.data?.error?.message
+        : undefined;
+      toast(message ?? 'Nao foi possivel criar a conta', { tone: 'error' });
     }
   });
 
