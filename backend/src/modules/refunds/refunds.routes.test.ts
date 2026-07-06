@@ -118,7 +118,7 @@ describe('refund routes', () => {
       method: 'POST',
       url: `/api/demands/${demandId}/quotes`,
       headers: pro.headers,
-      payload: { message: 'orcamento', validUntil: null, items: [{ description: 'mao de obra', quantity: 1, unitPrice: total }] },
+      payload: { message: 'orcamento', validUntil: null, total },
     });
     const quoteId = quote.json().id;
 

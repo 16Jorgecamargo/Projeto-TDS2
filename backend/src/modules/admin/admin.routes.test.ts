@@ -113,7 +113,7 @@ describe('admin routes', () => {
       method: 'POST',
       url: `/api/demands/${demandId}/quotes`,
       headers: pro.headers,
-      payload: { message: 'orcamento', validUntil: null, items: [{ description: 'mao de obra', quantity: 1, unitPrice: 300 }] },
+      payload: { message: 'orcamento', validUntil: null, total: 300 },
     });
     const quoteId = quote.json().id;
 

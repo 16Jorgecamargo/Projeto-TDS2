@@ -26,20 +26,22 @@ export function QuoteForm({ onSubmit, submitting }: QuoteFormProps) {
         <textarea {...register('message')} rows={3} className="rounded-lg border border-slate-300 px-3 py-2" />
         {errors.message && <span className="text-xs text-red-600">{errors.message.message}</span>}
       </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm text-slate-600">Válido até (opcional)</span>
-        <input type="date" {...register('validUntil')} className="rounded-lg border border-slate-300 px-3 py-2" />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm text-slate-600">Valor total do orçamento</span>
-        <input
-          type="number"
-          step="0.01"
-          {...register('total')}
-          className="rounded-lg border border-slate-300 px-3 py-2"
-        />
-        {errors.total && <span className="text-xs text-red-600">{errors.total.message}</span>}
-      </label>
+      <div className="flex gap-3">
+        <label className="flex flex-1 flex-col gap-1">
+          <span className="text-sm text-slate-600">Valor total do orçamento</span>
+          <input
+            type="number"
+            step="0.01"
+            {...register('total')}
+            className="rounded-lg border border-slate-300 px-3 py-2"
+          />
+          {errors.total && <span className="text-xs text-red-600">{errors.total.message}</span>}
+        </label>
+        <label className="flex flex-1 flex-col gap-1">
+          <span className="text-sm text-slate-600">Válido até (opcional)</span>
+          <input type="date" {...register('validUntil')} className="rounded-lg border border-slate-300 px-3 py-2" />
+        </label>
+      </div>
       <Button type="submit" disabled={submitting} className="self-start">
         Enviar orçamento
       </Button>

@@ -115,7 +115,7 @@ async function createActiveContract(clientToken: string, professionalToken: stri
     payload: {
       message: 'Posso ir amanha.',
       validUntil: null,
-      items: [{ description: 'Mao de obra', quantity: 1, unitPrice: 200 }],
+      total: 200,
     },
   });
   expect(quoteResponse.statusCode).toBe(201);

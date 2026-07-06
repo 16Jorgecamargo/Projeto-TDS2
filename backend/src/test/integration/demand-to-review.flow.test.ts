@@ -115,7 +115,7 @@ describe('fluxo demanda -> orcamento -> contrato -> pagamento -> avaliacao', () 
       payload: {
         message: 'Posso fazer na quinta.',
         validUntil: null,
-        items: [{ description: 'Mao de obra', quantity: 2, unitPrice: 150 }],
+        total: 300,
       },
     });
     expect(quoteResponse.statusCode).toBe(201);
@@ -256,7 +256,7 @@ describe('fluxo demanda -> orcamento -> contrato -> pagamento -> avaliacao', () 
       payload: {
         message: 'Posso fazer na quinta.',
         validUntil: null,
-        items: [{ description: 'Mao de obra', quantity: 2, unitPrice: 150 }],
+        total: 300,
       },
     });
     const quote = quoteResponse.json() as { id: string };
