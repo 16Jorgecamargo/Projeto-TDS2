@@ -75,9 +75,18 @@ describe('PortfolioManager', () => {
     renderWithProviders(<PortfolioManager professionalId="prof1" />);
 
     const file = new File(['conteudo'], 'foto.jpg', { type: 'image/jpeg' });
-    const input = screen.getByLabelText('Adicionar foto a Reforma de banheiro');
+    const input = screen.getByLabelText('Adicionar foto');
     await user.upload(input, file);
 
     expect(useAddPortfolioImage).toHaveBeenCalledWith('prof1', 'item1');
+  });
+
+  it('mostra aviso para salvar o perfil quando ainda nao ha professionalId', () => {
+    vi.mocked(usePortfolio).mockReturnValue({ data: undefined, isPending: false } as never);
+
+    renderWithProviders(<PortfolioManager professionalId={undefined} />);
+
+    expect(screen.getByText('Salve seu perfil primeiro para adicionar itens ao portfólio.')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('Título do trabalho')).not.toBeInTheDocument();
   });
 });

@@ -10,6 +10,7 @@ import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { ImageUpload } from '../../../components/ui/ImageUpload';
+import { PortfolioImageGallery } from './PortfolioImageGallery';
 import type { PortfolioItem } from '../api';
 
 function PortfolioItemRow({
@@ -32,25 +33,9 @@ function PortfolioItemRow({
           Remover
         </button>
       </div>
-      {item.images.length > 0 && (
-        <ul className="flex flex-wrap gap-2">
-          {item.images.map((image) => (
-            <li key={image.id} className="relative">
-              <img src={image.imageUrl} alt={item.title} className="h-16 w-16 rounded-md object-cover" />
-              <button
-                type="button"
-                onClick={() => removeImage.mutate(image.id)}
-                aria-label={`Remover foto de ${item.title}`}
-                className="absolute -right-1 -top-1 rounded-full bg-accent px-1 text-xs text-bg"
-              >
-                ×
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <PortfolioImageGallery images={item.images} alt={item.title} onRemove={(id) => removeImage.mutate(id)} />
       <ImageUpload
-        label={`Adicionar foto a ${item.title}`}
+        label="Adicionar foto"
         onUploaded={(result) => addImage.mutate({ imageUrl: result.url, position: item.images.length })}
       />
     </li>
@@ -66,37 +51,43 @@ export function PortfolioManager({ professionalId }: { professionalId: string | 
   return (
     <Card>
       <h2 className="mb-3 text-lg font-semibold text-ink">Portfólio</h2>
-      <div className="mb-3 flex gap-2">
-        <input
-          className="min-w-0 flex-1 rounded-sm border border-surface px-3 py-2 text-ink"
-          placeholder="Título do trabalho"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <Button
-          type="button"
-          disabled={!title || create.isPending}
-          onClick={() => {
-            create.mutate({ categoryId: null, title, description: null, completedAt: null });
-            setTitle('');
-          }}
-        >
-          Adicionar
-        </Button>
-      </div>
-      {isPending ? null : !data || data.length === 0 ? (
-        <EmptyState title="Nenhum item no portfólio ainda" />
+      {!professionalId ? (
+        <p className="text-sm text-muted">Salve seu perfil primeiro para adicionar itens ao portfólio.</p>
       ) : (
-        <ul className="flex flex-col gap-2">
-          {data.map((item) => (
-            <PortfolioItemRow
-              key={item.id}
-              item={item}
-              professionalId={professionalId}
-              onRemoveItem={(id) => remove.mutate(id)}
+        <>
+          <div className="mb-3 flex gap-2">
+            <input
+              className="min-w-0 flex-1 rounded-sm border border-surface px-3 py-2 text-ink"
+              placeholder="Título do trabalho"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
-          ))}
-        </ul>
+            <Button
+              type="button"
+              disabled={!title || create.isPending}
+              onClick={() => {
+                create.mutate({ categoryId: null, title, description: null, completedAt: null });
+                setTitle('');
+              }}
+            >
+              Adicionar
+            </Button>
+          </div>
+          {isPending ? null : !data || data.length === 0 ? (
+            <EmptyState title="Nenhum item no portfólio ainda" />
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {data.map((item) => (
+                <PortfolioItemRow
+                  key={item.id}
+                  item={item}
+                  professionalId={professionalId}
+                  onRemoveItem={(id) => remove.mutate(id)}
+                />
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </Card>
   );
