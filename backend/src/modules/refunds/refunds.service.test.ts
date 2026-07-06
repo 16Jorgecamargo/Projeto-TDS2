@@ -8,15 +8,13 @@ import type { Payment } from '../../infra/database/entities/payment.entity.js';
 import type { Contract } from '../../infra/database/entities/contract.entity.js';
 import type { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
 import type { WalletService } from '../wallet/wallet.service.js';
-import type { FeesService } from '../fees/fees.service.js';
 
 describe('RefundsService', () => {
   let refunds: ReturnType<typeof mockRepo<Refund>>;
   let payments: ReturnType<typeof mockRepo<Payment>>;
   let contracts: ReturnType<typeof mockRepo<Contract>>;
   let professionals: ReturnType<typeof mockRepo<ProfessionalProfile>>;
-  let wallet: { debit: ReturnType<typeof vi.fn>; credit: ReturnType<typeof vi.fn> };
-  let fees: { findByPayment: ReturnType<typeof vi.fn> };
+  let wallet: { reverseHold: ReturnType<typeof vi.fn>; credit: ReturnType<typeof vi.fn> };
   let service: RefundsService;
 
   beforeEach(() => {
@@ -25,17 +23,8 @@ describe('RefundsService', () => {
     contracts = mockRepo<Contract>();
     professionals = mockRepo<ProfessionalProfile>();
     wallet = {
-      debit: vi.fn(async () => ({})),
+      reverseHold: vi.fn(async () => ({})),
       credit: vi.fn(async () => ({})),
-    };
-    fees = {
-      findByPayment: vi.fn(async () => ({
-        id: 'f1',
-        paymentId: 'p1',
-        percentage: 10,
-        amount: 30,
-        createdAt: '2026-07-01T12:00:00Z',
-      })),
     };
     service = new RefundsService({
       refunds: refunds as unknown as Repository<Refund>,
@@ -43,12 +32,11 @@ describe('RefundsService', () => {
       contracts: contracts as unknown as Repository<Contract>,
       professionals: professionals as unknown as Repository<ProfessionalProfile>,
       wallet: wallet as unknown as WalletService,
-      fees: fees as unknown as FeesService,
     });
   });
 
   describe('refund', () => {
-    it('estorna profissional pelo líquido e devolve ao pagador quando carteira', async () => {
+    it('estorna profissional pelo valor total e devolve ao pagador quando carteira', async () => {
       payments.findOne.mockResolvedValueOnce({
         id: 'p1',
         contract_id: 'c1',
@@ -68,7 +56,7 @@ describe('RefundsService', () => {
 
       const result = await service.refund('p1', { reason: 'cancelado' });
 
-      expect(wallet.debit).toHaveBeenCalledWith('prouser1', 270, expect.objectContaining({ type: 'refund' }));
+      expect(wallet.reverseHold).toHaveBeenCalledWith('prouser1', 300, expect.objectContaining({ type: 'refund' }));
       expect(wallet.credit).toHaveBeenCalledWith('cl1', 300, expect.objectContaining({ type: 'refund' }));
       expect(result.status).toBe('completed');
       expect(result.amount).toBe(300);
@@ -96,7 +84,7 @@ describe('RefundsService', () => {
       await service.refund('p1', { reason: null });
 
       expect(wallet.credit).not.toHaveBeenCalled();
-      expect(wallet.debit).toHaveBeenCalledWith('prouser1', 270, expect.objectContaining({ type: 'refund' }));
+      expect(wallet.reverseHold).toHaveBeenCalledWith('prouser1', 300, expect.objectContaining({ type: 'refund' }));
     });
 
     it('rejeita estorno de pagamento não capturado', async () => {

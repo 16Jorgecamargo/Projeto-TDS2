@@ -13,7 +13,7 @@ describe('PaymentService', () => {
   let payments: ReturnType<typeof mockRepo<Payment>>;
   let contracts: ReturnType<typeof mockRepo<Contract>>;
   let professionals: ReturnType<typeof mockRepo<ProfessionalProfile>>;
-  let wallet: { debit: ReturnType<typeof vi.fn>; credit: ReturnType<typeof vi.fn> };
+  let wallet: { debit: ReturnType<typeof vi.fn>; hold: ReturnType<typeof vi.fn> };
   let fees: { recordFee: ReturnType<typeof vi.fn>; findByPayment: ReturnType<typeof vi.fn> };
   let service: PaymentService;
 
@@ -23,7 +23,7 @@ describe('PaymentService', () => {
     professionals = mockRepo<ProfessionalProfile>();
     wallet = {
       debit: vi.fn(async () => ({})),
-      credit: vi.fn(async () => ({})),
+      hold: vi.fn(async () => ({})),
     };
     fees = {
       recordFee: vi.fn(async () => ({
@@ -45,7 +45,7 @@ describe('PaymentService', () => {
   });
 
   describe('payContract', () => {
-    it('debita pagador, registra taxa e credita profissional pelo líquido', async () => {
+    it('debita pagador, registra taxa e coloca 100% do valor em espera (hold) para o profissional', async () => {
       contracts.findOne.mockResolvedValueOnce({
         id: 'c1',
         client_id: 'cl1',
@@ -67,9 +67,9 @@ describe('PaymentService', () => {
 
       expect(wallet.debit).toHaveBeenCalledWith('cl1', 300, expect.objectContaining({ type: 'payment' }));
       expect(fees.recordFee).toHaveBeenCalledWith('p1', 300);
-      expect(wallet.credit).toHaveBeenCalledWith(
+      expect(wallet.hold).toHaveBeenCalledWith(
         'prouser1',
-        270,
+        300,
         expect.objectContaining({ type: 'payment' }),
       );
       expect(result.status).toBe('captured');
@@ -96,9 +96,9 @@ describe('PaymentService', () => {
       await service.payContract('cl1', 'c1', { method: 'pix' });
 
       expect(wallet.debit).not.toHaveBeenCalled();
-      expect(wallet.credit).toHaveBeenCalledWith(
+      expect(wallet.hold).toHaveBeenCalledWith(
         'prouser1',
-        270,
+        300,
         expect.objectContaining({ type: 'payment' }),
       );
     });

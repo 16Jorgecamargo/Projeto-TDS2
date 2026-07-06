@@ -77,10 +77,9 @@ export class PaymentService {
       });
     }
 
-    const fee = await this.deps.fees.recordFee(payment.id, amount);
-    const net = Number((amount - fee.amount).toFixed(2));
+    await this.deps.fees.recordFee(payment.id, amount);
 
-    await this.deps.wallet.credit(professional.user_id, net, {
+    await this.deps.wallet.hold(professional.user_id, amount, {
       type: 'payment',
       id: payment.id,
       description: 'Recebimento de contrato',

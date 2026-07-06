@@ -160,7 +160,8 @@ describe('payment routes', () => {
       url: '/api/wallet',
       headers: pro.headers,
     });
-    expect(wallet.json().balance).toBe(270);
+    expect(wallet.json().balance).toBe(0);
+    expect(wallet.json().pendingBalance).toBe(300);
   });
 
   it('bloqueia segundo pagamento do mesmo contrato', async () => {

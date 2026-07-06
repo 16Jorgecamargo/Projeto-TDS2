@@ -5,7 +5,6 @@ import type { Contract } from '../../infra/database/entities/contract.entity.js'
 import type { ProfessionalProfile } from '../../infra/database/entities/professional-profile.entity.js';
 import { NotFoundError, UnprocessableError } from '../../shared/errors.js';
 import type { WalletService } from '../wallet/wallet.service.js';
-import type { FeesService } from '../fees/fees.service.js';
 import type { CreateRefundInput, RefundResponse } from './refunds.schemas.js';
 
 interface RefundsServiceDeps {
@@ -14,7 +13,6 @@ interface RefundsServiceDeps {
   contracts: Repository<Contract>;
   professionals: Repository<ProfessionalProfile>;
   wallet: WalletService;
-  fees: FeesService;
 }
 
 export class RefundsService {
@@ -43,11 +41,8 @@ export class RefundsService {
     if (!professional) throw new NotFoundError('Profissional não encontrado');
 
     const amount = Number(payment.amount);
-    const fee = await this.deps.fees.findByPayment(paymentId);
-    const feeAmount = fee ? fee.amount : 0;
-    const net = Number((amount - feeAmount).toFixed(2));
 
-    await this.deps.wallet.debit(professional.user_id, net, {
+    await this.deps.wallet.reverseHold(professional.user_id, amount, {
       type: 'refund',
       id: paymentId,
       description: 'Estorno de contrato',

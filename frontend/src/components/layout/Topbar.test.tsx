@@ -6,6 +6,7 @@ import { useAuthStore } from '../../stores/auth';
 
 vi.mock('../../features/notifications/queries', () => ({
   useNotifications: () => ({ data: { items: [] } }),
+  useMarkAllNotificationsRead: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
 describe('Topbar', () => {

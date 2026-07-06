@@ -58,7 +58,7 @@ beforeEach(async () => {
 });
 
 describe('fluxo demanda -> orcamento -> contrato -> pagamento -> avaliacao', () => {
-  it('credita a carteira do profissional descontando a taxa e permite avaliacao mutua', async () => {
+  it('coloca 100% do valor pago em espera na carteira do profissional e permite avaliacao mutua', async () => {
     await register('cliente@example.com', 'client');
     await register('profissional@example.com', 'professional');
 
@@ -173,9 +173,8 @@ describe('fluxo demanda -> orcamento -> contrato -> pagamento -> avaliacao', () 
       headers: bearer(professional.accessToken),
     });
     expect(walletResponse.statusCode).toBe(200);
-    const walletBalance = walletResponse.json().balance as number;
-    expect(walletBalance).toBeGreaterThan(0);
-    expect(walletBalance).toBeLessThan(quote.total);
+    expect(walletResponse.json().balance).toBe(0);
+    expect(walletResponse.json().pendingBalance).toBe(quote.total);
 
     const clientReviewResponse = await app.inject({
       method: 'POST',

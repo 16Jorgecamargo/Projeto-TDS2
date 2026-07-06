@@ -14,6 +14,8 @@ export interface TransactionRef {
   description?: string;
 }
 
+export const HOLD_RELEASE_DELAY_MS = 10_000;
+
 interface WalletServiceDeps {
   wallets: Repository<Wallet>;
   transactions: Repository<WalletTransaction>;
@@ -99,6 +101,74 @@ export class WalletService {
       this.deps.transactions.create({
         wallet_id: wallet.id,
         type: 'credit',
+        amount: amount.toFixed(2),
+        balance_after: nextBalance.toFixed(2),
+        reference_type: ref.type,
+        reference_id: ref.id,
+        description: ref.description ?? null,
+      }),
+    );
+  }
+
+  async hold(userId: string, amount: number, ref: TransactionRef): Promise<WalletTransaction> {
+    const wallet = await this.ensureWallet(userId);
+    const nextPending = Number(wallet.pending_balance) + amount;
+    wallet.pending_balance = nextPending.toFixed(2);
+    await this.deps.wallets.save(wallet);
+    const tx = await this.deps.transactions.save(
+      this.deps.transactions.create({
+        wallet_id: wallet.id,
+        type: 'hold',
+        amount: amount.toFixed(2),
+        balance_after: nextPending.toFixed(2),
+        reference_type: ref.type,
+        reference_id: ref.id,
+        description: ref.description ?? null,
+      }),
+    );
+    setTimeout(() => {
+      void this.release(userId, amount, ref);
+    }, HOLD_RELEASE_DELAY_MS).unref();
+    return tx;
+  }
+
+  async release(userId: string, amount: number, ref: TransactionRef): Promise<WalletTransaction> {
+    const wallet = await this.ensureWallet(userId);
+    const nextPending = Number(wallet.pending_balance) - amount;
+    const nextBalance = Number(wallet.balance) + amount;
+    wallet.pending_balance = nextPending.toFixed(2);
+    wallet.balance = nextBalance.toFixed(2);
+    await this.deps.wallets.save(wallet);
+    return this.deps.transactions.save(
+      this.deps.transactions.create({
+        wallet_id: wallet.id,
+        type: 'release',
+        amount: amount.toFixed(2),
+        balance_after: nextBalance.toFixed(2),
+        reference_type: ref.type,
+        reference_id: ref.id,
+        description: ref.description ?? null,
+      }),
+    );
+  }
+
+  async reverseHold(userId: string, amount: number, ref: TransactionRef): Promise<WalletTransaction> {
+    const wallet = await this.ensureWallet(userId);
+    const pending = Number(wallet.pending_balance);
+    const fromPending = Math.min(pending, amount);
+    const fromBalance = Number((amount - fromPending).toFixed(2));
+    if (fromBalance > 0 && Number(wallet.balance) < fromBalance) {
+      throw new UnprocessableError('Saldo insuficiente para estorno');
+    }
+    const nextPending = Number((pending - fromPending).toFixed(2));
+    const nextBalance = Number((Number(wallet.balance) - fromBalance).toFixed(2));
+    wallet.pending_balance = nextPending.toFixed(2);
+    wallet.balance = nextBalance.toFixed(2);
+    await this.deps.wallets.save(wallet);
+    return this.deps.transactions.save(
+      this.deps.transactions.create({
+        wallet_id: wallet.id,
+        type: 'debit',
         amount: amount.toFixed(2),
         balance_after: nextBalance.toFixed(2),
         reference_type: ref.type,

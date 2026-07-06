@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import type { Repository } from 'typeorm';
-import { WalletService } from './wallet.service.js';
+import { WalletService, HOLD_RELEASE_DELAY_MS } from './wallet.service.js';
 import { mockRepo } from '../../test/mocks/index.js';
 import { UnprocessableError } from '../../shared/errors.js';
 import type { Wallet } from '../../infra/database/entities/wallet.entity.js';
@@ -135,6 +135,66 @@ describe('WalletService', () => {
       expect(tx.amount).toBe('170.00');
       expect(tx.balance_after).toBe('270.00');
       expect(wallets.save).toHaveBeenCalledWith(expect.objectContaining({ balance: '270.00' }));
+    });
+  });
+
+  describe('hold', () => {
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => vi.useRealTimers());
+
+    it('soma ao saldo pendente (nao ao disponivel) e agenda liberacao automatica', async () => {
+      wallets.findOne.mockResolvedValue({
+        id: 'w1',
+        user_id: 'u1',
+        balance: '0.00',
+        pending_balance: '0.00',
+        currency: 'BRL',
+      } as Wallet);
+      wallets.save.mockImplementation(async (value: Wallet) => value);
+      transactions.save.mockImplementation(async (value: WalletTransaction) => ({
+        ...value,
+        id: 't1',
+        created_at: new Date('2026-07-01T12:00:00Z'),
+      }));
+
+      const tx = await service.hold('u1', 300, { type: 'payment', id: 'p1' });
+
+      expect(tx.type).toBe('hold');
+      expect(tx.amount).toBe('300.00');
+      expect(wallets.save).toHaveBeenCalledWith(
+        expect.objectContaining({ pending_balance: '300.00', balance: '0.00' }),
+      );
+
+      await vi.advanceTimersByTimeAsync(HOLD_RELEASE_DELAY_MS);
+
+      expect(wallets.save).toHaveBeenCalledWith(
+        expect.objectContaining({ pending_balance: '0.00', balance: '300.00' }),
+      );
+    });
+  });
+
+  describe('release', () => {
+    it('move do saldo pendente para o saldo disponivel', async () => {
+      wallets.findOne.mockResolvedValueOnce({
+        id: 'w1',
+        user_id: 'u1',
+        balance: '50.00',
+        pending_balance: '300.00',
+        currency: 'BRL',
+      } as Wallet);
+      wallets.save.mockImplementationOnce(async (value: Wallet) => value);
+      transactions.save.mockImplementationOnce(async (value: WalletTransaction) => ({
+        ...value,
+        id: 't2',
+        created_at: new Date('2026-07-01T12:00:00Z'),
+      }));
+
+      const tx = await service.release('u1', 300, { type: 'payment', id: 'p1' });
+
+      expect(tx.type).toBe('release');
+      expect(wallets.save).toHaveBeenCalledWith(
+        expect.objectContaining({ pending_balance: '0.00', balance: '350.00' }),
+      );
     });
   });
 
