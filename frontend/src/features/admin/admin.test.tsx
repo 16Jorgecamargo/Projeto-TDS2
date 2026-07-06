@@ -24,6 +24,25 @@ vi.mock('./queries', () => ({
     isLoading: false,
   }),
   useResolveDispute: () => ({ mutate: vi.fn(), isPending: false }),
+  useUsers: () => ({
+    data: {
+      items: [],
+      page: 1,
+      limit: 20,
+      total: 0,
+    },
+    isLoading: false,
+  }),
+  useSetUserStatus: () => ({ mutate: vi.fn(), isPending: false }),
+  useAudit: () => ({
+    data: {
+      items: [],
+      page: 1,
+      limit: 20,
+      total: 0,
+    },
+    isLoading: false,
+  }),
 }));
 
 function renderWithClient() {
