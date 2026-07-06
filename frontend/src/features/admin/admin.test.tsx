@@ -43,6 +43,11 @@ vi.mock('./queries', () => ({
     },
     isLoading: false,
   }),
+  useCategories: () => ({ data: [], isLoading: false }),
+  useCreateCategory: () => ({ mutate: vi.fn(), isPending: false }),
+  useUpdateCategory: () => ({ mutate: vi.fn(), isPending: false }),
+  useTags: () => ({ data: [], isLoading: false }),
+  useCreateTag: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
 function renderWithClient() {
