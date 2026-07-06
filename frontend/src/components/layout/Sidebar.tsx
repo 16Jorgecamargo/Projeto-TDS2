@@ -35,7 +35,7 @@ export function Sidebar(): JSX.Element | null {
     return () => mediaQuery.removeEventListener('change', syncCollapsed);
   }, [setCollapsed]);
 
-  if (!role || role === 'client') return null;
+  if (!role || role === 'client' || role === 'professional') return null;
 
   const dashboardItem = getDashboardItem(role);
   const chatItem = getChatItem(role);

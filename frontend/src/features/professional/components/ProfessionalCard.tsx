@@ -8,6 +8,7 @@ import { FavoriteButton } from '../../favorites/components/FavoriteButton';
 
 export interface ProfessionalCardProps {
   id: string;
+  fullName: string;
   headline: string;
   bio: string | null;
   hourlyRate: number | null;
@@ -20,6 +21,7 @@ export interface ProfessionalCardProps {
 
 export function ProfessionalCard({
   id,
+  fullName,
   headline,
   bio,
   hourlyRate,
@@ -36,9 +38,10 @@ export function ProfessionalCard({
       )}
       <Link to={`/professionals/${id}`} className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
-          <Avatar name={headline} size="md" />
+          <Avatar name={fullName} size="md" />
           <div>
-            <h3 className="font-semibold text-ink">{headline}</h3>
+            <h3 className="font-semibold text-ink">{fullName}</h3>
+            <p className="text-sm text-muted">{headline}</p>
             {isAvailable && <Badge tone="accent">Disponível agora</Badge>}
             {categories && categories.length > 0 && <Badge tone="neutral">{categories[0]}</Badge>}
           </div>

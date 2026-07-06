@@ -13,6 +13,7 @@ describe('ProfessionalCard', () => {
     renderWithProviders(
       <ProfessionalCard
         id="p1"
+        fullName="João Silva"
         headline="Eletricista João"
         bio="Especialista em instalações residenciais"
         hourlyRate={100}
@@ -22,6 +23,7 @@ describe('ProfessionalCard', () => {
       />,
     );
 
+    expect(screen.getByText('João Silva')).toBeInTheDocument();
     expect(screen.getByText('Eletricista João')).toBeInTheDocument();
     expect(screen.getByText('R$ 100/h')).toBeInTheDocument();
     expect(screen.getByText('4.5 (20)')).toBeInTheDocument();
@@ -32,6 +34,7 @@ describe('ProfessionalCard', () => {
     renderWithProviders(
       <ProfessionalCard
         id="p1"
+        fullName="Encanador Silva"
         headline="Encanador"
         bio={null}
         hourlyRate={null}
@@ -47,7 +50,15 @@ describe('ProfessionalCard', () => {
 
   it('linka para o perfil publico', () => {
     renderWithProviders(
-      <ProfessionalCard id="p1" headline="Eletricista" bio={null} hourlyRate={null} ratingAverage={0} ratingCount={0} />,
+      <ProfessionalCard
+        id="p1"
+        fullName="Eletricista Silva"
+        headline="Eletricista"
+        bio={null}
+        hourlyRate={null}
+        ratingAverage={0}
+        ratingCount={0}
+      />,
     );
 
     expect(screen.getByRole('link')).toHaveAttribute('href', '/professionals/p1');
@@ -57,6 +68,7 @@ describe('ProfessionalCard', () => {
     renderWithProviders(
       <ProfessionalCard
         id="p1"
+        fullName="Eletricista Silva"
         headline="Eletricista"
         bio={null}
         hourlyRate={null}

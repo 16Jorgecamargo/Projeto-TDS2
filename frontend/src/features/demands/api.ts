@@ -30,13 +30,6 @@ export interface Demand {
   createdAt: string;
 }
 
-export interface QuoteItem {
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  subtotal: number;
-}
-
 export type QuoteStatus = 'pending' | 'accepted' | 'rejected' | 'withdrawn';
 
 export interface Quote {
@@ -47,8 +40,11 @@ export interface Quote {
   total: number;
   status: QuoteStatus;
   validUntil: string | null;
-  items: QuoteItem[];
   createdAt: string;
+}
+
+export interface MyQuote extends Quote {
+  demandTitle: string;
 }
 
 export type ContractStatus = 'active' | 'completed' | 'cancelled' | 'disputed';
@@ -87,7 +83,16 @@ export interface Paginated<T> {
   total: number;
 }
 
-export async function fetchDemands(params: { page?: number; mine?: boolean }): Promise<Paginated<Demand>> {
+export interface DemandListParams {
+  page?: number;
+  limit?: number;
+  mine?: boolean;
+  categoryId?: string;
+  city?: string;
+  state?: string;
+}
+
+export async function fetchDemands(params: DemandListParams): Promise<Paginated<Demand>> {
   const { data } = await http.get<Paginated<Demand>>('/demands', { params });
   return data;
 }
@@ -128,7 +133,17 @@ export async function createQuote(demandId: string, values: QuoteFormValues): Pr
   const { data } = await http.post<Quote>(`/demands/${demandId}/quotes`, {
     message: values.message,
     validUntil: values.validUntil ? new Date(values.validUntil).toISOString() : null,
-    items: values.items,
+    total: values.total,
   });
+  return data;
+}
+
+export async function withdrawQuote(quoteId: string): Promise<Quote> {
+  const { data } = await http.post<Quote>(`/quotes/${quoteId}/withdraw`, {});
+  return data;
+}
+
+export async function fetchMyPendingQuotes(): Promise<MyQuote[]> {
+  const { data } = await http.get<MyQuote[]>('/quotes/me');
   return data;
 }

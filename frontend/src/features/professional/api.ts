@@ -3,6 +3,7 @@ import { http } from '../../lib/http';
 export interface ProfessionalProfile {
   id: string;
   userId: string;
+  fullName: string;
   headline: string;
   bio: string | null;
   yearsExperience: number | null;

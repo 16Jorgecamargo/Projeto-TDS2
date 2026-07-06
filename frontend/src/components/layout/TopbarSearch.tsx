@@ -102,7 +102,7 @@ export function TopbarSearch(): JSX.Element {
       (professionalResults.data?.items ?? []).slice(0, MAX_ITEMS_PER_SECTION).map((professional) => ({
         type: 'professional',
         key: `professional-${professional.id}`,
-        label: professional.headline,
+        label: professional.fullName,
         professionalId: professional.id,
       })),
     [professionalResults.data],

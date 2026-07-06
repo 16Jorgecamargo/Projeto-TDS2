@@ -128,6 +128,23 @@ describe('DemandService', () => {
         }),
       );
     });
+
+    it('filtra por cidade e estado', async () => {
+      demands.findAndCount.mockResolvedValueOnce([[], 0]);
+
+      await service.list(
+        { city: 'Porto Alegre', state: 'RS', page: 1, limit: 10 },
+        { userId: 'prof-1', professionalId: 'prof-1' },
+      );
+
+      expect(demands.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { city: 'Porto Alegre', state: 'RS' },
+          skip: 0,
+          take: 10,
+        }),
+      );
+    });
   });
 
   describe('getById', () => {

@@ -8,14 +8,19 @@ import {
   acceptQuote,
   inviteProfessional,
   createQuote,
+  withdrawQuote,
+  fetchMyPendingQuotes,
+  type DemandListParams,
 } from './api';
 import type { DemandFormValues, QuoteFormValues } from './schemas';
 
 export const demandKeys = {
   all: ['demands'] as const,
   list: (mine?: boolean) => ['demands', 'list', { mine }] as const,
+  search: (params: DemandListParams) => ['demands', 'search', params] as const,
   detail: (id: string) => ['demands', 'detail', id] as const,
   quotes: (id: string) => ['demands', id, 'quotes'] as const,
+  myPendingQuotes: ['quotes', 'me', 'pending'] as const,
 };
 
 export function useDemands(mine?: boolean, options?: { enabled?: boolean }) {
@@ -23,6 +28,13 @@ export function useDemands(mine?: boolean, options?: { enabled?: boolean }) {
     queryKey: demandKeys.list(mine),
     queryFn: () => fetchDemands({ mine }),
     enabled: options?.enabled ?? true,
+  });
+}
+
+export function useDemandSearch(params: DemandListParams) {
+  return useQuery({
+    queryKey: demandKeys.search(params),
+    queryFn: () => fetchDemands(params),
   });
 }
 
@@ -68,6 +80,18 @@ export function useCreateQuote(demandId: string) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (values: QuoteFormValues) => createQuote(demandId, values),
+    onSuccess: () => client.invalidateQueries({ queryKey: demandKeys.quotes(demandId) }),
+  });
+}
+
+export function useMyPendingQuotes() {
+  return useQuery({ queryKey: demandKeys.myPendingQuotes, queryFn: fetchMyPendingQuotes });
+}
+
+export function useWithdrawQuote(demandId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (quoteId: string) => withdrawQuote(quoteId),
     onSuccess: () => client.invalidateQueries({ queryKey: demandKeys.quotes(demandId) }),
   });
 }

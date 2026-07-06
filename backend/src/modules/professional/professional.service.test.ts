@@ -69,6 +69,21 @@ describe('ProfessionalService', () => {
         verified_at: null,
         created_at: new Date('2026-07-01T12:00:00Z'),
       } as ProfessionalProfile);
+      profiles.findOne.mockResolvedValueOnce({
+        id: 'pro-1',
+        user_id: 'user-1',
+        headline: 'Eletricista',
+        bio: null,
+        years_experience: 10,
+        hourly_rate: '120.00',
+        service_radius_km: 30,
+        rating_average: '4.80',
+        rating_count: 42,
+        is_available: true,
+        verified_at: null,
+        created_at: new Date('2026-07-01T12:00:00Z'),
+        user: { full_name: 'Joao Silva' },
+      } as ProfessionalProfile);
 
       const result = await service.upsertProfile('user-1', {
         headline: 'Eletricista',
@@ -98,6 +113,7 @@ describe('ProfessionalService', () => {
         is_available: true,
         verified_at: null,
         created_at: new Date('2026-07-01T12:00:00Z'),
+        user: { full_name: 'Joao Silva' },
       } as ProfessionalProfile);
       profiles.save.mockImplementationOnce(async (value: ProfessionalProfile) => value);
 
@@ -136,6 +152,7 @@ describe('ProfessionalService', () => {
         is_available: true,
         verified_at: null,
         created_at: new Date('2026-07-01T12:00:00Z'),
+        user: { full_name: 'Joao Silva' },
       } as ProfessionalProfile);
 
       const result = await service.getMyProfile('user-1');
@@ -177,6 +194,7 @@ describe('ProfessionalService', () => {
         is_available: true,
         verified_at: null,
         created_at: new Date('2026-07-01T12:00:00Z'),
+        user: { full_name: 'Joao Silva' },
       } as ProfessionalProfile);
       experiences.find.mockResolvedValueOnce([
         {
@@ -258,6 +276,7 @@ describe('ProfessionalService', () => {
         is_available: true,
         verified_at: null,
         created_at: new Date('2026-07-01T12:00:00Z'),
+        user: { full_name: 'Joao Silva' },
       } as ProfessionalProfile);
       categories.find.mockResolvedValueOnce([]);
 

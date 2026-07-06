@@ -4,6 +4,7 @@ import {
   setStoredRefreshToken,
   clearStoredRefreshToken,
 } from '../lib/authStorage';
+import { queryClient } from '../lib/queryClient';
 
 export type Role = 'client' | 'professional' | 'admin';
 
@@ -25,15 +26,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   refreshToken: getStoredRefreshToken(),
   isBootstrapping: true,
   setAuth: (user, accessToken, refreshToken) => {
+    const previousUserId = get().user?.id;
     const nextRefreshToken = refreshToken ?? get().refreshToken;
     if (nextRefreshToken) {
       setStoredRefreshToken(nextRefreshToken);
     }
     set({ user, accessToken, refreshToken: nextRefreshToken });
+    if (previousUserId && previousUserId !== user.id) {
+      void queryClient.clear();
+    }
   },
   clear: () => {
     clearStoredRefreshToken();
     set({ user: null, accessToken: null, refreshToken: null });
+    void queryClient.clear();
   },
   finishBootstrapping: () => set({ isBootstrapping: false }),
 }));

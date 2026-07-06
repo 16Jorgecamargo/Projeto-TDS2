@@ -20,6 +20,7 @@ vi.mock('../../favorites/queries', () => ({
 const profile = {
   id: 'prof-1',
   userId: 'user-1',
+  fullName: 'João Silva',
   headline: 'Eletricista João',
   bio: null,
   yearsExperience: null,
@@ -46,6 +47,7 @@ describe('ProfessionalProfileHeader', () => {
   it('renderiza headline, categoria e nota', () => {
     renderWithProviders(<ProfessionalProfileHeader profile={profile} isFavorite={false} />);
 
+    expect(screen.getByText('João Silva')).toBeInTheDocument();
     expect(screen.getByText('Eletricista João')).toBeInTheDocument();
     expect(screen.getByText('Elétrica')).toBeInTheDocument();
     expect(screen.getByText('4.5 (12)')).toBeInTheDocument();

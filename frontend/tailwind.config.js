@@ -4,6 +4,7 @@ export default {
     extend: {
       screens: {
         nav: '424px',
+        '3xl': '1920px',
       },
       maxWidth: {
         app: '1400px',

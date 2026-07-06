@@ -180,6 +180,8 @@ export const demandListQuerySchema = paginationQuerySchema.extend({
     .optional()
     .describe('Somente minhas demandas')
     .openapi({ example: true }),
+  city: z.string().min(1).max(128).optional().describe('Filtro por cidade').openapi({ example: 'Porto Alegre' }),
+  state: z.string().length(2).optional().describe('Filtro por UF').openapi({ example: 'RS' }),
 });
 
 export const demandListResponseSchema = paginatedResponse(demandResponseSchema);

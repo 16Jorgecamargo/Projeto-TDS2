@@ -48,35 +48,31 @@ describe('Sidebar', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renderiza dashboard, chat, demandas e contratos pro profissional', () => {
+  it('não renderiza nada para o profissional (navbar removido)', () => {
     useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 'token');
-    renderWithProviders(<Sidebar />);
-    expect(screen.getByRole('link', { name: /Dashboard/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Chat/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Demandas disponíveis/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Meus contratos/ })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /Carteira/ })).not.toBeInTheDocument();
+    const { container } = renderWithProviders(<Sidebar />);
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('esconde os rótulos de texto quando colapsada', () => {
     restoreMatchMedia();
     restoreMatchMedia = mockNarrowViewport(true);
-    useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 'token');
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
     renderWithProviders(<Sidebar />);
-    expect(screen.queryByText('Demandas disponíveis')).not.toBeInTheDocument();
+    expect(screen.queryByText('Denúncias')).not.toBeInTheDocument();
   });
 
   it('colapsa automaticamente quando a tela e estreita (menos de 1024px)', () => {
     restoreMatchMedia();
     restoreMatchMedia = mockNarrowViewport(true);
-    useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 'token');
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
     renderWithProviders(<Sidebar />);
     expect(useSidebarStore.getState().collapsed).toBe(true);
-    expect(screen.queryByText('Demandas disponíveis')).not.toBeInTheDocument();
+    expect(screen.queryByText('Denúncias')).not.toBeInTheDocument();
   });
 
   it('alterna o estado ao clicar no botão de colapsar', async () => {
-    useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 'token');
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'admin' }, 'token');
     const user = userEvent.setup();
     renderWithProviders(<Sidebar />);
 

@@ -8,9 +8,6 @@ export function DashboardQuickActions(): JSX.Element {
   return (
     <div className="flex flex-wrap gap-3">
       <Button onClick={() => navigate('/demands')}>Buscar demandas disponíveis</Button>
-      <Button variant="ghost" onClick={() => navigate('/contracts')}>
-        Ver contratos
-      </Button>
       <Button variant="ghost" onClick={() => navigate('/professional/profile')}>
         Editar perfil
       </Button>

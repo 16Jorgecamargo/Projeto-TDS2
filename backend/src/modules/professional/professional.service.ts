@@ -44,7 +44,7 @@ export class ProfessionalService {
   constructor(private readonly deps: ProfessionalServiceDeps) {}
 
   async upsertProfile(userId: string, input: UpsertProfileInput): Promise<ProfileResponse> {
-    const existing = await this.deps.profiles.findOne({ where: { user_id: userId } });
+    const existing = await this.deps.profiles.findOne({ where: { user_id: userId }, relations: ['user'] });
     if (existing) {
       existing.headline = input.headline;
       existing.bio = input.bio;
@@ -68,11 +68,12 @@ export class ProfessionalService {
         verified_at: null,
       }),
     );
-    return this.toProfile(created);
+    const withUser = await this.deps.profiles.findOne({ where: { id: created.id }, relations: ['user'] });
+    return this.toProfile(withUser ?? created);
   }
 
   async getMyProfile(userId: string): Promise<ProfileResponse> {
-    const profile = await this.deps.profiles.findOne({ where: { user_id: userId } });
+    const profile = await this.deps.profiles.findOne({ where: { user_id: userId }, relations: ['user'] });
     if (!profile) throw new NotFoundError('Perfil profissional nao encontrado');
     return this.toProfile(profile);
   }
@@ -84,7 +85,7 @@ export class ProfessionalService {
   }
 
   async getPublicProfile(profileId: string): Promise<PublicProfileResponse> {
-    const profile = await this.deps.profiles.findOne({ where: { id: profileId } });
+    const profile = await this.deps.profiles.findOne({ where: { id: profileId }, relations: ['user'] });
     if (!profile) throw new NotFoundError('Perfil profissional nao encontrado');
     const [experiences, education, certifications, serviceAreas, catLinks] = await Promise.all([
       this.deps.experiences.find({ where: { professional_id: profileId }, order: { start_date: 'DESC' } }),
@@ -268,6 +269,7 @@ export class ProfessionalService {
     return {
       id: profile.id,
       userId: profile.user_id,
+      fullName: profile.user.full_name,
       headline: profile.headline,
       bio: profile.bio,
       yearsExperience: profile.years_experience,

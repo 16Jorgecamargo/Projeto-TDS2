@@ -31,6 +31,7 @@ export function FeaturedProfessionals(): JSX.Element | null {
           <ProfessionalCard
             key={item.id}
             id={item.id}
+            fullName={item.fullName}
             headline={item.headline}
             bio={item.bio}
             hourlyRate={item.hourlyRate}

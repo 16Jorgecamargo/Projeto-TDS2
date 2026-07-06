@@ -1,5 +1,21 @@
 import { z } from 'zod';
 
+const emptyToUndefined = (value: unknown) => (value === '' ? undefined : value);
+
+const normalizeState = (value: unknown) => {
+  if (typeof value !== 'string') return value;
+  const trimmed = value.trim();
+  return trimmed === '' ? undefined : trimmed.toUpperCase();
+};
+
+export const demandFilterSchema = z.object({
+  city: z.preprocess(emptyToUndefined, z.string().max(128).optional()),
+  state: z.preprocess(normalizeState, z.string().regex(/^[A-Z]{2}$/, 'UF invalida').optional()),
+  categoryId: z.preprocess(emptyToUndefined, z.string().uuid().optional()),
+});
+
+export type DemandFilterForm = z.infer<typeof demandFilterSchema>;
+
 export const demandFormSchema = z.object({
   categoryId: z.string().uuid('Categoria obrigatória'),
   title: z.string().min(5, 'Mínimo 5 caracteres').max(120),
@@ -15,16 +31,10 @@ export const demandFormSchema = z.object({
 
 export type DemandFormValues = z.infer<typeof demandFormSchema>;
 
-export const quoteItemFormSchema = z.object({
-  description: z.string().min(2, 'Mínimo 2 caracteres').max(200),
-  quantity: z.coerce.number().int('Deve ser inteiro').positive('Deve ser maior que zero'),
-  unitPrice: z.coerce.number().nonnegative('Não pode ser negativo'),
-});
-
 export const quoteFormSchema = z.object({
   message: z.string().min(5, 'Mínimo 5 caracteres').max(2000),
   validUntil: z.string().optional(),
-  items: z.array(quoteItemFormSchema).min(1, 'Adicione ao menos um item').max(50),
+  total: z.coerce.number().positive('Informe um valor maior que zero'),
 });
 
 export type QuoteFormValues = z.infer<typeof quoteFormSchema>;

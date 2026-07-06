@@ -20,9 +20,9 @@ function FavoriteProfessionalPreview({ professionalId }: { professionalId: strin
       to={`/professionals/${professionalId}`}
       className="flex items-center gap-3 rounded-lg bg-bg p-4 hover:shadow-hover"
     >
-      <Avatar name={data.headline} size="md" />
+      <Avatar name={data.fullName} size="md" />
       <div className="flex min-w-0 flex-col gap-1">
-        <span className="truncate text-sm font-semibold text-ink">{data.headline}</span>
+        <span className="truncate text-sm font-semibold text-ink">{data.fullName}</span>
         <span className="truncate text-xs text-muted">
           {[category, serviceArea && `${serviceArea.city}, ${serviceArea.state}`].filter(Boolean).join(' · ')}
         </span>

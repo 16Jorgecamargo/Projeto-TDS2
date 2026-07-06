@@ -18,7 +18,8 @@ describe('DashboardFavoritesWidget', () => {
     } as never);
     vi.mocked(usePublicProfile).mockReturnValue({
       data: {
-        headline: 'Eletricista João',
+        fullName: 'Eletricista João',
+        headline: 'Eletricista residencial',
         ratingAverage: 4.5,
         ratingCount: 10,
         categories: [{ id: 'cat1', name: 'Elétrica', slug: 'eletrica' }],

@@ -2,6 +2,7 @@ import { http } from '../../lib/http';
 
 export interface SearchResultItem {
   id: string;
+  fullName: string;
   headline: string;
   bio: string | null;
   hourlyRate: number | null;

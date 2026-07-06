@@ -60,7 +60,7 @@ export default function RegisterPage(): JSX.Element {
         marketingConsent: values.marketingConsent,
       });
       toast('Conta criada com sucesso', { tone: 'success' });
-      navigate('/verify-email');
+      navigate(values.role === 'professional' ? '/' : '/verify-email');
     } catch (error) {
       const message = axios.isAxiosError<{ error?: { message?: string } }>(error)
         ? error.response?.data?.error?.message

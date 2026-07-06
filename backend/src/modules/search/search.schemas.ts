@@ -17,6 +17,7 @@ export const searchQuerySchema = paginationQuerySchema.extend({
 
 export const searchResultItemSchema = z.object({
   id: z.string().uuid().describe('ID do perfil profissional').openapi({ example: '9f1c1111-1111-1111-1111-111111111111' }),
+  fullName: z.string().describe('Nome do profissional').openapi({ example: 'Joao Silva' }),
   headline: z.string().describe('Titulo').openapi({ example: 'Eletricista residencial' }),
   bio: z.string().nullable().describe('Biografia').openapi({ example: null }),
   hourlyRate: z.number().nullable().describe('Valor por hora').openapi({ example: 120 }),

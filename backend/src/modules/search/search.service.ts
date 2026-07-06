@@ -47,6 +47,8 @@ export class SearchService {
       qb.andWhere('(profile.headline LIKE :q OR profile.bio LIKE :q)', { q: `%${query.q}%` });
     }
 
+    qb.leftJoinAndSelect('profile.user', 'user');
+
     qb.orderBy('profile.rating_average', 'DESC')
       .skip((query.page - 1) * query.limit)
       .take(query.limit);
@@ -98,6 +100,7 @@ export class SearchService {
   private toResultItem(profile: ProfessionalProfile, categories: string[]): SearchResultItem {
     return {
       id: profile.id,
+      fullName: profile.user.full_name,
       headline: profile.headline,
       bio: profile.bio,
       hourlyRate: profile.hourly_rate === null ? null : Number(profile.hourly_rate),

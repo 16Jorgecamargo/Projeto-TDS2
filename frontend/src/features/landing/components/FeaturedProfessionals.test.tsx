@@ -32,7 +32,8 @@ describe('FeaturedProfessionals', () => {
       data: [
         {
           id: '1',
-          headline: 'Maria Eletricista',
+          fullName: 'Maria Eletricista',
+          headline: 'Eletricista residencial',
           bio: null,
           hourlyRate: 80,
           ratingAverage: 4.9,

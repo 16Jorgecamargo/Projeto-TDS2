@@ -139,6 +139,8 @@ export class DemandService {
     if (query.status) where.status = query.status;
     if (query.categoryId) where.category_id = query.categoryId;
     if (query.mine) where.client_id = actor.userId;
+    if (query.city) where.city = query.city;
+    if (query.state) where.state = query.state;
     const [rows, total] = await this.deps.demands.findAndCount({
       where,
       order: { created_at: 'DESC' },

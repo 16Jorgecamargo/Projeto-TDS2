@@ -44,7 +44,7 @@ describe('ProfessionalResults', () => {
       refetch: vi.fn(),
       data: {
         items: [
-          { id: '1', headline: 'Prof 1', bio: null, hourlyRate: 50, ratingAverage: 4.5, ratingCount: 3, isAvailable: true },
+          { id: '1', fullName: 'Prof 1', headline: 'Prof 1', bio: null, hourlyRate: 50, ratingAverage: 4.5, ratingCount: 3, isAvailable: true },
         ],
         page: 2,
         limit: 1,

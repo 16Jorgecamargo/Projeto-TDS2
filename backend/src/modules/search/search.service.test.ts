@@ -26,7 +26,7 @@ describe('SearchService', () => {
   it('busca profissionais paginados sem filtros', async () => {
     const qb = mockQueryBuilder();
     qb.getManyAndCount.mockResolvedValue([
-      [{ id: 'prof-1', headline: 'Eletricista', bio: null, hourly_rate: '120.00', rating_average: '4.80', rating_count: 3, is_available: true }],
+      [{ id: 'prof-1', headline: 'Eletricista', bio: null, hourly_rate: '120.00', rating_average: '4.80', rating_count: 3, is_available: true, user: { full_name: 'Joao Silva' } }],
       1,
     ]);
     profiles.createQueryBuilder.mockReturnValue(qb);
@@ -57,7 +57,7 @@ describe('SearchService', () => {
   it('anexa nomes de categorias dos profissionais retornados', async () => {
     const qb = mockQueryBuilder();
     qb.getManyAndCount.mockResolvedValue([
-      [{ id: 'prof-1', headline: 'Eletricista', bio: null, hourly_rate: null, rating_average: '0', rating_count: 0, is_available: true }],
+      [{ id: 'prof-1', headline: 'Eletricista', bio: null, hourly_rate: null, rating_average: '0', rating_count: 0, is_available: true, user: { full_name: 'Joao Silva' } }],
       1,
     ]);
     profiles.createQueryBuilder.mockReturnValue(qb);

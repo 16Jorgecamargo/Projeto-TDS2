@@ -38,7 +38,7 @@ describe('ProfessionalResults', () => {
   it('mostra profissionais retornados pela busca', async () => {
     vi.mocked(landingApi.searchProfessionals).mockResolvedValue({
       items: [
-        { id: 'p1', headline: 'Eletricista residencial', bio: null, hourlyRate: 100, ratingAverage: 4.5, ratingCount: 10, isAvailable: true, categories: ['Eletricista'] },
+        { id: 'p1', fullName: 'João Silva', headline: 'Eletricista residencial', bio: null, hourlyRate: 100, ratingAverage: 4.5, ratingCount: 10, isAvailable: true, categories: ['Eletricista'] },
       ],
       page: 1,
       limit: 20,
@@ -46,7 +46,7 @@ describe('ProfessionalResults', () => {
     });
 
     renderResults();
-    await waitFor(() => expect(screen.getByText('Eletricista residencial')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('João Silva')).toBeInTheDocument());
   });
 
   it('mostra mensagem quando nao ha resultados', async () => {

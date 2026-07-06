@@ -64,6 +64,7 @@ export class AuthService {
       phone: input.phone,
       password_hash,
       role: input.role,
+      email_verified_at: input.role === 'professional' ? new Date() : null,
     });
     const user = await this.deps.users.save(entity);
 

@@ -6,26 +6,6 @@ export const quoteStatusEnum = z
   .describe('Estado do orcamento')
   .openapi({ example: 'pending' });
 
-export const quoteItemSchema = z.object({
-  description: z
-    .string()
-    .min(2)
-    .max(200)
-    .describe('Item do orcamento')
-    .openapi({ example: 'Mao de obra' }),
-  quantity: z
-    .number()
-    .int()
-    .positive()
-    .describe('Quantidade')
-    .openapi({ example: 2 }),
-  unitPrice: z
-    .number()
-    .nonnegative()
-    .describe('Preco unitario')
-    .openapi({ example: 150 }),
-});
-
 export const createQuoteSchema = z.object({
   message: z
     .string()
@@ -39,12 +19,11 @@ export const createQuoteSchema = z.object({
     .nullable()
     .describe('Validade do orcamento')
     .openapi({ example: '2026-07-10T00:00:00Z' }),
-  items: z
-    .array(quoteItemSchema)
-    .min(1)
-    .max(50)
-    .describe('Itens do orcamento')
-    .openapi({ example: [] }),
+  total: z
+    .number()
+    .positive()
+    .describe('Valor total do orcamento')
+    .openapi({ example: 350 }),
 });
 
 export const quoteResponseSchema = z.object({
@@ -68,14 +47,6 @@ export const quoteResponseSchema = z.object({
     .nullable()
     .describe('Validade')
     .openapi({ example: null }),
-  items: z
-    .array(
-      quoteItemSchema.extend({
-        subtotal: z.number().describe('Subtotal do item').openapi({ example: 300 }),
-      }),
-    )
-    .describe('Itens')
-    .openapi({ example: [] }),
   createdAt: z
     .string()
     .datetime()
@@ -83,5 +54,10 @@ export const quoteResponseSchema = z.object({
     .openapi({ example: '2026-07-01T12:00:00Z' }),
 });
 
+export const myQuoteResponseSchema = quoteResponseSchema.extend({
+  demandTitle: z.string().describe('Titulo da demanda').openapi({ example: 'Instalacao eletrica' }),
+});
+
 export type CreateQuoteInput = z.infer<typeof createQuoteSchema>;
 export type QuoteResponse = z.infer<typeof quoteResponseSchema>;
+export type MyQuoteResponse = z.infer<typeof myQuoteResponseSchema>;

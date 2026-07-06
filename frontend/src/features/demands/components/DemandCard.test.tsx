@@ -5,6 +5,7 @@ import { renderWithProviders } from '../../../test/renderWithProviders';
 import { DemandCard } from './DemandCard';
 import { useCategories } from '../../professional/queries';
 import { useDeleteDemand } from '../queries';
+import { useAuthStore } from '../../../stores/auth';
 import type { Demand } from '../api';
 
 vi.mock('../../professional/queries', () => ({ useCategories: vi.fn() }));
@@ -38,6 +39,7 @@ describe('DemandCard', () => {
       data: [{ id: 'cat1', name: 'Pintura', slug: 'pintura', isActive: true }],
     } as never);
     vi.mocked(useDeleteDemand).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
+    useAuthStore.getState().setAuth({ id: 'c1', role: 'client' }, 'token');
   });
 
   it('mostra o titulo, a faixa de orcamento e o badge de status aberta', () => {
@@ -100,5 +102,12 @@ describe('DemandCard', () => {
     await user.click(screen.getByRole('button', { name: 'Excluir' }));
 
     expect(mutate).toHaveBeenCalledWith('d1');
+  });
+
+  it('nao mostra o botao de excluir para profissional', () => {
+    useAuthStore.getState().setAuth({ id: 'p1', role: 'professional' }, 'token');
+    renderWithProviders(<DemandCard demand={baseDemand} onOpen={vi.fn()} />);
+
+    expect(screen.queryByRole('button', { name: 'Excluir demanda' })).not.toBeInTheDocument();
   });
 });

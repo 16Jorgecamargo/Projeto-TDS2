@@ -36,6 +36,7 @@ describe('ProfileForm', () => {
     vi.mocked(professionalApi.getMyProfile).mockResolvedValue({
       id: 'p1',
       userId: 'u1',
+      fullName: 'Joao Silva',
       headline: 'Antigo',
       bio: null,
       yearsExperience: 5,
@@ -50,6 +51,7 @@ describe('ProfileForm', () => {
     vi.mocked(professionalApi.upsertProfile).mockResolvedValue({
       id: 'p1',
       userId: 'u1',
+      fullName: 'Joao Silva',
       headline: 'Novo titulo',
       bio: null,
       yearsExperience: null,
@@ -77,7 +79,7 @@ describe('ProfileForm', () => {
 
   it('cada campo tem label associado via htmlFor/id', async () => {
     vi.mocked(professionalApi.getMyProfile).mockResolvedValue({
-      id: 'p1', userId: 'u1', headline: 'Antigo', bio: null, yearsExperience: 5,
+      id: 'p1', userId: 'u1', fullName: 'Joao Silva', headline: 'Antigo', bio: null, yearsExperience: 5,
       hourlyRate: 100, serviceRadiusKm: 20, ratingAverage: 0, ratingCount: 0,
       isAvailable: true, verifiedAt: null, createdAt: '2026-07-01T00:00:00Z',
     });

@@ -6,6 +6,7 @@ import { FilterBar } from '../components/FilterBar';
 import { ProfessionalResults } from '../components/ProfessionalResults';
 import { AllCategoriesGrid } from '../components/AllCategoriesGrid';
 import { Drawer } from '../../../components/ui/Drawer';
+import { BackLink } from '../../../components/ui/BackLink';
 import { useSearchProfessionals } from '../queries';
 import type { SearchForm } from '../schemas';
 
@@ -52,7 +53,8 @@ export default function SearchPage(): JSX.Element {
 
   if (showAllCategories) {
     return (
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 p-6">
+      <div className="mx-auto flex w-full max-w-app flex-col gap-6 p-6">
+        <BackLink to="/" label="Voltar para o início" />
         <PageHeader title="Todas as categorias" />
         <AllCategoriesGrid />
       </div>
@@ -60,7 +62,8 @@ export default function SearchPage(): JSX.Element {
   }
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6 p-6">
+    <div className="mx-auto flex w-full max-w-app flex-col gap-6 p-6">
+      <BackLink to="/" label="Voltar para o início" />
       <PageHeader
         title="Resultados da busca"
         subtitle={data ? `${data.total} profissionais encontrados` : undefined}

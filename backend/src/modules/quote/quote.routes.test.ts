@@ -112,7 +112,7 @@ describe('quote routes', () => {
       method: 'POST',
       url: `/api/demands/${demandId}/quotes`,
       headers: pro.headers,
-      payload: { message: 'orcamento', validUntil: null, items: [{ description: 'mao de obra', quantity: 2, unitPrice: 150 }] },
+      payload: { message: 'orcamento', validUntil: null, total: 300 },
     });
     expect(create.statusCode).toBe(201);
     expect(create.json().total).toBe(300);
@@ -135,7 +135,7 @@ describe('quote routes', () => {
       method: 'POST',
       url: `/api/demands/${demandId}/quotes`,
       headers: pro.headers,
-      payload: { message: 'orcamento', validUntil: null, items: [{ description: 'mao de obra', quantity: 1, unitPrice: 100 }] },
+      payload: { message: 'orcamento', validUntil: null, total: 100 },
     });
     expect(res.statusCode).toBe(404);
   });
@@ -150,7 +150,7 @@ describe('quote routes', () => {
       method: 'POST',
       url: `/api/demands/${demandId}/quotes`,
       headers: pro.headers,
-      payload: { message: 'orcamento', validUntil: null, items: [{ description: 'mao de obra', quantity: 1, unitPrice: 100 }] },
+      payload: { message: 'orcamento', validUntil: null, total: 100 },
     });
     const quoteId = create.json().id;
 
@@ -171,7 +171,7 @@ describe('quote routes', () => {
       method: 'POST',
       url: `/api/demands/${demandId}/quotes`,
       headers: pro.headers,
-      payload: { message: 'orcamento', validUntil: null, items: [{ description: 'mao de obra', quantity: 1, unitPrice: 100 }] },
+      payload: { message: 'orcamento', validUntil: null, total: 100 },
     });
     const quoteId = create.json().id;
 

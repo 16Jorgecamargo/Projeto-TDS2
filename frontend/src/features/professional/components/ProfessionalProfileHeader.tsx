@@ -27,9 +27,10 @@ export function ProfessionalProfileHeader({ profile, isFavorite }: ProfessionalP
   return (
     <div className="flex flex-col gap-4 rounded-lg bg-surface p-6 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-4">
-        <Avatar name={profile.headline} size="lg" />
+        <Avatar name={profile.fullName} size="lg" />
         <div>
-          <h1 className="text-2xl font-bold text-ink">{profile.headline}</h1>
+          <h1 className="text-2xl font-bold text-ink">{profile.fullName}</h1>
+          <p className="text-sm text-muted">{profile.headline}</p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             {profile.categories.map((category) => (
               <Badge key={category.id}>{category.name}</Badge>

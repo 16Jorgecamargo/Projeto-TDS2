@@ -30,6 +30,11 @@ export class QuoteController {
   listByDemand = async (req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) =>
     reply.send(await this.service.listByDemand(req.params.id));
 
+  listMinePending = async (req: FastifyRequest, reply: FastifyReply) => {
+    const profileId = await this.resolveProfileId(req.user!.id);
+    return reply.send(await this.service.listMinePending(profileId));
+  };
+
   getById = async (req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) =>
     reply.send(await this.service.getById(req.params.id));
 

@@ -7,6 +7,7 @@ import { Modal } from '../../../components/ui/Modal';
 import { cn, formatRelativeDays } from '../../../lib/utils';
 import { useCategories } from '../../professional/queries';
 import { useDeleteDemand } from '../queries';
+import { useAuthStore } from '../../../stores/auth';
 import type { Demand } from '../api';
 
 const STATUS_LABELS: Record<Demand['status'], string> = {
@@ -25,6 +26,8 @@ interface DemandCardProps {
 export function DemandCard({ demand, onOpen, className }: DemandCardProps): JSX.Element {
   const { data: categories } = useCategories();
   const deleteDemand = useDeleteDemand();
+  const role = useAuthStore((state) => state.user?.role);
+  const canDelete = role === 'client';
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const categoryName = categories?.find((category) => category.id === demand.categoryId)?.name;
@@ -43,17 +46,19 @@ export function DemandCard({ demand, onOpen, className }: DemandCardProps): JSX.
         className ?? 'bg-surface',
       )}
     >
-      <button
-        type="button"
-        aria-label="Excluir demanda"
-        onClick={(event) => {
-          event.stopPropagation();
-          setConfirmingDelete(true);
-        }}
-        className="absolute right-3 top-3 rounded-full p-1.5 text-muted opacity-0 transition-opacity hover:bg-danger/10 hover:text-danger group-hover:opacity-100 focus-visible:opacity-100"
-      >
-        <Trash2 className="h-4 w-4" />
-      </button>
+      {canDelete && (
+        <button
+          type="button"
+          aria-label="Excluir demanda"
+          onClick={(event) => {
+            event.stopPropagation();
+            setConfirmingDelete(true);
+          }}
+          className="absolute right-3 top-3 rounded-full p-1.5 text-muted opacity-0 transition-opacity hover:bg-danger/10 hover:text-danger group-hover:opacity-100 focus-visible:opacity-100"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      )}
 
       <div className="pr-8">
         <span className="text-base font-semibold text-ink">{demand.title}</span>

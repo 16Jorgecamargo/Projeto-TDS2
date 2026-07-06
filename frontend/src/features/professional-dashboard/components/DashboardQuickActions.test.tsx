@@ -20,15 +20,6 @@ describe('DashboardQuickActions', () => {
     expect(navigateMock).toHaveBeenCalledWith('/demands');
   });
 
-  it('navega para /contracts ao clicar em Ver contratos', async () => {
-    const user = userEvent.setup();
-    renderWithProviders(<DashboardQuickActions />);
-
-    await user.click(screen.getByRole('button', { name: 'Ver contratos' }));
-
-    expect(navigateMock).toHaveBeenCalledWith('/contracts');
-  });
-
   it('navega para /professional/profile ao clicar em Editar perfil', async () => {
     const user = userEvent.setup();
     renderWithProviders(<DashboardQuickActions />);

@@ -18,9 +18,9 @@ describe('useFeaturedProfessionals', () => {
   it('retorna os N itens com maior ratingAverage', async () => {
     vi.mocked(landingApi.searchProfessionals).mockResolvedValue({
       items: [
-        { id: '1', headline: 'A', bio: null, hourlyRate: 50, ratingAverage: 3.5, ratingCount: 2, isAvailable: true, categories: [] },
-        { id: '2', headline: 'B', bio: null, hourlyRate: 60, ratingAverage: 4.9, ratingCount: 10, isAvailable: true, categories: [] },
-        { id: '3', headline: 'C', bio: null, hourlyRate: 40, ratingAverage: 4.2, ratingCount: 5, isAvailable: false, categories: [] },
+        { id: '1', fullName: 'A', headline: 'A', bio: null, hourlyRate: 50, ratingAverage: 3.5, ratingCount: 2, isAvailable: true, categories: [] },
+        { id: '2', fullName: 'B', headline: 'B', bio: null, hourlyRate: 60, ratingAverage: 4.9, ratingCount: 10, isAvailable: true, categories: [] },
+        { id: '3', fullName: 'C', headline: 'C', bio: null, hourlyRate: 40, ratingAverage: 4.2, ratingCount: 5, isAvailable: false, categories: [] },
       ],
       page: 1,
       limit: 12,
