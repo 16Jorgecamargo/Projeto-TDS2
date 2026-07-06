@@ -307,8 +307,8 @@ export class AdminService {
       .andWhere('refund.processed_at >= :cutoff', { cutoff: thirtyDaysAgo })
       .getRawOne<{ total: string }>();
 
-    const totalCaptured30d = capturedRow?.total ?? '0.00';
-    const totalRefunded30d = refundedRow?.total ?? '0.00';
+    const totalCaptured30d = Number(capturedRow?.total ?? 0).toFixed(2);
+    const totalRefunded30d = Number(refundedRow?.total ?? 0).toFixed(2);
     const gmvLast30Days = (Number(totalCaptured30d) - Number(totalRefunded30d)).toFixed(2);
 
     const pendingReports = await this.deps.reports.count({ where: { status: 'pending' } });
@@ -322,14 +322,14 @@ export class AdminService {
       .createQueryBuilder('wallet')
       .select('COALESCE(SUM(wallet.balance), 0)', 'total')
       .getRawOne<{ total: string }>();
-    const walletBalanceSum = walletRow?.total ?? '0.00';
+    const walletBalanceSum = Number(walletRow?.total ?? 0).toFixed(2);
 
     const pendingWithdrawalsRow = await this.deps.withdrawals
       .createQueryBuilder('withdrawal')
       .select('COALESCE(SUM(withdrawal.amount), 0)', 'total')
       .where('withdrawal.status = :status', { status: 'pending' })
       .getRawOne<{ total: string }>();
-    const pendingWithdrawalsAmount = pendingWithdrawalsRow?.total ?? '0.00';
+    const pendingWithdrawalsAmount = Number(pendingWithdrawalsRow?.total ?? 0).toFixed(2);
 
     const newUsersRows = await this.deps.users
       .createQueryBuilder('user')

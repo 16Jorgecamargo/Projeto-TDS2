@@ -393,15 +393,15 @@ describe('AdminService', () => {
       withdrawals.count.mockResolvedValueOnce(0);
 
       const paymentsQb = payments.createQueryBuilder();
-      vi.mocked(paymentsQb.getRawOne).mockResolvedValueOnce(undefined as never);
+      vi.mocked(paymentsQb.getRawOne).mockResolvedValueOnce({ total: '0' } as never);
       const refundsQb = refunds.createQueryBuilder();
-      vi.mocked(refundsQb.getRawOne).mockResolvedValueOnce(undefined as never);
+      vi.mocked(refundsQb.getRawOne).mockResolvedValueOnce({ total: '0' } as never);
       const disputesQb = disputes.createQueryBuilder();
       vi.mocked(disputesQb.getCount).mockResolvedValueOnce(0);
       const walletsQb = wallets.createQueryBuilder();
-      vi.mocked(walletsQb.getRawOne).mockResolvedValueOnce(undefined as never);
+      vi.mocked(walletsQb.getRawOne).mockResolvedValueOnce({ total: '0' } as never);
       const withdrawalsQb = withdrawals.createQueryBuilder();
-      vi.mocked(withdrawalsQb.getRawOne).mockResolvedValueOnce(undefined as never);
+      vi.mocked(withdrawalsQb.getRawOne).mockResolvedValueOnce({ total: '0' } as never);
       const usersQb = users.createQueryBuilder();
       vi.mocked(usersQb.getRawMany).mockResolvedValueOnce([] as never);
       const contractsQb = contracts.createQueryBuilder();
