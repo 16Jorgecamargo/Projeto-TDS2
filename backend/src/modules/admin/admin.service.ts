@@ -13,6 +13,7 @@ import type {
   ResolveDisputeBody,
   ResolveReportBody,
   SetUserStatusBody,
+  AdminUserListItem,
 } from './admin.schemas.js';
 
 interface AdminServiceDeps {
@@ -67,6 +68,40 @@ export class AdminService {
     });
 
     return { id: userId, status: body.status };
+  }
+
+  private toUserListItem(user: User): AdminUserListItem {
+    return {
+      id: user.id,
+      full_name: user.full_name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      created_at: user.created_at.toISOString(),
+    };
+  }
+
+  async listUsers(
+    search: string | undefined,
+    role: User['role'] | undefined,
+    status: User['status'] | undefined,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedResult<AdminUserListItem>> {
+    const qb = this.deps.users.createQueryBuilder('user');
+    if (role) qb.andWhere('user.role = :role', { role });
+    if (status) qb.andWhere('user.status = :status', { status });
+    if (search) {
+      qb.andWhere('(user.full_name LIKE :search OR user.email LIKE :search)', {
+        search: `%${search}%`,
+      });
+    }
+    qb.orderBy('user.created_at', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [rows, total] = await qb.getManyAndCount();
+    return { items: rows.map((row) => this.toUserListItem(row)), page, limit, total };
   }
 
   async listReports(

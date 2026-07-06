@@ -121,4 +121,56 @@ describe('AdminService', () => {
       expect(disputeService.resolve).not.toHaveBeenCalled();
     });
   });
+
+  describe('listUsers', () => {
+    it('lista usuarios paginados com filtros de busca, role e status', async () => {
+      const qb = users.createQueryBuilder();
+      vi.mocked(qb.getManyAndCount).mockResolvedValueOnce([
+        [
+          {
+            id: 'u-1',
+            full_name: 'Joao Silva',
+            email: 'joao@example.com',
+            role: 'client',
+            status: 'active',
+            created_at: new Date('2026-01-01T00:00:00.000Z'),
+          },
+        ],
+        1,
+      ] as never);
+
+      const result = await service.listUsers('joao', 'client', 'active', 1, 20);
+
+      expect(result).toEqual({
+        items: [
+          {
+            id: 'u-1',
+            full_name: 'Joao Silva',
+            email: 'joao@example.com',
+            role: 'client',
+            status: 'active',
+            created_at: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        page: 1,
+        limit: 20,
+        total: 1,
+      });
+      expect(qb.andWhere).toHaveBeenCalledWith('user.role = :role', { role: 'client' });
+      expect(qb.andWhere).toHaveBeenCalledWith('user.status = :status', { status: 'active' });
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        '(user.full_name LIKE :search OR user.email LIKE :search)',
+        { search: '%joao%' },
+      );
+    });
+
+    it('sem filtros nao chama andWhere', async () => {
+      const qb = users.createQueryBuilder();
+      vi.mocked(qb.getManyAndCount).mockResolvedValueOnce([[], 0] as never);
+
+      await service.listUsers(undefined, undefined, undefined, 1, 20);
+
+      expect(qb.andWhere).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -84,6 +84,33 @@ export const adminAuditQuerySchema = z.object({
   action: z.string().optional().describe('Filtro por acao').openapi({ example: 'admin.user.status_changed' }),
 });
 
+export const adminUserListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1).describe('Pagina').openapi({ example: 1 }),
+  limit: z.coerce.number().int().min(1).max(100).default(20).describe('Itens por pagina').openapi({ example: 20 }),
+  search: z
+    .string()
+    .optional()
+    .describe('Busca por nome ou email')
+    .openapi({ example: 'joao' }),
+  role: z
+    .enum(['client', 'professional', 'admin'])
+    .optional()
+    .describe('Filtro por papel')
+    .openapi({ example: 'client' }),
+  status: userStatusSchema.optional(),
+});
+
+export const adminUserListItemSchema = z.object({
+  id: z.string().uuid().describe('ID').openapi({ example: 'u1b2c3d4-0000-4000-8000-000000000040' }),
+  full_name: z.string().describe('Nome completo').openapi({ example: 'Joao Silva' }),
+  email: z.string().describe('Email').openapi({ example: 'joao@example.com' }),
+  role: z.enum(['client', 'professional', 'admin']).describe('Papel'),
+  status: userStatusSchema,
+  created_at: z.string().datetime().describe('Data de cadastro'),
+});
+
+export const adminUserListResponseSchema = paginatedResponse(adminUserListItemSchema);
+
 export const adminReportListResponseSchema = paginatedResponse(adminReportResponseSchema);
 export const adminDisputeListResponseSchema = paginatedResponse(adminDisputeResponseSchema);
 
@@ -97,3 +124,5 @@ export type AdminAuditQuery = z.infer<typeof adminAuditQuerySchema>;
 export type AdminUserResponse = z.infer<typeof adminUserResponseSchema>;
 export type AdminReportResponse = z.infer<typeof adminReportResponseSchema>;
 export type AdminDisputeResponse = z.infer<typeof adminDisputeResponseSchema>;
+export type AdminUserListQuery = z.infer<typeof adminUserListQuerySchema>;
+export type AdminUserListItem = z.infer<typeof adminUserListItemSchema>;
