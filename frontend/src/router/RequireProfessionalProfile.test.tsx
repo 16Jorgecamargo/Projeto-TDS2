@@ -59,4 +59,12 @@ describe('RequireProfessionalProfile', () => {
     renderAt('/professional/profile');
     await waitFor(() => expect(screen.getByText('profile-edit')).toBeInTheDocument());
   });
+
+  it('busca o perfil uma unica vez, sem loop de refetch enquanto pendente', async () => {
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'professional' }, 't');
+    vi.mocked(professionalApi.getMyProfile).mockRejectedValue(new Error('404'));
+    renderAt('/');
+    await waitFor(() => expect(screen.getByText('profile-edit')).toBeInTheDocument());
+    expect(professionalApi.getMyProfile).toHaveBeenCalledTimes(1);
+  });
 });
