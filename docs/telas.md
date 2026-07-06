@@ -1,5 +1,0 @@
-1. na tela ladingpage, o search na hero(o que voce precisa?, cidade, uf) deve mostrar 5 itens que temos cadastrado (categorias, cidades, estados cadastrados) e conforme for digitando vai mudando os itens em baixo para se encaixar no que esta sendo digitado;
-2. os cards de profissionais em destaque nao deve mostrar o disponivel agora, e no lugar disso deve mostrar a categoria que o profissional é, remova o botao de favoritar o profissional;
-3. depoimnetos precisamos deixar o nome e a primeira letra do sobrenome do cliente que fez o depoimento, esses depoimentos nao sáo para os profissionais (nessa tela) e sim para a plataforma; 
-4. precisamos de um footer na landingpage;
-5. esses botoes/badge em laranja nao fazem sentido com o projeto as cores do projeto nao são essa entao troque para se adequar

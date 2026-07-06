@@ -18,14 +18,15 @@ Orquestração via Docker Compose: app, frontend (Nginx), MySQL, Redis, Promethe
 3. [Variáveis de ambiente](#variáveis-de-ambiente)
 4. [Scripts disponíveis](#scripts-disponíveis)
 5. [Banco de dados e migrations](#banco-de-dados-e-migrations)
-6. [Testes](#testes)
-7. [Pipelines CI/CD](#pipelines-cicd)
-8. [Observabilidade: Prometheus + Grafana + Sentry](#observabilidade-prometheus--grafana--sentry)
-9. [Segurança: Helmet, CORS, rate limit, JWT](#segurança-helmet-cors-rate-limit-jwt)
-10. [Documentação da API (Swagger/OpenAPI)](#documentação-da-api-swaggeropenapi)
-11. [Domínio funcional (módulos do backend)](#domínio-funcional-módulos-do-backend)
-12. [Frontend](#frontend)
-13. [Docker Compose e produção](#docker-compose-e-produção)
+6. [Credenciais iniciais](#credenciais-iniciais)
+7. [Testes](#testes)
+8. [Pipelines CI/CD](#pipelines-cicd)
+9. [Observabilidade: Prometheus + Grafana + Sentry](#observabilidade-prometheus--grafana--sentry)
+10. [Segurança: Helmet, CORS, rate limit, JWT](#segurança-helmet-cors-rate-limit-jwt)
+11. [Documentação da API (Swagger/OpenAPI)](#documentação-da-api-swaggeropenapi)
+12. [Domínio funcional (módulos do backend)](#domínio-funcional-módulos-do-backend)
+13. [Frontend](#frontend)
+14. [Docker Compose e produção](#docker-compose-e-produção)
 
 ---
 
@@ -183,17 +184,57 @@ npm run e2e:headed / e2e:ui
 
 ## Banco de dados e migrations
 
-- ORM: **TypeORM 0.3**, `synchronize: false` sempre — schema evolui só por migration.
+Versionamento de schema via **migrations do TypeORM 0.3** — equivalente ao papel do Flyway/Liquibase: cada mudança de schema é um arquivo versionado e ordenado (timestamp no nome + no `Migration` interface), com métodos `up()`/`down()` explícitos, aplicado/revertido via CLI, nunca por sincronização automática (`synchronize: false` sempre, em todo ambiente).
+
 - `src/infra/database/data-source.ts` é o `DataSource` de runtime; `src/test/database.ts` tem um `TestDataSource` isolado para os testes de integração.
-- 12 migrations cobrindo: auth/account, addresses, professional profile, catálogo, demands, quotes/contracts, disputes, wallet/payment/fees/refunds/withdrawals, review/social, notification/chat/audit/admin.
+- Migrations em `backend/src/infra/database/migrations/*.ts`, nomeadas `<timestamp>-<Nome>.ts`, registradas em `migrations/index.ts` e executadas nessa ordem.
+- **13 migrations** aplicadas em sequência, cobrindo todo o schema:
+
+  | # | Migration | Escopo |
+  |---|---|---|
+  | 1 | `AuthAccount` | usuários, contas, autenticação |
+  | 2 | `Addresses` | endereços |
+  | 3 | `ProfessionalProfile` | perfil profissional |
+  | 4 | `Catalog` | categorias/serviços |
+  | 5 | `Demands` | demandas |
+  | 6 | `Quotes` | orçamentos |
+  | 7 | `Contracts` | contratos + disputas |
+  | 8 | `WalletPayment` | carteira, pagamento, taxas, estornos, saques |
+  | 9 | `Social` | avaliações, favoritos |
+  | 10 | `Communication` | notificação, chat |
+  | 11 | `AuditLogs` | auditoria/admin |
+  | 12 | `UserPreferenceLocation` | preferências de localização do usuário |
+  | 13 | `DemandAddress` | vínculo demanda ⇄ endereço |
+
+- Cada migration só sobe/desce a própria mudança (`up`/`down` simétricos) — permite avançar ou reverter o schema uma versão de cada vez, sem depender de dump/restore.
 
 ```bash
 npm run migration:generate --workspace @marketplace/backend  # gera a partir do diff de entities
-npm run migration:run --workspace @marketplace/backend
-npm run migration:revert --workspace @marketplace/backend
+npm run migration:run --workspace @marketplace/backend        # aplica todas as migrations pendentes, em ordem
+npm run migration:revert --workspace @marketplace/backend      # reverte a última migration aplicada
 ```
 
+Em produção/CI, `migration:run` é o único caminho pra atualizar o schema — nenhum ambiente usa `synchronize: true` ou aplica DDL manual.
+
 Em teste, o banco (`marketplace_test`) é limpo entre suites com `TRUNCATE` de todas as tabelas (FK checks desligados temporariamente) — ver `truncateAll()` em `src/test/database.ts`.
+
+---
+
+## Credenciais iniciais
+
+Não há usuário pré-cadastrado (seed) rodando automaticamente na inicialização — a base sobe vazia após as migrations.
+
+- **Registro de usuário comum (cliente/profissional):** feito via `POST /api/auth/register` (tela de cadastro do frontend). Não existe usuário padrão.
+- **Usuário admin:** criado manualmente com o script `backend/src/scripts/seed-e2e-admin.ts` (usado também pelos testes e2e):
+
+  ```bash
+  npx tsx backend/src/scripts/seed-e2e-admin.ts <email> <senha> "<nome>" <telefone>
+  # ex.: npx tsx backend/src/scripts/seed-e2e-admin.ts admin@marketplace.local Admin123! "Admin" "11999999999"
+  ```
+
+  O script cria (ou recria, se já existir) um `User` com `role: 'admin'`, senha hasheada com bcrypt. Login pelo endpoint normal de auth (`POST /api/auth/login`) com o email/senha informados.
+- **MySQL (`backend/.env`):** credenciais default de `.env.example` — usuário `app`, senha `secret`, banco `marketplace` (`DATABASE_USER` / `DATABASE_PASSWORD` / `DATABASE_NAME`). Trocar em produção.
+- **Grafana:** `admin` / `admin` por padrão (`GRAFANA_ADMIN_PASSWORD`), ver seção [Observabilidade](#observabilidade-prometheus--grafana--sentry).
 
 ---
 
@@ -312,6 +353,20 @@ npm run docs:export --workspace @marketplace/backend
 
 - O CI roda esse export a cada push na main e sobe o artifact — garante que o contrato de API nunca fica fora de sincronia com o código merged.
 - Teste próprio (`src/test/openapi/*.test.ts`) faz auditoria do schema: nenhuma rota sem `.describe()`, sem exemplo, ou com `z.string()` solto onde deveria ser `z.enum()`.
+
+### Coleção Postman/Insomnia
+
+- `docs/postman_collection.json` — coleção Postman v2.1 com os 119 endpoints da API (pastas `health` e `api`, espelhando os módulos do backend), gerada automaticamente a partir do `openapi.json` via `openapi-to-postmanv2`.
+- Importar no Postman: **Import → File → `docs/postman_collection.json`**.
+- Importar no Insomnia: **Import → From File**, aceita tanto `docs/postman_collection.json` (formato Postman) quanto `backend/openapi.json` direto (Insomnia lê OpenAPI nativamente).
+- Regenerar após mudar rotas/schemas:
+
+  ```bash
+  npm run docs:export --workspace @marketplace/backend   # gera backend/openapi.json
+  npx openapi-to-postmanv2 -s backend/openapi.json -o docs/postman_collection.json -p
+  ```
+
+- Autenticação: a maioria das rotas exige `Authorization: Bearer <access_token>` — logar via `POST /api/auth/login` e setar o token manualmente (ou configurar uma variável de ambiente/collection na tool escolhida).
 
 ---
 
