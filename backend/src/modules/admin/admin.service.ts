@@ -4,6 +4,10 @@ import { Report } from '../../infra/database/entities/report.entity.js';
 import { ContractDispute } from '../../infra/database/entities/contract-dispute.entity.js';
 import { Payment } from '../../infra/database/entities/payment.entity.js';
 import { Withdrawal } from '../../infra/database/entities/withdrawal.entity.js';
+import type { Contract } from '../../infra/database/entities/contract.entity.js';
+import type { ServiceDemand } from '../../infra/database/entities/service-demand.entity.js';
+import type { Refund } from '../../infra/database/entities/refund.entity.js';
+import type { Wallet } from '../../infra/database/entities/wallet.entity.js';
 import { NotFoundError, UnprocessableError } from '../../shared/errors.js';
 import type { RecordAudit } from '../audit/audit.service.js';
 import type { EnqueueNotification } from '../notification/notification.service.js';
@@ -18,7 +22,27 @@ import type {
   AdminUserListItem,
   AdminPaymentListItem,
   AdminWithdrawalListItem,
+  AdminDashboardResponse,
 } from './admin.schemas.js';
+
+export function fillDateGaps(
+  rows: { date: string; count: string }[],
+  from: Date,
+  to: Date,
+): { date: string; count: number }[] {
+  const countByDate = new Map(rows.map((row) => [row.date, Number(row.count)]));
+  const result: { date: string; count: number }[] = [];
+  const cursor = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()));
+  const end = new Date(Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate()));
+
+  while (cursor <= end) {
+    const dateKey = cursor.toISOString().slice(0, 10);
+    result.push({ date: dateKey, count: countByDate.get(dateKey) ?? 0 });
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+
+  return result;
+}
 
 interface AdminServiceDeps {
   users: Repository<User>;
@@ -26,6 +50,10 @@ interface AdminServiceDeps {
   disputes: Repository<ContractDispute>;
   payments: Repository<Payment>;
   withdrawals: Repository<Withdrawal>;
+  contracts: Repository<Contract>;
+  demands: Repository<ServiceDemand>;
+  refunds: Repository<Refund>;
+  wallets: Repository<Wallet>;
   disputeService: DisputeService;
   recordAudit: RecordAudit;
   enqueueNotification: EnqueueNotification;
@@ -255,5 +283,79 @@ export class AdminService {
     });
 
     return { id: resolved.id, status: resolved.status, outcome: body.outcome };
+  }
+
+  async getDashboard(): Promise<AdminDashboardResponse> {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const totalUsers = await this.deps.users.count();
+    const activeContracts = await this.deps.contracts.count({ where: { status: 'active' } });
+    const openDemands = await this.deps.demands.count({ where: { status: 'open' } });
+
+    const capturedRow = await this.deps.payments
+      .createQueryBuilder('payment')
+      .select('COALESCE(SUM(payment.amount), 0)', 'total')
+      .where('payment.status = :status', { status: 'captured' })
+      .andWhere('payment.paid_at >= :cutoff', { cutoff: thirtyDaysAgo })
+      .getRawOne<{ total: string }>();
+
+    const refundedRow = await this.deps.refunds
+      .createQueryBuilder('refund')
+      .select('COALESCE(SUM(refund.amount), 0)', 'total')
+      .where('refund.status = :status', { status: 'completed' })
+      .andWhere('refund.processed_at >= :cutoff', { cutoff: thirtyDaysAgo })
+      .getRawOne<{ total: string }>();
+
+    const totalCaptured30d = capturedRow?.total ?? '0.00';
+    const totalRefunded30d = refundedRow?.total ?? '0.00';
+    const gmvLast30Days = (Number(totalCaptured30d) - Number(totalRefunded30d)).toFixed(2);
+
+    const pendingReports = await this.deps.reports.count({ where: { status: 'pending' } });
+    const pendingDisputes = await this.deps.disputes
+      .createQueryBuilder('dispute')
+      .where('dispute.status IN (:...statuses)', { statuses: ['open', 'under_review'] })
+      .getCount();
+    const pendingWithdrawals = await this.deps.withdrawals.count({ where: { status: 'pending' } });
+
+    const walletRow = await this.deps.wallets
+      .createQueryBuilder('wallet')
+      .select('COALESCE(SUM(wallet.balance), 0)', 'total')
+      .getRawOne<{ total: string }>();
+    const walletBalanceSum = walletRow?.total ?? '0.00';
+
+    const pendingWithdrawalsRow = await this.deps.withdrawals
+      .createQueryBuilder('withdrawal')
+      .select('COALESCE(SUM(withdrawal.amount), 0)', 'total')
+      .where('withdrawal.status = :status', { status: 'pending' })
+      .getRawOne<{ total: string }>();
+    const pendingWithdrawalsAmount = pendingWithdrawalsRow?.total ?? '0.00';
+
+    const newUsersRows = await this.deps.users
+      .createQueryBuilder('user')
+      .select('DATE(user.created_at)', 'date')
+      .addSelect('COUNT(*)', 'count')
+      .where('user.created_at >= :cutoff', { cutoff: thirtyDaysAgo })
+      .groupBy('DATE(user.created_at)')
+      .getRawMany<{ date: string; count: string }>();
+
+    const completedContractsRows = await this.deps.contracts
+      .createQueryBuilder('contract')
+      .select('DATE(contract.updated_at)', 'date')
+      .addSelect('COUNT(*)', 'count')
+      .where('contract.status = :status', { status: 'completed' })
+      .andWhere('contract.updated_at >= :cutoff', { cutoff: thirtyDaysAgo })
+      .groupBy('DATE(contract.updated_at)')
+      .getRawMany<{ date: string; count: string }>();
+
+    return {
+      counters: { totalUsers, activeContracts, openDemands, gmvLast30Days },
+      pending: { reports: pendingReports, disputes: pendingDisputes, withdrawals: pendingWithdrawals },
+      activity: {
+        newUsersByDay: fillDateGaps(newUsersRows, thirtyDaysAgo, now),
+        completedContractsByDay: fillDateGaps(completedContractsRows, thirtyDaysAgo, now),
+      },
+      finance: { totalCaptured30d, totalRefunded30d, walletBalanceSum, pendingWithdrawalsAmount },
+    };
   }
 }

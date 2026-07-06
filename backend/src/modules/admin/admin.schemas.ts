@@ -163,6 +163,43 @@ export const adminWithdrawalListResponseSchema = paginatedResponse(adminWithdraw
 export const adminReportListResponseSchema = paginatedResponse(adminReportResponseSchema);
 export const adminDisputeListResponseSchema = paginatedResponse(adminDisputeResponseSchema);
 
+export const dashboardCounterSchema = z.object({
+  totalUsers: z.number().int().describe('Total de usuarios cadastrados'),
+  activeContracts: z.number().int().describe('Contratos com status ativo'),
+  openDemands: z.number().int().describe('Demandas com status aberto'),
+  gmvLast30Days: z.string().describe('GMV liquido dos ultimos 30 dias').openapi({ example: '15320.50' }),
+});
+
+export const dashboardPendingSchema = z.object({
+  reports: z.number().int().describe('Denuncias pendentes'),
+  disputes: z.number().int().describe('Disputas em aberto ou em revisao'),
+  withdrawals: z.number().int().describe('Saques pendentes'),
+});
+
+export const dashboardActivityPointSchema = z.object({
+  date: z.string().describe('Data no formato YYYY-MM-DD').openapi({ example: '2026-07-01' }),
+  count: z.number().int(),
+});
+
+export const dashboardActivitySchema = z.object({
+  newUsersByDay: z.array(dashboardActivityPointSchema),
+  completedContractsByDay: z.array(dashboardActivityPointSchema),
+});
+
+export const dashboardFinanceSchema = z.object({
+  totalCaptured30d: z.string().describe('Total capturado nos ultimos 30 dias').openapi({ example: '18000.00' }),
+  totalRefunded30d: z.string().describe('Total estornado nos ultimos 30 dias').openapi({ example: '2679.50' }),
+  walletBalanceSum: z.string().describe('Soma dos saldos de todas as carteiras').openapi({ example: '9450.00' }),
+  pendingWithdrawalsAmount: z.string().describe('Soma dos saques pendentes').openapi({ example: '1200.00' }),
+});
+
+export const adminDashboardResponseSchema = z.object({
+  counters: dashboardCounterSchema,
+  pending: dashboardPendingSchema,
+  activity: dashboardActivitySchema,
+  finance: dashboardFinanceSchema,
+});
+
 export type UserStatus = z.infer<typeof userStatusSchema>;
 export type SetUserStatusBody = z.infer<typeof setUserStatusBodySchema>;
 export type ResolveReportBody = z.infer<typeof resolveReportBodySchema>;
@@ -179,3 +216,4 @@ export type AdminPaymentListQuery = z.infer<typeof adminPaymentListQuerySchema>;
 export type AdminPaymentListItem = z.infer<typeof adminPaymentListItemSchema>;
 export type AdminWithdrawalListQuery = z.infer<typeof adminWithdrawalListQuerySchema>;
 export type AdminWithdrawalListItem = z.infer<typeof adminWithdrawalListItemSchema>;
+export type AdminDashboardResponse = z.infer<typeof adminDashboardResponseSchema>;

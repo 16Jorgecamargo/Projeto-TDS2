@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Repository } from 'typeorm';
-import { AdminService } from './admin.service.js';
+import { AdminService, fillDateGaps } from './admin.service.js';
 import { mockRepo } from '../../test/mocks/index.js';
 import { NotFoundError, UnprocessableError } from '../../shared/errors.js';
 import type { User } from '../../infra/database/entities/user.entity.js';
@@ -8,6 +8,10 @@ import type { Report } from '../../infra/database/entities/report.entity.js';
 import type { ContractDispute } from '../../infra/database/entities/contract-dispute.entity.js';
 import type { Payment } from '../../infra/database/entities/payment.entity.js';
 import type { Withdrawal } from '../../infra/database/entities/withdrawal.entity.js';
+import type { Contract } from '../../infra/database/entities/contract.entity.js';
+import type { ServiceDemand } from '../../infra/database/entities/service-demand.entity.js';
+import type { Refund } from '../../infra/database/entities/refund.entity.js';
+import type { Wallet } from '../../infra/database/entities/wallet.entity.js';
 import type { DisputeService } from '../dispute/dispute.service.js';
 
 describe('AdminService', () => {
@@ -16,6 +20,10 @@ describe('AdminService', () => {
   let disputes: ReturnType<typeof mockRepo<ContractDispute>>;
   let payments: ReturnType<typeof mockRepo<Payment>>;
   let withdrawals: ReturnType<typeof mockRepo<Withdrawal>>;
+  let contracts: ReturnType<typeof mockRepo<Contract>>;
+  let demands: ReturnType<typeof mockRepo<ServiceDemand>>;
+  let refunds: ReturnType<typeof mockRepo<Refund>>;
+  let wallets: ReturnType<typeof mockRepo<Wallet>>;
   let disputeService: { resolve: ReturnType<typeof vi.fn> };
   let recordAudit: ReturnType<typeof vi.fn>;
   let enqueueNotification: ReturnType<typeof vi.fn>;
@@ -27,6 +35,10 @@ describe('AdminService', () => {
     disputes = mockRepo<ContractDispute>();
     payments = mockRepo<Payment>();
     withdrawals = mockRepo<Withdrawal>();
+    contracts = mockRepo<Contract>();
+    demands = mockRepo<ServiceDemand>();
+    refunds = mockRepo<Refund>();
+    wallets = mockRepo<Wallet>();
     disputeService = { resolve: vi.fn() };
     recordAudit = vi.fn().mockResolvedValue(undefined);
     enqueueNotification = vi.fn().mockResolvedValue(undefined);
@@ -36,6 +48,10 @@ describe('AdminService', () => {
       disputes: disputes as unknown as Repository<ContractDispute>,
       payments: payments as unknown as Repository<Payment>,
       withdrawals: withdrawals as unknown as Repository<Withdrawal>,
+      contracts: contracts as unknown as Repository<Contract>,
+      demands: demands as unknown as Repository<ServiceDemand>,
+      refunds: refunds as unknown as Repository<Refund>,
+      wallets: wallets as unknown as Repository<Wallet>,
       disputeService: disputeService as unknown as DisputeService,
       recordAudit,
       enqueueNotification,
@@ -291,6 +307,115 @@ describe('AdminService', () => {
       expect(withdrawals.findAndCount).toHaveBeenCalledWith(
         expect.objectContaining({ where: { status: 'completed' } }),
       );
+    });
+  });
+
+  describe('fillDateGaps', () => {
+    it('preenche dias sem registro com count 0, mantendo ordem cronologica', () => {
+      const from = new Date('2026-01-01T00:00:00.000Z');
+      const to = new Date('2026-01-03T00:00:00.000Z');
+      const rows = [{ date: '2026-01-01', count: '3' }];
+
+      const result = fillDateGaps(rows, from, to);
+
+      expect(result).toEqual([
+        { date: '2026-01-01', count: 3 },
+        { date: '2026-01-02', count: 0 },
+        { date: '2026-01-03', count: 0 },
+      ]);
+    });
+
+    it('retorna array vazio quando from e to sao invertidos', () => {
+      const from = new Date('2026-01-03T00:00:00.000Z');
+      const to = new Date('2026-01-01T00:00:00.000Z');
+
+      expect(fillDateGaps([], from, to)).toEqual([]);
+    });
+  });
+
+  describe('getDashboard', () => {
+    it('agrega contadores, pendencias, atividade e financeiro', async () => {
+      users.count.mockResolvedValueOnce(42);
+      contracts.count.mockResolvedValueOnce(10);
+      demands.count.mockResolvedValueOnce(5);
+      reports.count.mockResolvedValueOnce(3);
+      withdrawals.count.mockResolvedValueOnce(2);
+
+      const paymentsQb = payments.createQueryBuilder();
+      vi.mocked(paymentsQb.getRawOne).mockResolvedValueOnce({ total: '18000.00' } as never);
+
+      const refundsQb = refunds.createQueryBuilder();
+      vi.mocked(refundsQb.getRawOne).mockResolvedValueOnce({ total: '2679.50' } as never);
+
+      const disputesQb = disputes.createQueryBuilder();
+      vi.mocked(disputesQb.getCount).mockResolvedValueOnce(4);
+
+      const walletsQb = wallets.createQueryBuilder();
+      vi.mocked(walletsQb.getRawOne).mockResolvedValueOnce({ total: '9450.00' } as never);
+
+      const withdrawalsQb = withdrawals.createQueryBuilder();
+      vi.mocked(withdrawalsQb.getRawOne).mockResolvedValueOnce({ total: '1200.00' } as never);
+
+      const usersQb = users.createQueryBuilder();
+      vi.mocked(usersQb.getRawMany).mockResolvedValueOnce([
+        { date: '2026-01-01', count: '2' },
+      ] as never);
+
+      const contractsQb = contracts.createQueryBuilder();
+      vi.mocked(contractsQb.getRawMany).mockResolvedValueOnce([
+        { date: '2026-01-01', count: '1' },
+      ] as never);
+
+      const result = await service.getDashboard();
+
+      expect(result.counters).toEqual({
+        totalUsers: 42,
+        activeContracts: 10,
+        openDemands: 5,
+        gmvLast30Days: '15320.50',
+      });
+      expect(result.pending).toEqual({ reports: 3, disputes: 4, withdrawals: 2 });
+      expect(result.finance).toEqual({
+        totalCaptured30d: '18000.00',
+        totalRefunded30d: '2679.50',
+        walletBalanceSum: '9450.00',
+        pendingWithdrawalsAmount: '1200.00',
+      });
+      expect(result.activity.newUsersByDay.length).toBeGreaterThan(0);
+      expect(result.activity.completedContractsByDay.length).toBeGreaterThan(0);
+    });
+
+    it('retorna "0.00" nas somas quando nao ha linhas', async () => {
+      users.count.mockResolvedValueOnce(0);
+      contracts.count.mockResolvedValueOnce(0);
+      demands.count.mockResolvedValueOnce(0);
+      reports.count.mockResolvedValueOnce(0);
+      withdrawals.count.mockResolvedValueOnce(0);
+
+      const paymentsQb = payments.createQueryBuilder();
+      vi.mocked(paymentsQb.getRawOne).mockResolvedValueOnce(undefined as never);
+      const refundsQb = refunds.createQueryBuilder();
+      vi.mocked(refundsQb.getRawOne).mockResolvedValueOnce(undefined as never);
+      const disputesQb = disputes.createQueryBuilder();
+      vi.mocked(disputesQb.getCount).mockResolvedValueOnce(0);
+      const walletsQb = wallets.createQueryBuilder();
+      vi.mocked(walletsQb.getRawOne).mockResolvedValueOnce(undefined as never);
+      const withdrawalsQb = withdrawals.createQueryBuilder();
+      vi.mocked(withdrawalsQb.getRawOne).mockResolvedValueOnce(undefined as never);
+      const usersQb = users.createQueryBuilder();
+      vi.mocked(usersQb.getRawMany).mockResolvedValueOnce([] as never);
+      const contractsQb = contracts.createQueryBuilder();
+      vi.mocked(contractsQb.getRawMany).mockResolvedValueOnce([] as never);
+
+      const result = await service.getDashboard();
+
+      expect(result.counters.gmvLast30Days).toBe('0.00');
+      expect(result.finance).toEqual({
+        totalCaptured30d: '0.00',
+        totalRefunded30d: '0.00',
+        walletBalanceSum: '0.00',
+        pendingWithdrawalsAmount: '0.00',
+      });
     });
   });
 });
