@@ -7,8 +7,13 @@ const keys = {
   tags: ['catalog', 'tags'] as const,
 };
 
-export function useMyProfile() {
-  return useQuery({ queryKey: keys.myProfile, queryFn: professionalApi.getMyProfile, retry: false });
+export function useMyProfile(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: keys.myProfile,
+    queryFn: professionalApi.getMyProfile,
+    retry: false,
+    enabled: options?.enabled ?? true,
+  });
 }
 
 export function useUpsertProfile() {

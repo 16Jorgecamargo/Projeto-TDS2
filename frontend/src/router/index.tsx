@@ -4,6 +4,7 @@ import { NotFound } from '../pages/NotFound';
 import { Forbidden } from '../pages/Forbidden';
 import { ProtectedRoute } from './ProtectedRoute';
 import { RequireGuest } from './RequireGuest';
+import { RequireProfessionalProfile } from './RequireProfessionalProfile';
 import LoginPage from '../features/auth/pages/LoginPage';
 import RegisterPage from '../features/auth/pages/RegisterPage';
 import VerifyEmailPage from '../features/auth/pages/VerifyEmailPage';
@@ -30,35 +31,40 @@ export const router = createBrowserRouter([
   {
     element: <App />,
     children: [
-      { path: '/', element: <HomeRoute /> },
-      { path: '/search', element: <SearchPage /> },
-      { path: '/forbidden', element: <Forbidden /> },
-      { path: '/professionals/:id', element: <PublicProfilePage /> },
       {
-        element: <ProtectedRoute />,
+        element: <RequireProfessionalProfile />,
         children: [
-          { path: '/settings', element: <SettingsPage /> },
-          { path: '/professional/dashboard', element: <ProfessionalDashboardPage /> },
-          { path: '/professional/profile', element: <ProfessionalProfileEditPage /> },
-          { path: '/demands', element: <DemandsRoute /> },
-          { path: '/demands/:id', element: <DemandDetailPage /> },
-          { path: '/contracts', element: <ContractListPage /> },
-          { path: '/contracts/:id', element: <ContractDetailPage /> },
-          { path: '/wallet', element: <WalletPage /> },
-          { path: '/notifications', element: <NotificationsPage /> },
-          { path: '/chat', element: <ChatIndexPage /> },
-          { path: '/chat/:roomId', element: <ChatPage /> },
+          { path: '/', element: <HomeRoute /> },
+          { path: '/search', element: <SearchPage /> },
+          { path: '/forbidden', element: <Forbidden /> },
+          { path: '/professionals/:id', element: <PublicProfilePage /> },
+          {
+            element: <ProtectedRoute />,
+            children: [
+              { path: '/settings', element: <SettingsPage /> },
+              { path: '/professional/dashboard', element: <ProfessionalDashboardPage /> },
+              { path: '/professional/profile', element: <ProfessionalProfileEditPage /> },
+              { path: '/demands', element: <DemandsRoute /> },
+              { path: '/demands/:id', element: <DemandDetailPage /> },
+              { path: '/contracts', element: <ContractListPage /> },
+              { path: '/contracts/:id', element: <ContractDetailPage /> },
+              { path: '/wallet', element: <WalletPage /> },
+              { path: '/notifications', element: <NotificationsPage /> },
+              { path: '/chat', element: <ChatIndexPage /> },
+              { path: '/chat/:roomId', element: <ChatPage /> },
+            ],
+          },
+          {
+            element: <ProtectedRoute roles={['client']} />,
+            children: [{ path: '/demands/new', element: <PublishDemandPage /> }],
+          },
+          {
+            element: <ProtectedRoute roles={['admin']} />,
+            children: [{ path: '/admin', element: <AdminDashboardPage /> }],
+          },
+          { path: '*', element: <NotFound /> },
         ],
       },
-      {
-        element: <ProtectedRoute roles={['client']} />,
-        children: [{ path: '/demands/new', element: <PublishDemandPage /> }],
-      },
-      {
-        element: <ProtectedRoute roles={['admin']} />,
-        children: [{ path: '/admin', element: <AdminDashboardPage /> }],
-      },
-      { path: '*', element: <NotFound /> },
     ],
   },
   {
