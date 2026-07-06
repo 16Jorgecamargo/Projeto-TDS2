@@ -1,5 +1,26 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchReports, resolveReport, fetchDisputes, resolveDispute, fetchUsers, setUserStatus, fetchAudit, fetchCategories, createCategory, updateCategory, fetchTags, createTag, type FetchUsersParams, type FetchAuditParams } from './api';
+import {
+  fetchReports,
+  resolveReport,
+  fetchDisputes,
+  resolveDispute,
+  fetchUsers,
+  setUserStatus,
+  fetchAudit,
+  fetchCategories,
+  createCategory,
+  updateCategory,
+  fetchTags,
+  createTag,
+  fetchPayments,
+  refundPayment,
+  fetchWithdrawals,
+  processWithdrawal,
+  type FetchUsersParams,
+  type FetchAuditParams,
+  type FetchPaymentsParams,
+  type FetchWithdrawalsParams,
+} from './api';
 import type { ReportResolution, DisputeOutcome, UserStatus, CreateCategoryInput, UpdateCategoryInput, CreateTagInput } from './schemas';
 
 export const adminKeys = {
@@ -107,6 +128,40 @@ export function useCreateTag() {
     mutationFn: (input: CreateTagInput) => createTag(input),
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: ['admin', 'tags'] });
+    },
+  });
+}
+
+export function usePayments(params: FetchPaymentsParams = {}) {
+  return useQuery({
+    queryKey: ['admin', 'payments', params],
+    queryFn: () => fetchPayments(params),
+  });
+}
+
+export function useRefundPayment() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string | null }) => refundPayment(id, reason),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['admin', 'payments'] });
+    },
+  });
+}
+
+export function useWithdrawals(params: FetchWithdrawalsParams = {}) {
+  return useQuery({
+    queryKey: ['admin', 'withdrawals', params],
+    queryFn: () => fetchWithdrawals(params),
+  });
+}
+
+export function useProcessWithdrawal() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => processWithdrawal(id),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['admin', 'withdrawals'] });
     },
   });
 }

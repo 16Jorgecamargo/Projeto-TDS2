@@ -131,3 +131,49 @@ export type Tag = z.infer<typeof tagSchema>;
 export type CreateCategoryInput = z.infer<typeof createCategoryInputSchema>;
 export type UpdateCategoryInput = z.infer<typeof updateCategoryInputSchema>;
 export type CreateTagInput = z.infer<typeof createTagInputSchema>;
+
+export const paymentStatusSchema = z.enum(['pending', 'authorized', 'captured', 'failed', 'refunded']);
+export const withdrawalStatusSchema = z.enum(['pending', 'processing', 'completed', 'failed']);
+
+export const paymentSchema = z.object({
+  id: z.string().uuid(),
+  contract_id: z.string().uuid(),
+  payer_id: z.string().uuid(),
+  amount: z.string(),
+  status: paymentStatusSchema,
+  method: z.enum(['wallet', 'credit_card', 'pix', 'boleto']),
+  paid_at: z.string().nullable(),
+  created_at: z.string(),
+});
+
+export const paymentsPageSchema = z.object({
+  items: z.array(paymentSchema),
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+});
+
+export const withdrawalSchema = z.object({
+  id: z.string().uuid(),
+  wallet_id: z.string().uuid(),
+  amount: z.string(),
+  payment_method: z.enum(['pix', 'bank_transfer']),
+  status: withdrawalStatusSchema,
+  destination: z.string(),
+  processed_at: z.string().nullable(),
+  created_at: z.string(),
+});
+
+export const withdrawalsPageSchema = z.object({
+  items: z.array(withdrawalSchema),
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+});
+
+export type PaymentStatus = z.infer<typeof paymentStatusSchema>;
+export type WithdrawalStatus = z.infer<typeof withdrawalStatusSchema>;
+export type Payment = z.infer<typeof paymentSchema>;
+export type PaymentsPage = z.infer<typeof paymentsPageSchema>;
+export type Withdrawal = z.infer<typeof withdrawalSchema>;
+export type WithdrawalsPage = z.infer<typeof withdrawalsPageSchema>;

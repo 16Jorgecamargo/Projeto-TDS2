@@ -7,6 +7,8 @@ import {
   auditLogsPageSchema,
   categorySchema,
   tagSchema,
+  paymentsPageSchema,
+  withdrawalsPageSchema,
   type ReportsPage,
   type DisputesPage,
   type ReportResolution,
@@ -20,6 +22,10 @@ import {
   type CreateCategoryInput,
   type UpdateCategoryInput,
   type CreateTagInput,
+  type PaymentStatus,
+  type WithdrawalStatus,
+  type PaymentsPage,
+  type WithdrawalsPage,
 } from './schemas';
 
 export async function fetchReports(page = 1, limit = 20): Promise<ReportsPage> {
@@ -94,4 +100,36 @@ export async function fetchTags(): Promise<Tag[]> {
 export async function createTag(input: CreateTagInput): Promise<Tag> {
   const { data } = await http.post('/tags', input);
   return tagSchema.parse(data);
+}
+
+export interface FetchPaymentsParams {
+  page?: number;
+  limit?: number;
+  status?: PaymentStatus;
+}
+
+export async function fetchPayments(params: FetchPaymentsParams = {}): Promise<PaymentsPage> {
+  const { page = 1, limit = 20, status } = params;
+  const { data } = await http.get('/admin/payments', { params: { page, limit, status } });
+  return paymentsPageSchema.parse(data);
+}
+
+export async function refundPayment(id: string, reason: string | null): Promise<void> {
+  await http.post(`/payments/${id}/refund`, { reason });
+}
+
+export interface FetchWithdrawalsParams {
+  page?: number;
+  limit?: number;
+  status?: WithdrawalStatus;
+}
+
+export async function fetchWithdrawals(params: FetchWithdrawalsParams = {}): Promise<WithdrawalsPage> {
+  const { page = 1, limit = 20, status } = params;
+  const { data } = await http.get('/admin/withdrawals', { params: { page, limit, status } });
+  return withdrawalsPageSchema.parse(data);
+}
+
+export async function processWithdrawal(id: string): Promise<void> {
+  await http.post(`/withdrawals/${id}/process`);
 }
