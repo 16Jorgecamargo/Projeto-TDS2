@@ -177,3 +177,35 @@ export type Payment = z.infer<typeof paymentSchema>;
 export type PaymentsPage = z.infer<typeof paymentsPageSchema>;
 export type Withdrawal = z.infer<typeof withdrawalSchema>;
 export type WithdrawalsPage = z.infer<typeof withdrawalsPageSchema>;
+
+export const dashboardActivityPointSchema = z.object({
+  date: z.string(),
+  count: z.number(),
+});
+
+export const dashboardSchema = z.object({
+  counters: z.object({
+    totalUsers: z.number(),
+    activeContracts: z.number(),
+    openDemands: z.number(),
+    gmvLast30Days: z.string(),
+  }),
+  pending: z.object({
+    reports: z.number(),
+    disputes: z.number(),
+    withdrawals: z.number(),
+  }),
+  activity: z.object({
+    newUsersByDay: z.array(dashboardActivityPointSchema),
+    completedContractsByDay: z.array(dashboardActivityPointSchema),
+  }),
+  finance: z.object({
+    totalCaptured30d: z.string(),
+    totalRefunded30d: z.string(),
+    walletBalanceSum: z.string(),
+    pendingWithdrawalsAmount: z.string(),
+  }),
+});
+
+export type DashboardActivityPoint = z.infer<typeof dashboardActivityPointSchema>;
+export type Dashboard = z.infer<typeof dashboardSchema>;

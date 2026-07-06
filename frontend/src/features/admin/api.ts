@@ -9,6 +9,7 @@ import {
   tagSchema,
   paymentsPageSchema,
   withdrawalsPageSchema,
+  dashboardSchema,
   type ReportsPage,
   type DisputesPage,
   type ReportResolution,
@@ -26,6 +27,7 @@ import {
   type WithdrawalStatus,
   type PaymentsPage,
   type WithdrawalsPage,
+  type Dashboard,
 } from './schemas';
 
 export async function fetchReports(page = 1, limit = 20): Promise<ReportsPage> {
@@ -132,4 +134,9 @@ export async function fetchWithdrawals(params: FetchWithdrawalsParams = {}): Pro
 
 export async function processWithdrawal(id: string): Promise<void> {
   await http.post(`/withdrawals/${id}/process`);
+}
+
+export async function fetchDashboard(): Promise<Dashboard> {
+  const { data } = await http.get('/admin/dashboard');
+  return dashboardSchema.parse(data);
 }

@@ -16,6 +16,7 @@ import {
   refundPayment,
   fetchWithdrawals,
   processWithdrawal,
+  fetchDashboard,
   type FetchUsersParams,
   type FetchAuditParams,
   type FetchPaymentsParams,
@@ -163,5 +164,12 @@ export function useProcessWithdrawal() {
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: ['admin', 'withdrawals'] });
     },
+  });
+}
+
+export function useDashboard() {
+  return useQuery({
+    queryKey: ['admin', 'dashboard'],
+    queryFn: fetchDashboard,
   });
 }
