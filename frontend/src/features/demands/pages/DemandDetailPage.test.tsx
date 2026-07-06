@@ -54,6 +54,30 @@ describe('DemandDetailPage', () => {
     expect(screen.getByText('quote-card')).toBeInTheDocument();
   });
 
+  it('nao mostra orcamentos retirados na lista nem na contagem', () => {
+    vi.mocked(useDemand).mockReturnValue({ data: demand, isPending: false } as never);
+    vi.mocked(useDemandQuotes).mockReturnValue({
+      data: [
+        { id: 'q1', status: 'pending' },
+        { id: 'q2', status: 'withdrawn' },
+      ],
+    } as never);
+
+    renderWithProviders(<DemandDetailPage />);
+
+    expect(screen.getByText('Orçamentos (1)')).toBeInTheDocument();
+    expect(screen.getAllByText('quote-card')).toHaveLength(1);
+  });
+
+  it('mostra estado vazio quando so restam orcamentos retirados', () => {
+    vi.mocked(useDemand).mockReturnValue({ data: demand, isPending: false } as never);
+    vi.mocked(useDemandQuotes).mockReturnValue({ data: [{ id: 'q1', status: 'withdrawn' }] } as never);
+
+    renderWithProviders(<DemandDetailPage />);
+
+    expect(screen.getByText('Nenhum orçamento recebido ainda')).toBeInTheDocument();
+  });
+
   it('mostra estado vazio quando nao ha orcamentos', () => {
     vi.mocked(useDemand).mockReturnValue({ data: demand, isPending: false } as never);
     vi.mocked(useDemandQuotes).mockReturnValue({ data: [] } as never);

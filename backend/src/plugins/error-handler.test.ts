@@ -23,6 +23,9 @@ async function buildProbe() {
   app.get('/unknown', async () => {
     throw new Error('unexpected');
   });
+  app.get('/rate-limited', async () => {
+    throw Object.assign(new Error('Rate limit exceeded, retry in 1 second'), { statusCode: 429 });
+  });
   await app.ready();
   return app;
 }
@@ -51,6 +54,15 @@ describe('errorHandlerPlugin', () => {
     expect(res.statusCode).toBe(500);
     expect(res.json()).toEqual({
       error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
+  });
+
+  it('repassa o statusCode de erros do framework sem code (ex: rate limit) em vez de virar 500', async () => {
+    const app = await buildProbe();
+    const res = await app.inject({ method: 'GET', url: '/rate-limited' });
+    expect(res.statusCode).toBe(429);
+    expect(res.json()).toEqual({
+      error: { code: 'REQUEST_ERROR', message: 'Rate limit exceeded, retry in 1 second' },
     });
   });
 

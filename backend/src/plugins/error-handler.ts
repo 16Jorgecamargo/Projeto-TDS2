@@ -34,6 +34,12 @@ const handler: FastifyPluginCallback = (app, _opts, done) => {
       });
       return;
     }
+    if (typeof error.statusCode === 'number' && error.statusCode >= 400 && error.statusCode < 500) {
+      reply.status(error.statusCode).send({
+        error: { code: error.code ?? 'REQUEST_ERROR', message: error.message },
+      });
+      return;
+    }
     app.log.error(error);
     reply.status(500).send({
       error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },

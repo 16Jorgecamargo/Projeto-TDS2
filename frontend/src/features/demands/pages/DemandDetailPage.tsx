@@ -25,6 +25,7 @@ export default function DemandDetailPage(): JSX.Element {
   const role = useAuthStore((state) => state.user?.role);
   const { data: demand, isPending } = useDemand(id);
   const { data: quotes } = useDemandQuotes(id);
+  const visibleQuotes = (quotes ?? []).filter((quote) => quote.status !== 'withdrawn');
   const accept = useAcceptQuote(id);
   const createQuote = useCreateQuote(id);
   const withdrawQuote = useWithdrawQuote(id);
@@ -68,13 +69,13 @@ export default function DemandDetailPage(): JSX.Element {
           ))}
         </div>
       )}
-      <h2 className="text-lg font-semibold text-ink">Orçamentos ({quotes?.length ?? 0})</h2>
-      {!quotes || quotes.length === 0 ? (
+      <h2 className="text-lg font-semibold text-ink">Orçamentos ({visibleQuotes.length})</h2>
+      {visibleQuotes.length === 0 ? (
         <EmptyState title="Nenhum orçamento recebido ainda" />
       ) : (
         <div className="rounded-lg bg-surface p-2">
           <div className="flex flex-col gap-3">
-            {quotes.map((quote) => (
+            {visibleQuotes.map((quote) => (
               <QuoteCard
                 key={quote.id}
                 quote={quote}
