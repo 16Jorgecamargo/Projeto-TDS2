@@ -117,6 +117,16 @@ describe('DemandDetailPage', () => {
     expect(screen.getByRole('button', { name: 'Convidar profissional' })).toBeInTheDocument();
   });
 
+  it('esconde o botao de convidar profissional apos aceitar um orcamento (demanda nao esta mais aberta)', () => {
+    vi.mocked(useDemand).mockReturnValue({ data: { ...demand, status: 'in_progress' }, isPending: false } as never);
+    vi.mocked(useDemandQuotes).mockReturnValue({ data: [] } as never);
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
+
+    renderWithProviders(<DemandDetailPage />);
+
+    expect(screen.queryByRole('button', { name: 'Convidar profissional' })).not.toBeInTheDocument();
+  });
+
   it('mostra o nome do cliente autor apenas para o profissional', () => {
     vi.mocked(useDemand).mockReturnValue({ data: demand, isPending: false } as never);
     vi.mocked(useDemandQuotes).mockReturnValue({ data: [] } as never);

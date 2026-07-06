@@ -46,7 +46,7 @@ export default function DemandDetailPage(): JSX.Element {
           <h1 className="text-2xl font-bold text-ink">{demand.title}</h1>
           <Badge tone="primary">{STATUS_LABELS[demand.status]}</Badge>
         </div>
-        {role === 'client' && (
+        {role === 'client' && demand.status === 'open' && (
           <Button variant="ghost" onClick={() => setInviting(true)}>
             Convidar profissional
           </Button>
