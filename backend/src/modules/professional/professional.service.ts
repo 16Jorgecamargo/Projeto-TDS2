@@ -72,15 +72,34 @@ export class ProfessionalService {
     return this.toProfile(withUser ?? created);
   }
 
+  private async getOrCreateProfile(userId: string): Promise<ProfessionalProfile> {
+    const existing = await this.deps.profiles.findOne({ where: { user_id: userId }, relations: ['user'] });
+    if (existing) return existing;
+    const created = await this.deps.profiles.save(
+      this.deps.profiles.create({
+        user_id: userId,
+        headline: '',
+        bio: null,
+        years_experience: null,
+        hourly_rate: null,
+        service_radius_km: null,
+        rating_average: '0.00',
+        rating_count: 0,
+        is_available: true,
+        verified_at: null,
+      }),
+    );
+    const withUser = await this.deps.profiles.findOne({ where: { id: created.id }, relations: ['user'] });
+    return withUser ?? created;
+  }
+
   async getMyProfile(userId: string): Promise<ProfileResponse> {
-    const profile = await this.deps.profiles.findOne({ where: { user_id: userId }, relations: ['user'] });
-    if (!profile) throw new NotFoundError('Perfil profissional nao encontrado');
+    const profile = await this.getOrCreateProfile(userId);
     return this.toProfile(profile);
   }
 
   async resolveProfileId(userId: string): Promise<string> {
-    const profile = await this.deps.profiles.findOne({ where: { user_id: userId } });
-    if (!profile) throw new NotFoundError('Perfil profissional nao encontrado');
+    const profile = await this.getOrCreateProfile(userId);
     return profile.id;
   }
 

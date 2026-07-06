@@ -5,7 +5,6 @@ export const profileFormSchema = z.object({
   bio: z.string().max(4000).nullable(),
   yearsExperience: z.number().int().min(0).max(80).nullable(),
   hourlyRate: z.number().nonnegative().nullable(),
-  serviceRadiusKm: z.number().int().min(0).max(1000).nullable(),
 });
 
 export type ProfileForm = z.infer<typeof profileFormSchema>;

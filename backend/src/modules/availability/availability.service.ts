@@ -15,9 +15,23 @@ export class AvailabilityService {
   constructor(private readonly deps: AvailabilityServiceDeps) {}
 
   private async resolveProfileId(userId: string): Promise<string> {
-    const profile = await this.deps.profiles.findOne({ where: { user_id: userId } });
-    if (!profile) throw new NotFoundError('Perfil profissional nao encontrado');
-    return profile.id;
+    const existing = await this.deps.profiles.findOne({ where: { user_id: userId } });
+    if (existing) return existing.id;
+    const created = await this.deps.profiles.save(
+      this.deps.profiles.create({
+        user_id: userId,
+        headline: '',
+        bio: null,
+        years_experience: null,
+        hourly_rate: null,
+        service_radius_km: null,
+        rating_average: '0.00',
+        rating_count: 0,
+        is_available: true,
+        verified_at: null,
+      }),
+    );
+    return created.id;
   }
 
   async addSlot(userId: string, input: SlotInput): Promise<SlotResponse> {

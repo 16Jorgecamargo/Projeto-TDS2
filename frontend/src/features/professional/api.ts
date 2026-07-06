@@ -79,9 +79,8 @@ export const professionalApi = {
     bio: string | null;
     yearsExperience: number | null;
     hourlyRate: number | null;
-    serviceRadiusKm: number | null;
   }): Promise<ProfessionalProfile> {
-    const { data } = await http.put<ProfessionalProfile>('/professionals/me', payload);
+    const { data } = await http.put<ProfessionalProfile>('/professionals/me', { ...payload, serviceRadiusKm: null });
     return data;
   },
   async listPublicCategories(): Promise<CategoryOption[]> {

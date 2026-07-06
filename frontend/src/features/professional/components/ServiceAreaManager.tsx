@@ -11,6 +11,7 @@ export function ServiceAreaManager() {
   const removeArea = useRemoveServiceArea();
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
+  const [radiusKm, setRadiusKm] = useState('');
 
   const areas = publicProfile?.serviceAreas ?? [];
 
@@ -31,13 +32,22 @@ export function ServiceAreaManager() {
           value={state}
           onChange={(e) => setState(e.target.value.toUpperCase())}
         />
+        <input
+          className="w-28 rounded-sm border border-surface px-3 py-2 text-ink"
+          placeholder="Raio (km)"
+          type="number"
+          min={0}
+          value={radiusKm}
+          onChange={(e) => setRadiusKm(e.target.value)}
+        />
         <Button
           type="button"
           disabled={!city || state.length !== 2 || addArea.isPending}
           onClick={() => {
-            addArea.mutate({ city, state, radiusKm: null });
+            addArea.mutate({ city, state, radiusKm: radiusKm === '' ? null : Number(radiusKm) });
             setCity('');
             setState('');
+            setRadiusKm('');
           }}
         >
           Adicionar
@@ -51,6 +61,7 @@ export function ServiceAreaManager() {
             <li key={area.id} className="flex items-center justify-between rounded-sm bg-surface px-3 py-2">
               <span className="text-sm text-ink">
                 {area.city} - {area.state}
+                {area.radiusKm !== null && ` · raio ${area.radiusKm} km`}
               </span>
               <button
                 type="button"

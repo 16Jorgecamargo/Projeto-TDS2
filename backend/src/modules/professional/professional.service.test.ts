@@ -133,9 +133,42 @@ describe('ProfessionalService', () => {
   });
 
   describe('getMyProfile', () => {
-    it('retorna 404 quando usuario nao tem perfil', async () => {
+    it('cria um perfil vazio quando usuario ainda nao tem perfil', async () => {
       profiles.findOne.mockResolvedValueOnce(null);
-      await expect(service.getMyProfile('user-x')).rejects.toBeInstanceOf(NotFoundError);
+      profiles.save.mockResolvedValueOnce({
+        id: 'pro-new',
+        user_id: 'user-x',
+        headline: '',
+        bio: null,
+        years_experience: null,
+        hourly_rate: null,
+        service_radius_km: null,
+        rating_average: '0.00',
+        rating_count: 0,
+        is_available: true,
+        verified_at: null,
+        created_at: new Date('2026-07-01T12:00:00Z'),
+      } as ProfessionalProfile);
+      profiles.findOne.mockResolvedValueOnce({
+        id: 'pro-new',
+        user_id: 'user-x',
+        headline: '',
+        bio: null,
+        years_experience: null,
+        hourly_rate: null,
+        service_radius_km: null,
+        rating_average: '0.00',
+        rating_count: 0,
+        is_available: true,
+        verified_at: null,
+        created_at: new Date('2026-07-01T12:00:00Z'),
+        user: { full_name: 'Novo Profissional' },
+      } as ProfessionalProfile);
+
+      const result = await service.getMyProfile('user-x');
+
+      expect(result.id).toBe('pro-new');
+      expect(result.headline).toBe('');
     });
 
     it('retorna o perfil convertido quando existe', async () => {
@@ -163,9 +196,10 @@ describe('ProfessionalService', () => {
   });
 
   describe('resolveProfileId', () => {
-    it('lanca 404 quando usuario nao tem perfil', async () => {
+    it('cria um perfil vazio quando usuario ainda nao tem perfil', async () => {
       profiles.findOne.mockResolvedValueOnce(null);
-      await expect(service.resolveProfileId('user-x')).rejects.toBeInstanceOf(NotFoundError);
+      profiles.save.mockResolvedValueOnce({ id: 'pro-new', user_id: 'user-x' } as ProfessionalProfile);
+      await expect(service.resolveProfileId('user-x')).resolves.toBe('pro-new');
     });
 
     it('retorna o id do perfil quando existe', async () => {
@@ -307,9 +341,14 @@ describe('ProfessionalService', () => {
       );
     });
 
-    it('lanca 404 quando usuario nao tem perfil', async () => {
+    it('cria perfil vazio quando usuario ainda nao tem perfil', async () => {
       profiles.findOne.mockResolvedValueOnce(null);
-      await expect(service.setCategories('user-x', ['cat-1'])).rejects.toBeInstanceOf(NotFoundError);
+      profiles.save.mockResolvedValueOnce({ id: 'pro-new', user_id: 'user-x' } as ProfessionalProfile);
+      serviceCategories.find.mockResolvedValueOnce([{ id: 'cat-1' }] as ServiceCategory[]);
+
+      await service.setCategories('user-x', ['cat-1']);
+
+      expect(categories.delete).toHaveBeenCalledWith({ professional_id: 'pro-new' });
     });
 
     it('limpa associacoes sem consultar categorias quando lista vazia', async () => {

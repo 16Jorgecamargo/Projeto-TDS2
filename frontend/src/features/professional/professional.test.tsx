@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, fireEvent, waitFor, renderHook } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { renderWithProviders } from '../../test/renderWithProviders';
@@ -11,6 +12,9 @@ vi.mock('./api', () => ({
   professionalApi: {
     getMyProfile: vi.fn(),
     upsertProfile: vi.fn(),
+    listPublicCategories: vi.fn(),
+    setCategories: vi.fn(),
+    getPublicProfile: vi.fn(),
     addPortfolioImage: vi.fn(),
     removePortfolioImage: vi.fn(),
   },
@@ -34,12 +38,39 @@ function renderForm() {
   return renderWithProviders(<ProfessionalProfileEditPage />);
 }
 
+const categories = [
+  { id: 'cat1', parentId: null, name: 'Eletricista', slug: 'eletricista', icon: null, description: null, isActive: true },
+  { id: 'cat2', parentId: null, name: 'Encanador', slug: 'encanador', icon: null, description: null, isActive: true },
+];
+
 describe('ProfileForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(professionalApi.listPublicCategories).mockResolvedValue(categories);
+    vi.mocked(professionalApi.setCategories).mockResolvedValue(undefined);
+    vi.mocked(professionalApi.getPublicProfile).mockResolvedValue({
+      id: 'p1',
+      userId: 'u1',
+      fullName: 'Joao Silva',
+      headline: 'Antigo',
+      bio: null,
+      yearsExperience: 5,
+      hourlyRate: 100,
+      serviceRadiusKm: null,
+      ratingAverage: 0,
+      ratingCount: 0,
+      isAvailable: true,
+      verifiedAt: null,
+      createdAt: '2026-07-01T00:00:00Z',
+      categories: [],
+      experiences: [],
+      education: [],
+      certifications: [],
+      serviceAreas: [],
+    } as never);
   });
 
-  it('carrega perfil existente e envia atualizacao com campos numericos vazios como null', async () => {
+  it('seleciona categoria, envia atualizacao com campos numericos vazios como null e navega ao dashboard', async () => {
     vi.mocked(professionalApi.getMyProfile).mockResolvedValue({
       id: 'p1',
       userId: 'u1',
@@ -48,7 +79,7 @@ describe('ProfileForm', () => {
       bio: null,
       yearsExperience: 5,
       hourlyRate: 100,
-      serviceRadiusKm: 20,
+      serviceRadiusKm: null,
       ratingAverage: 0,
       ratingCount: 0,
       isAvailable: true,
@@ -59,11 +90,11 @@ describe('ProfileForm', () => {
       id: 'p1',
       userId: 'u1',
       fullName: 'Joao Silva',
-      headline: 'Novo titulo',
+      headline: 'Eletricista',
       bio: null,
       yearsExperience: null,
       hourlyRate: null,
-      serviceRadiusKm: 20,
+      serviceRadiusKm: null,
       ratingAverage: 0,
       ratingCount: 0,
       isAvailable: true,
@@ -71,35 +102,39 @@ describe('ProfileForm', () => {
       createdAt: '2026-07-01T00:00:00Z',
     });
 
+    const user = userEvent.setup();
     renderForm();
-    const headline = await screen.findByDisplayValue('Antigo');
-    fireEvent.change(headline, { target: { value: 'Novo titulo' } });
+
+    const categoryInput = await screen.findByLabelText('Categoria');
+    await user.click(categoryInput);
+    await user.click(await screen.findByText('Eletricista'));
+
     fireEvent.change(screen.getByLabelText(/anos de experiência/i), { target: { value: '' } });
     fireEvent.change(screen.getByLabelText(/valor por hora/i), { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: /salvar perfil/i }));
 
     await waitFor(() => expect(professionalApi.upsertProfile).toHaveBeenCalled());
     expect(vi.mocked(professionalApi.upsertProfile).mock.calls[0][0]).toEqual(
-      expect.objectContaining({ headline: 'Novo titulo', yearsExperience: null, hourlyRate: null }),
+      expect.objectContaining({ headline: 'Eletricista', yearsExperience: null, hourlyRate: null }),
     );
+    expect(vi.mocked(professionalApi.setCategories).mock.calls[0][0]).toEqual(['cat1']);
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/professional/dashboard'));
   });
 
   it('cada campo tem label associado via htmlFor/id', async () => {
     vi.mocked(professionalApi.getMyProfile).mockResolvedValue({
       id: 'p1', userId: 'u1', fullName: 'Joao Silva', headline: 'Antigo', bio: null, yearsExperience: 5,
-      hourlyRate: 100, serviceRadiusKm: 20, ratingAverage: 0, ratingCount: 0,
+      hourlyRate: 100, serviceRadiusKm: null, ratingAverage: 0, ratingCount: 0,
       isAvailable: true, verifiedAt: null, createdAt: '2026-07-01T00:00:00Z',
     });
 
     renderForm();
-    await screen.findByDisplayValue('Antigo');
+    await screen.findByLabelText('Categoria');
 
-    expect(screen.getByLabelText('Título')).toHaveAttribute('id', 'profile-headline');
+    expect(screen.getByLabelText('Categoria')).toHaveAttribute('id', 'profile-category');
     expect(screen.getByLabelText('Biografia')).toHaveAttribute('id', 'profile-bio');
     expect(screen.getByLabelText('Anos de experiência')).toHaveAttribute('id', 'profile-years-experience');
     expect(screen.getByLabelText('Valor por hora (R$)')).toHaveAttribute('id', 'profile-hourly-rate');
-    expect(screen.getByLabelText('Raio de atendimento (km)')).toHaveAttribute('id', 'profile-service-radius');
   });
 });
 

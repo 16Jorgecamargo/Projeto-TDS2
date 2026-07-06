@@ -35,11 +35,16 @@ describe('AvailabilityService', () => {
     );
   });
 
-  it('lanca 404 ao adicionar slot sem perfil profissional', async () => {
-    profiles.findOne.mockResolvedValue(null);
-    await expect(
-      service.addSlot('user-sem-perfil', { weekday: 1, startTime: '08:00', endTime: '18:00' }),
-    ).rejects.toMatchObject({ statusCode: 404 });
+  it('cria perfil vazio ao adicionar slot sem perfil profissional ainda', async () => {
+    profiles.findOne.mockResolvedValueOnce(null);
+    profiles.save.mockResolvedValueOnce({ id: 'prof-new', user_id: 'user-sem-perfil' } as ProfessionalProfile);
+    slots.create.mockImplementation((v) => v as AvailabilitySlot);
+    slots.save.mockImplementation(async (v) => ({ id: 'slot-1', ...v }) as AvailabilitySlot);
+
+    const created = await service.addSlot('user-sem-perfil', { weekday: 1, startTime: '08:00', endTime: '18:00' });
+
+    expect(created.id).toBe('slot-1');
+    expect(slots.create).toHaveBeenCalledWith(expect.objectContaining({ professional_id: 'prof-new' }));
   });
 
   it('remove slot do proprio profissional e rejeita de outro', async () => {

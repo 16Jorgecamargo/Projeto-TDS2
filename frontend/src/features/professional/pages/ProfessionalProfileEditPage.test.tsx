@@ -2,9 +2,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import { renderWithProviders } from '../../../test/renderWithProviders';
 import { ProfessionalProfileEditPage } from './ProfessionalProfileEditPage';
-import { useMyProfile, useUpsertProfile } from '../queries';
+import { useMyProfile, useUpsertProfile, useCategories, useSetCategories, usePublicProfile } from '../queries';
 
-vi.mock('../queries', () => ({ useMyProfile: vi.fn(), useUpsertProfile: vi.fn() }));
+vi.mock('../queries', () => ({
+  useMyProfile: vi.fn(),
+  useUpsertProfile: vi.fn(),
+  useCategories: vi.fn(),
+  useSetCategories: vi.fn(),
+  usePublicProfile: vi.fn(),
+}));
 vi.mock('../components/ProfileForm', () => ({
   ProfileForm: () => <div>profile-form</div>,
   PROFILE_FORM_ID: 'profile-form',
@@ -19,6 +25,9 @@ describe('ProfessionalProfileEditPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useUpsertProfile).mockReturnValue({ mutate: vi.fn(), isPending: false, isError: false } as never);
+    vi.mocked(useCategories).mockReturnValue({ data: [] } as never);
+    vi.mocked(useSetCategories).mockReturnValue({ mutate: vi.fn() } as never);
+    vi.mocked(usePublicProfile).mockReturnValue({ data: undefined } as never);
   });
 
   it('renderiza titulo, botao voltar, secoes de gestao e botao salvar por ultimo', () => {
