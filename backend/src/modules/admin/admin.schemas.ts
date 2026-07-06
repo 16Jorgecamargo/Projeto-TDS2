@@ -111,6 +111,30 @@ export const adminUserListItemSchema = z.object({
 
 export const adminUserListResponseSchema = paginatedResponse(adminUserListItemSchema);
 
+export const paymentStatusSchema = z
+  .enum(['pending', 'authorized', 'captured', 'failed', 'refunded'])
+  .describe('Status do pagamento')
+  .openapi({ example: 'captured' });
+
+export const adminPaymentListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1).describe('Pagina').openapi({ example: 1 }),
+  limit: z.coerce.number().int().min(1).max(100).default(20).describe('Itens por pagina').openapi({ example: 20 }),
+  status: paymentStatusSchema.optional(),
+});
+
+export const adminPaymentListItemSchema = z.object({
+  id: z.string().uuid().describe('ID').openapi({ example: 'p1b2c3d4-0000-4000-8000-000000000050' }),
+  contract_id: z.string().uuid().describe('Contrato'),
+  payer_id: z.string().uuid().describe('Pagador'),
+  amount: z.string().describe('Valor').openapi({ example: '150.00' }),
+  status: paymentStatusSchema,
+  method: z.enum(['wallet', 'credit_card', 'pix', 'boleto']).describe('Metodo'),
+  paid_at: z.string().datetime().nullable().describe('Pago em'),
+  created_at: z.string().datetime().describe('Criado em'),
+});
+
+export const adminPaymentListResponseSchema = paginatedResponse(adminPaymentListItemSchema);
+
 export const adminReportListResponseSchema = paginatedResponse(adminReportResponseSchema);
 export const adminDisputeListResponseSchema = paginatedResponse(adminDisputeResponseSchema);
 
@@ -126,3 +150,5 @@ export type AdminReportResponse = z.infer<typeof adminReportResponseSchema>;
 export type AdminDisputeResponse = z.infer<typeof adminDisputeResponseSchema>;
 export type AdminUserListQuery = z.infer<typeof adminUserListQuerySchema>;
 export type AdminUserListItem = z.infer<typeof adminUserListItemSchema>;
+export type AdminPaymentListQuery = z.infer<typeof adminPaymentListQuerySchema>;
+export type AdminPaymentListItem = z.infer<typeof adminPaymentListItemSchema>;

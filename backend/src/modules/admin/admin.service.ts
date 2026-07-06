@@ -2,6 +2,7 @@ import type { Repository } from 'typeorm';
 import { User } from '../../infra/database/entities/user.entity.js';
 import { Report } from '../../infra/database/entities/report.entity.js';
 import { ContractDispute } from '../../infra/database/entities/contract-dispute.entity.js';
+import { Payment } from '../../infra/database/entities/payment.entity.js';
 import { NotFoundError, UnprocessableError } from '../../shared/errors.js';
 import type { RecordAudit } from '../audit/audit.service.js';
 import type { EnqueueNotification } from '../notification/notification.service.js';
@@ -14,12 +15,14 @@ import type {
   ResolveReportBody,
   SetUserStatusBody,
   AdminUserListItem,
+  AdminPaymentListItem,
 } from './admin.schemas.js';
 
 interface AdminServiceDeps {
   users: Repository<User>;
   reports: Repository<Report>;
   disputes: Repository<ContractDispute>;
+  payments: Repository<Payment>;
   disputeService: DisputeService;
   recordAudit: RecordAudit;
   enqueueNotification: EnqueueNotification;
@@ -102,6 +105,34 @@ export class AdminService {
 
     const [rows, total] = await qb.getManyAndCount();
     return { items: rows.map((row) => this.toUserListItem(row)), page, limit, total };
+  }
+
+  private toPaymentListItem(payment: Payment): AdminPaymentListItem {
+    return {
+      id: payment.id,
+      contract_id: payment.contract_id,
+      payer_id: payment.payer_id,
+      amount: payment.amount,
+      status: payment.status,
+      method: payment.method,
+      paid_at: payment.paid_at ? payment.paid_at.toISOString() : null,
+      created_at: payment.created_at.toISOString(),
+    };
+  }
+
+  async listPayments(
+    status: Payment['status'] | undefined,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedResult<AdminPaymentListItem>> {
+    const where = status ? { status } : {};
+    const [rows, total] = await this.deps.payments.findAndCount({
+      where,
+      order: { created_at: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    return { items: rows.map((row) => this.toPaymentListItem(row)), page, limit, total };
   }
 
   async listReports(

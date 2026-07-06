@@ -6,12 +6,14 @@ import { NotFoundError, UnprocessableError } from '../../shared/errors.js';
 import type { User } from '../../infra/database/entities/user.entity.js';
 import type { Report } from '../../infra/database/entities/report.entity.js';
 import type { ContractDispute } from '../../infra/database/entities/contract-dispute.entity.js';
+import type { Payment } from '../../infra/database/entities/payment.entity.js';
 import type { DisputeService } from '../dispute/dispute.service.js';
 
 describe('AdminService', () => {
   let users: ReturnType<typeof mockRepo<User>>;
   let reports: ReturnType<typeof mockRepo<Report>>;
   let disputes: ReturnType<typeof mockRepo<ContractDispute>>;
+  let payments: ReturnType<typeof mockRepo<Payment>>;
   let disputeService: { resolve: ReturnType<typeof vi.fn> };
   let recordAudit: ReturnType<typeof vi.fn>;
   let enqueueNotification: ReturnType<typeof vi.fn>;
@@ -21,6 +23,7 @@ describe('AdminService', () => {
     users = mockRepo<User>();
     reports = mockRepo<Report>();
     disputes = mockRepo<ContractDispute>();
+    payments = mockRepo<Payment>();
     disputeService = { resolve: vi.fn() };
     recordAudit = vi.fn().mockResolvedValue(undefined);
     enqueueNotification = vi.fn().mockResolvedValue(undefined);
@@ -28,6 +31,7 @@ describe('AdminService', () => {
       users: users as unknown as Repository<User>,
       reports: reports as unknown as Repository<Report>,
       disputes: disputes as unknown as Repository<ContractDispute>,
+      payments: payments as unknown as Repository<Payment>,
       disputeService: disputeService as unknown as DisputeService,
       recordAudit,
       enqueueNotification,
@@ -171,6 +175,62 @@ describe('AdminService', () => {
       await service.listUsers(undefined, undefined, undefined, 1, 20);
 
       expect(qb.andWhere).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('listPayments', () => {
+    it('lista pagamentos paginados filtrando por status', async () => {
+      payments.findAndCount.mockResolvedValueOnce([
+        [
+          {
+            id: 'pay-1',
+            contract_id: 'c-1',
+            payer_id: 'u-1',
+            amount: '150.00',
+            status: 'captured',
+            method: 'pix',
+            paid_at: new Date('2026-01-02T00:00:00.000Z'),
+            created_at: new Date('2026-01-01T00:00:00.000Z'),
+          },
+        ],
+        1,
+      ]);
+
+      const result = await service.listPayments('captured', 1, 20);
+
+      expect(result).toEqual({
+        items: [
+          {
+            id: 'pay-1',
+            contract_id: 'c-1',
+            payer_id: 'u-1',
+            amount: '150.00',
+            status: 'captured',
+            method: 'pix',
+            paid_at: '2026-01-02T00:00:00.000Z',
+            created_at: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+        page: 1,
+        limit: 20,
+        total: 1,
+      });
+      expect(payments.findAndCount).toHaveBeenCalledWith({
+        where: { status: 'captured' },
+        order: { created_at: 'DESC' },
+        skip: 0,
+        take: 20,
+      });
+    });
+
+    it('sem status usa where vazio', async () => {
+      payments.findAndCount.mockResolvedValueOnce([[], 0]);
+
+      await service.listPayments(undefined, 1, 20);
+
+      expect(payments.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ where: {} }),
+      );
     });
   });
 });
