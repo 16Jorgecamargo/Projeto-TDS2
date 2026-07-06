@@ -10,8 +10,8 @@ describe('navConfig', () => {
     expect(getNavItems('professional')).toHaveLength(5);
   });
 
-  it('retorna 8 itens para o admin', () => {
-    expect(getNavItems('admin')).toHaveLength(8);
+  it('retorna 6 itens para o admin', () => {
+    expect(getNavItems('admin')).toHaveLength(6);
   });
 
   it('separa os 2 primeiros itens como prioridade mobile do cliente', () => {

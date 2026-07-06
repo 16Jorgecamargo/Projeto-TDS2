@@ -41,8 +41,6 @@ const adminNav: NavItem[] = [
   { label: 'Auditoria', to: '/admin/audit', icon: ClipboardDocumentListIcon },
   { label: 'Catálogo', to: '/admin/catalog', icon: BriefcaseIcon },
   { label: 'Financeiro', to: '/admin/finance', icon: CreditCardIcon },
-  { label: 'Contratos', to: '/contracts', icon: DocumentTextIcon },
-  { label: 'Pagamentos/Carteira', to: '/wallet', icon: BanknotesIcon },
 ];
 
 const navByRole: Record<Role, NavItem[]> = {

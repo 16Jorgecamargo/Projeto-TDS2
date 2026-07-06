@@ -81,8 +81,6 @@ describe('Sidebar', () => {
     expect(screen.getByRole('link', { name: 'Auditoria' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Catálogo' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Financeiro' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Contratos' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Pagamentos/Carteira' })).toBeInTheDocument();
   });
 
   it('alterna o estado ao clicar no botão de colapsar', async () => {
