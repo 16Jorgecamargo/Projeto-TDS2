@@ -21,6 +21,8 @@ function ReviewPreview({ review }: { review: Review }): JSX.Element {
         ))}
         <span className="ml-auto shrink-0 text-xs text-muted">{formatDate(review.createdAt)}</span>
       </div>
+      <span className="truncate text-sm font-semibold text-ink">{review.demandTitle}</span>
+      <span className="truncate text-xs text-muted">{review.authorName}</span>
       {review.comment && <p className="truncate text-sm text-ink">{review.comment}</p>}
     </div>
   );

@@ -15,7 +15,19 @@ describe('DashboardReviewsWidget', () => {
     vi.mocked(useMyProfile).mockReturnValue({ data: { id: 'prof1' } } as never);
     vi.mocked(useProfessionalReviews).mockReturnValue({
       data: {
-        items: [{ id: 'r1', contractId: 'c1', authorId: 'u1', targetId: 'prof1', rating: 5, comment: 'Ótimo!', createdAt: '2026-01-01T00:00:00Z' }],
+        items: [
+          {
+            id: 'r1',
+            contractId: 'c1',
+            authorId: 'u1',
+            authorName: 'Maria Cliente',
+            demandTitle: 'Instalação elétrica',
+            targetId: 'prof1',
+            rating: 5,
+            comment: 'Ótimo!',
+            createdAt: '2026-01-01T00:00:00Z',
+          },
+        ],
         page: 1,
         limit: 20,
         total: 1,
@@ -26,6 +38,8 @@ describe('DashboardReviewsWidget', () => {
     renderWithProviders(<DashboardReviewsWidget />);
 
     expect(useProfessionalReviews).toHaveBeenCalledWith('prof1');
+    expect(screen.getByText('Instalação elétrica')).toBeInTheDocument();
+    expect(screen.getByText('Maria Cliente')).toBeInTheDocument();
     expect(screen.getByText('Ótimo!')).toBeInTheDocument();
   });
 

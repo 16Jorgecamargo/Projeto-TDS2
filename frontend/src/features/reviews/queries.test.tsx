@@ -38,7 +38,7 @@ describe('useCreateReview', () => {
 
   it('cria a avaliacao com o payload informado', async () => {
     vi.mocked(createReview).mockResolvedValue({
-      id: 'r1', contractId: 'c1', authorId: 'u1', authorName: 'Ana Souza', targetId: 'pu1',
+      id: 'r1', contractId: 'c1', authorId: 'u1', authorName: 'Ana Souza', demandTitle: 'Instalação elétrica', targetId: 'pu1',
       rating: 5, comment: 'Excelente', createdAt: '2026-07-01T00:00:00Z',
     });
 

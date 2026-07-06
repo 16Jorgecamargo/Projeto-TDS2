@@ -5,6 +5,7 @@ export interface Review {
   contractId: string;
   authorId: string;
   authorName: string;
+  demandTitle: string;
   targetId: string;
   rating: number;
   comment: string | null;

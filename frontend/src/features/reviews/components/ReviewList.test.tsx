@@ -20,7 +20,7 @@ describe('ReviewList', () => {
 
   it('renderiza avaliacoes com nota e comentario', async () => {
     vi.mocked(fetchProfessionalReviews).mockResolvedValue({
-      items: [{ id: 'r1', contractId: 'c1', authorId: 'u1', authorName: 'Ana Souza', targetId: 'p1', rating: 4, comment: 'Muito bom', createdAt: '2026-07-01T00:00:00.000Z' }],
+      items: [{ id: 'r1', contractId: 'c1', authorId: 'u1', authorName: 'Ana Souza', demandTitle: 'Instalação elétrica', targetId: 'p1', rating: 4, comment: 'Muito bom', createdAt: '2026-07-01T00:00:00.000Z' }],
       page: 1,
       limit: 20,
       total: 1,

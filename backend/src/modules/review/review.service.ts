@@ -47,6 +47,7 @@ export class ReviewService {
       contractId: review.contract_id,
       authorId: review.reviewer_id,
       authorName: review.reviewer.full_name,
+      demandTitle: review.contract.demand.title,
       targetId: review.reviewee_id,
       rating: review.rating,
       comment: review.comment,
@@ -98,7 +99,7 @@ export class ReviewService {
     const saved = await this.deps.reviews.save(entity);
     const savedWithReviewer = (await this.deps.reviews.findOne({
       where: { id: saved.id },
-      relations: ['reviewer'],
+      relations: ['reviewer', 'contract', 'contract.demand'],
     }))!;
 
     await this.deps.enqueueNotification({
@@ -132,7 +133,7 @@ export class ReviewService {
 
     const [rows, total] = await this.deps.reviews.findAndCount({
       where: { reviewee_id: profile.user_id },
-      relations: ['reviewer'],
+      relations: ['reviewer', 'contract', 'contract.demand'],
       order: { created_at: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
