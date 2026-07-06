@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import { renderWithProviders } from '../../../test/renderWithProviders';
 import DemandDetailPage from './DemandDetailPage';
 import { useDemand, useDemandQuotes, useAcceptQuote, useCreateQuote, useWithdrawQuote } from '../queries';
+import { usePublicProfile } from '../../professional/queries';
 import { useAuthStore } from '../../../stores/auth';
 
 vi.mock('react-router-dom', async (importOriginal) => {
@@ -16,6 +17,7 @@ vi.mock('../queries', () => ({
   useCreateQuote: vi.fn(),
   useWithdrawQuote: vi.fn(),
 }));
+vi.mock('../../professional/queries', () => ({ usePublicProfile: vi.fn() }));
 vi.mock('../components/QuoteCard', () => ({ QuoteCard: () => <div>quote-card</div> }));
 vi.mock('../components/InviteProfessionalDialog', () => ({
   InviteProfessionalDialog: () => <div>invite-dialog</div>,
@@ -40,6 +42,7 @@ describe('DemandDetailPage', () => {
     vi.mocked(useAcceptQuote).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
     vi.mocked(useCreateQuote).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
     vi.mocked(useWithdrawQuote).mockReturnValue({ mutate: vi.fn(), isPending: false } as never);
+    vi.mocked(usePublicProfile).mockReturnValue({ data: undefined } as never);
   });
 
   it('renderiza titulo, descricao, fotos e orcamentos', () => {
@@ -145,6 +148,30 @@ describe('DemandDetailPage', () => {
     renderWithProviders(<DemandDetailPage />);
 
     expect(screen.queryByText('Cliente: Maria Silva')).not.toBeInTheDocument();
+  });
+
+  it('mostra o nome do profissional vinculado apenas para o cliente quando ha orcamento aceito', () => {
+    vi.mocked(useDemand).mockReturnValue({ data: { ...demand, status: 'in_progress' }, isPending: false } as never);
+    vi.mocked(useDemandQuotes).mockReturnValue({
+      data: [{ id: 'q1', status: 'accepted', professionalId: 'prof-1' }],
+    } as never);
+    vi.mocked(usePublicProfile).mockReturnValue({ data: { fullName: 'Joao Eletricista' } } as never);
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
+
+    renderWithProviders(<DemandDetailPage />);
+
+    expect(usePublicProfile).toHaveBeenCalledWith('prof-1');
+    expect(screen.getByText('Profissional: Joao Eletricista')).toBeInTheDocument();
+  });
+
+  it('nao mostra o nome do profissional vinculado quando nao ha orcamento aceito', () => {
+    vi.mocked(useDemand).mockReturnValue({ data: demand, isPending: false } as never);
+    vi.mocked(useDemandQuotes).mockReturnValue({ data: [{ id: 'q1', status: 'pending', professionalId: 'prof-1' }] } as never);
+    useAuthStore.getState().setAuth({ id: 'u1', role: 'client' }, 'token');
+
+    renderWithProviders(<DemandDetailPage />);
+
+    expect(screen.queryByText(/^Profissional:/)).not.toBeInTheDocument();
   });
 
   it('nao mostra o botao de convidar profissional para o profissional', () => {

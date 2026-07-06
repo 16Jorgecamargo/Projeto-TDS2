@@ -4,6 +4,7 @@ import { useDemand, useDemandQuotes, useAcceptQuote, useCreateQuote, useWithdraw
 import { QuoteCard } from '../components/QuoteCard';
 import { InviteProfessionalDialog } from '../components/InviteProfessionalDialog';
 import { QuoteForm } from '../components/QuoteForm';
+import { usePublicProfile } from '../../professional/queries';
 import { useAuthStore } from '../../../stores/auth';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
@@ -26,6 +27,8 @@ export default function DemandDetailPage(): JSX.Element {
   const { data: demand, isPending } = useDemand(id);
   const { data: quotes } = useDemandQuotes(id);
   const visibleQuotes = (quotes ?? []).filter((quote) => quote.status !== 'withdrawn');
+  const acceptedQuote = (quotes ?? []).find((quote) => quote.status === 'accepted');
+  const { data: linkedProfessional } = usePublicProfile(acceptedQuote?.professionalId);
   const accept = useAcceptQuote(id);
   const createQuote = useCreateQuote(id);
   const withdrawQuote = useWithdrawQuote(id);
@@ -53,6 +56,9 @@ export default function DemandDetailPage(): JSX.Element {
         )}
       </header>
       {role === 'professional' && <p className="text-sm text-muted">Cliente: {demand.clientName}</p>}
+      {role === 'client' && linkedProfessional && (
+        <p className="text-sm text-muted">Profissional: {linkedProfessional.fullName}</p>
+      )}
       <p className="text-sm text-muted">
         {demand.city} - {demand.state}
       </p>
