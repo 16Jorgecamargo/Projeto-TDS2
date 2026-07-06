@@ -124,6 +124,22 @@ describe('AuthService register/login', () => {
     ).rejects.toMatchObject({ statusCode: 409 });
   });
 
+  it('rejeita registro com telefone existente', async () => {
+    users.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce({ id: 'x' } as User);
+    await expect(
+      service.register({
+        name: 'Maria',
+        email: 'maria2@example.com',
+        phone: '+5551999998888',
+        password: 'S3nh@Forte',
+        role: 'client',
+        acceptedTerms: false,
+        marketingConsent: false,
+      }),
+    ).rejects.toMatchObject({ statusCode: 409 });
+    expect(users.save).not.toHaveBeenCalled();
+  });
+
   it('faz login com credenciais validas', async () => {
     const password_hash = await bcrypt.hash('S3nh@Forte', 10);
     users.findOne.mockResolvedValue({

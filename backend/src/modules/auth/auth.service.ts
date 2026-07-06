@@ -53,6 +53,10 @@ export class AuthService {
     if (existing) {
       throw new ConflictError('E-mail ja cadastrado');
     }
+    const existingPhone = await this.deps.users.findOne({ where: { phone: input.phone } });
+    if (existingPhone) {
+      throw new ConflictError('Telefone ja cadastrado');
+    }
     const password_hash = await bcrypt.hash(input.password, BCRYPT_ROUNDS);
     const entity = this.deps.users.create({
       full_name: input.name,
